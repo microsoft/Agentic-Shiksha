@@ -238,6 +238,15 @@ def _kb_base(session: str, kb_scope: str) -> Path:
     return SESSION_DOCS_BASE / kb_scope / session
 
 
+def _agent_setup_dir(agent_id: str) -> Path:
+    """Agent setup folder for ``agent_id``, rejecting ids that escape AGENT_SETUPS_BASE."""
+    # Path(...).name drops any directory component, so "../../etc" collapses to "etc".
+    name = Path((agent_id or "").strip()).name
+    if not name or name in (".", ".."):
+        raise HTTPException(status_code=400, detail="invalid agent id")
+    return AGENT_SETUPS_BASE / name
+
+
 
 # NOTE: Removed tc_packet_to_json (only used by deprecated CACA endpoints)
 
@@ -565,7 +574,7 @@ def _save_setup_json(agent_id: str, setup_data: dict):
     save_agent_setup(agent_id, setup_data)
     # Local backup
     try:
-        d = AGENT_SETUPS_BASE / agent_id
+        d = _agent_setup_dir(agent_id)
         d.mkdir(parents=True, exist_ok=True)
         with open(d / "setup.json", "w", encoding="utf-8") as f:
             json.dump(setup_data, f, indent=2, ensure_ascii=False)
@@ -598,7 +607,7 @@ def _load_setup_json(agent_id: str) -> dict | None:
         return _backfill_starters(data)
 
     # 2. Local file fallback (auto-migrate to blob)
-    f = AGENT_SETUPS_BASE / agent_id / "setup.json"
+    f = _agent_setup_dir(agent_id) / "setup.json"
     if f.exists():
         with open(f, "r", encoding="utf-8") as fh:
             data = json.load(fh)
@@ -2261,7 +2270,11 @@ def knowledge_delete_file(session: str, filename: str, kb_scope: str = Query(...
 
     stem = Path(safe_name).stem
     if derived_dir.exists():
-        for p in derived_dir.glob(f"{stem}.*"):
+        # Compare stems instead of globbing: a filename of "*" would otherwise
+        # expand into a wildcard and delete every derived file in the scope.
+        for p in derived_dir.iterdir():
+            if not p.is_file() or p.stem != stem:
+                continue
             try:
                 p.unlink()
             except Exception:
@@ -5849,7 +5862,7 @@ def _background_textbook_research(
     reframed_raw = ""
     syllabus_raw = ""
     tc_raw = ""
-    setup_dir = AGENT_SETUPS_BASE / agent_id
+    setup_dir = _agent_setup_dir(agent_id)
     setup_dir.mkdir(parents=True, exist_ok=True)
 
     try:
@@ -6965,7 +6978,7 @@ def _background_threshold_concept_research(
     """
     import time
 
-    setup_dir = AGENT_SETUPS_BASE / agent_id
+    setup_dir = _agent_setup_dir(agent_id)
     # Prefer reframed syllabus (Step 0 output), fall back to enriched syllabus (Step 1 output)
     reframed_file = setup_dir / "reframed_syllabus_raw.txt"
     syllabus_file = setup_dir / "syllabus_research_raw.txt"
@@ -8023,7 +8036,7 @@ def safe_rmtree(path, retries=3, delay=0.5):
 @app.delete("/api/agents/setup/{agent_id}")
 def delete_agent_setup(agent_id: str):
     """Delete agent setup folder and all its contents"""
-    setup_dir = AGENT_SETUPS_BASE / agent_id
+    setup_dir = _agent_setup_dir(agent_id)
 
     if setup_dir.exists():
         if safe_rmtree(setup_dir):
@@ -8202,7 +8215,7 @@ def azure_agents_delete(agent_id: str):
         logger.info(f"Agent {agent_id} was not found in Azure (may have been deleted already)")
 
     # Step 4: Delete the setup folder
-    setup_dir = AGENT_SETUPS_BASE / agent_id
+    setup_dir = _agent_setup_dir(agent_id)
     if setup_dir.exists():
         if safe_rmtree(setup_dir):
             logger.info(f"Deleted setup folder for agent {agent_id}")
@@ -8953,24 +8966,26 @@ async def proxy_blob_image(
     This endpoint fetches an image from Azure Blob Storage using the service's
     credentials and returns it to the client, bypassing CORS and auth issues.
     """
-    import re
     from urllib.parse import urlparse
-    
+
     try:
         # Parse the URL to extract container and blob name
         parsed = urlparse(url)
-        
-        # Expected format: https://<account>.blob.core.windows.net/<container>/<blob_path>
-        if not parsed.netloc.endswith('.blob.core.windows.net'):
+
+        # Only our own account. Accepting any *.blob.core.windows.net host would let a
+        # caller point this at a storage account they control.
+        if parsed.scheme != "https" or parsed.hostname != f"{BLOB_STORAGE_ACCOUNT}.blob.core.windows.net":
             raise HTTPException(status_code=400, detail="Invalid blob storage URL")
-        
+
         # Extract path parts
         path_parts = parsed.path.lstrip('/').split('/', 1)
         if len(path_parts) < 2:
             raise HTTPException(status_code=400, detail="Invalid blob path")
-        
+
         container_name = path_parts[0]
         blob_name = path_parts[1]
+        if ".." in blob_name.split("/"):
+            raise HTTPException(status_code=400, detail="Invalid blob path")
         
         # Get the blob
         blob_service = get_blob_service_client()
@@ -11005,7 +11020,7 @@ async def retry_threshold_research(agent_id: str):
     if not agent_meta:
         raise HTTPException(status_code=404, detail="Agent not found")
 
-    syllabus_file = AGENT_SETUPS_BASE / agent_id / "syllabus_research_raw.txt"
+    syllabus_file = _agent_setup_dir(agent_id) / "syllabus_research_raw.txt"
     if not syllabus_file.exists():
         raise HTTPException(
             status_code=400,
@@ -11243,7 +11258,7 @@ async def get_agent_course_curriculum(agent_name: str, status_only: bool = False
                     "course_curriculum": None if status_only else plan}
 
         # Fallback: local file
-        plan_path = AGENT_SETUPS_BASE / agent_name / "course_curriculum.json"
+        plan_path = _agent_setup_dir(agent_name) / "course_curriculum.json"
         if plan_path.exists():
             with open(plan_path, "r", encoding="utf-8") as f:
                 plan = json.load(f)
@@ -11256,8 +11271,9 @@ async def get_agent_course_curriculum(agent_name: str, status_only: bool = False
 
         # Check if research is still in progress
         # syllabus_research_raw.txt = Agent 1 done, Agent 2 (threshold concepts) still running
-        syllabus_path = AGENT_SETUPS_BASE / agent_name / "syllabus_research_raw.txt"
-        report_path = AGENT_SETUPS_BASE / agent_name / "textbook_research_report.md"
+        _agent_dir = _agent_setup_dir(agent_name)
+        syllabus_path = _agent_dir / "syllabus_research_raw.txt"
+        report_path = _agent_dir / "textbook_research_report.md"
         if syllabus_path.exists() or report_path.exists():
             return {"agent_name": agent_name, "status": "processing", "course_curriculum": None,
                     "message": "Syllabus research complete. Threshold concept analysis is still in progress (this uses deep reasoning and may take 10-15 minutes)."}

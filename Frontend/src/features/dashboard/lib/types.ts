@@ -4,6 +4,8 @@
  * Centralized app types for Ekalaiva / Agentic Shiksha UI + storage.
  */
 
+import { randomUuid } from "@/lib/secureId";
+
 export type View = "chat" | "library" | "create" | "edit" | "projectHome" | "assets";
 
 /** Chat roles used across UI + storage */
@@ -200,17 +202,9 @@ export type BuilderChat = {
 };
 
 /**
- * Safe local id generator.
- * - Uses `crypto.randomUUID()` when available (browser + many modern runtimes)
- * - Falls back to timestamp + random suffix
+ * Safe local id generator, backed by the Web Crypto API.
  */
-export const newLocalId = (): string => {
-  const c = (globalThis as any)?.crypto as Crypto | undefined;
-  if (c && "randomUUID" in c && typeof (c as any).randomUUID === "function") {
-    return (c as any).randomUUID();
-  }
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-};
+export const newLocalId = (): string => randomUuid();
 
 export type ChatThread = {
   id: string;

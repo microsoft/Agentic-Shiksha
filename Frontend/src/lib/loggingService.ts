@@ -4,6 +4,8 @@
  * Stores logs locally with export capability
  */
 
+import { randomToken } from "./secureId";
+
 // ============ Types ============
 
 export type LogEventType = 
@@ -159,11 +161,11 @@ let lastActivityType: 'mouse' | 'keyboard' | 'scroll' | 'focus' | 'visibility' =
 // ============ Utility Functions ============
 
 function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `${Date.now()}-${randomToken(6)}`;
 }
 
 function generateSessionId(): string {
-  return `session-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+  return `session-${Date.now()}-${randomToken(8)}`;
 }
 
 function getDateKey(date: Date = new Date()): string {

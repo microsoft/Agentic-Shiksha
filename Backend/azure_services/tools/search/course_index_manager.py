@@ -15,6 +15,7 @@ import os
 import logging
 import requests
 from typing import Optional, Dict, Any, Tuple
+from urllib.parse import urlparse
 from azure.identity import DefaultAzureCredential
 
 logger = logging.getLogger(__name__)
@@ -63,8 +64,22 @@ def _get_access_token() -> str:
         return token.token
 
 
+def _assert_search_url(url: str) -> None:
+    """Reject any URL that is not on the configured Azure AI Search endpoint.
+
+    Index and datasource names are derived from caller-supplied session ids, so a name
+    containing ``/`` or ``@`` could otherwise steer the request — and its bearer token —
+    to another host.
+    """
+    allowed = urlparse(os.getenv("AZURE_AI_SEARCH_ENDPOINT", SEARCH_ENDPOINT))
+    target = urlparse(url)
+    if (target.scheme, target.hostname, target.port) != (allowed.scheme, allowed.hostname, allowed.port):
+        raise ValueError(f"Refusing request to non-search host: {target.scheme}://{target.hostname}")
+
+
 def _make_request(method: str, url: str, json_body: Optional[Dict] = None, timeout: int = 60) -> requests.Response:
     """Make authenticated request to Azure AI Search"""
+    _assert_search_url(url)
     token = _get_access_token()
     headers = {
         "Authorization": f"Bearer {token}",
@@ -3212,7 +3227,7 @@ def extract_and_index_images(
             continue
 
         # Build index record
-        doc_hash = hashlib.md5(
+        doc_hash = hashlib.sha256(
             f"{session_uuid}_{filename}_fig{idx}".encode()
         ).hexdigest()[:16]
 

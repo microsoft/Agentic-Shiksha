@@ -572,17 +572,24 @@ def proxy_blob(
     """Proxy a feedback attachment blob from Azure Storage."""
     from urllib.parse import urlparse
     from azure.storage.blob import BlobServiceClient
+    from azure_services.config import STORAGE_ACCOUNT
     from common_azure_auth import get_sync_credential
 
     parsed = urlparse(url)
-    if not parsed.netloc.endswith(".blob.core.windows.net"):
+    # Our own account only. Any *.blob.core.windows.net host would otherwise do, and the
+    # request carries this service's Entra token — pointing it at an attacker-owned
+    # storage account would hand them that token.
+    if parsed.scheme != "https" or parsed.hostname != f"{STORAGE_ACCOUNT}.blob.core.windows.net":
         raise HTTPException(status_code=400, detail="Invalid blob storage URL")
     path_parts = parsed.path.lstrip("/").split("/", 1)
     if len(path_parts) < 2:
         raise HTTPException(status_code=400, detail="Invalid blob path")
 
-    account_url = f"https://{parsed.netloc}"
+    account_url = f"https://{parsed.hostname}"
     container_name, blob_name = path_parts[0], path_parts[1]
+    # This route exists to serve feedback attachments; it is not a general blob reader.
+    if not container_name.startswith("feedback-attachments") or ".." in blob_name.split("/"):
+        raise HTTPException(status_code=400, detail="Invalid blob path")
     try:
         blob_service = BlobServiceClient(
             account_url=account_url, credential=get_sync_credential()

@@ -43,6 +43,8 @@ EVAL_BATCH_LIMIT = int(os.getenv("EVAL_BATCH_LIMIT", "50"))
 
 # ── Research Config ─────────────────────────────────────────────────
 PROJECT_ENDPOINT = os.environ["PROJECT_ENDPOINT"]
+# The only storage account this service will proxy blobs from.
+STORAGE_ACCOUNT_NAME = os.environ["STORAGE_ACCOUNT_NAME"]
 INSTITUTE_RESEARCH_AGENT_NAME = os.getenv(
     "INSTITUTE_RESEARCH_AGENT_NAME", "institute-research-agent"
 )
@@ -342,14 +344,20 @@ def proxy_blob(url: str = Query(...)):
     from azure.identity import DefaultAzureCredential
 
     parsed = urlparse(url)
-    if not parsed.netloc.endswith(".blob.core.windows.net"):
+    # Our own account only. Any *.blob.core.windows.net host would otherwise do, and the
+    # request carries this service's Entra token — pointing it at an attacker-owned
+    # storage account would hand them that token.
+    if parsed.scheme != "https" or parsed.hostname != f"{STORAGE_ACCOUNT_NAME}.blob.core.windows.net":
         raise HTTPException(status_code=400, detail="Invalid blob storage URL")
     path_parts = parsed.path.lstrip("/").split("/", 1)
     if len(path_parts) < 2:
         raise HTTPException(status_code=400, detail="Invalid blob path")
 
-    account_url = f"https://{parsed.netloc}"
+    account_url = f"https://{parsed.hostname}"
     container_name, blob_name = path_parts[0], path_parts[1]
+    # This route exists to serve feedback attachments; it is not a general blob reader.
+    if not container_name.startswith("feedback-attachments") or ".." in blob_name.split("/"):
+        raise HTTPException(status_code=400, detail="Invalid blob path")
 
     try:
         blob_service = BlobServiceClient(account_url=account_url, credential=DefaultAzureCredential())

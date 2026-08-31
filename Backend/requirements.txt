@@ -5,7 +5,7 @@ python-multipart==0.0.32  # Required by FastAPI for form/file upload endpoints
 azure-ai-projects==2.0.0b2
 azure-ai-agents==1.2.0b5
 azure-identity==1.25.1
-azure-core==1.37.0
+azure-core==1.41.0
 azure-storage-blob==12.25.1
 azure-ai-documentintelligence==1.0.0
 azure-cosmos==4.14.5
@@ -16,7 +16,7 @@ azure-mgmt-cognitiveservices  # For MCP project connection management
 pdf2image==1.17.0
 Pillow==12.3.0
 
-litellm==1.79.1
+litellm==1.98.0
 
 streamlit==1.51.0
 python-dotenv==1.2.1

@@ -2,11 +2,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { type UserRole, DEFAULT_ROLE } from "./roles";
+import { randomToken } from "./secureId";
 
 const TEMP_USER_KEY = "ekalaiva.temp.userId";
 
 function generateTempUserId(): string {
-  const random = Math.random().toString(36).substring(2, 10);
+  const random = randomToken(8);
   const timestamp = Date.now().toString(36);
   return `temp_${random}_${timestamp}`;
 }

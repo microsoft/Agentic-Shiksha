@@ -66,7 +66,7 @@ export function isAzureBlobUrl(url: string): boolean {
   if (!url) return false;
   try {
     const host = new URL(url).hostname.toLowerCase();
-    return host === "blob.core.windows.net" || host.endsWith(".blob.core.windows.net");
+    return host.endsWith(".blob.core.windows.net");
   } catch {
     return false;
   }

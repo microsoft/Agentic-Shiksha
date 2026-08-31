@@ -89,15 +89,20 @@ def _make_request(method: str, url: str, json_body: Optional[Dict] = None, timeo
     return response
 
 
-def _get_resource_names(session_uuid: str, kb_scope: str = "course") -> Dict[str, str]:
-    """Generate consistent resource names for a course"""
-    # Use session UUID to create unique names (max 128 chars, alphanumeric + hyphens)
-    # Strip any characters outside the allowed set before building URLs/resource
-    # names from it, to prevent request forgery via a crafted session_uuid.
+def _sanitize_session_uuid(session_uuid: str) -> str:
+    """Strip any characters outside the allowed set (alphanumeric + hyphens)
+    before the value is used to build resource names/URLs, to prevent
+    request forgery via a crafted session_uuid."""
     safe_session_uuid = re.sub(r"[^a-zA-Z0-9-]", "", session_uuid or "")[:32]
     if not safe_session_uuid:
         raise ValueError("session_uuid must contain at least one alphanumeric character")
-    prefix = f"{safe_session_uuid}-{kb_scope}"
+    return safe_session_uuid
+
+
+def _get_resource_names(session_uuid: str, kb_scope: str = "course") -> Dict[str, str]:
+    """Generate consistent resource names for a course"""
+    # Use session UUID to create unique names (max 128 chars, alphanumeric + hyphens)
+    prefix = f"{_sanitize_session_uuid(session_uuid)}-{kb_scope}"
     return {
         "index": f"{prefix}-index",
         "datasource": f"{prefix}-ds",
@@ -112,12 +117,7 @@ def _get_unified_resource_names(session_uuid: str) -> Dict[str, str]:
     Generate resource names for a UNIFIED index/pipeline.
     This covers ALL files (course + exam) in a single index.
     """
-    # Strip any characters outside the allowed set before building URLs/resource
-    # names from it, to prevent request forgery via a crafted session_uuid.
-    safe_session_uuid = re.sub(r"[^a-zA-Z0-9-]", "", session_uuid or "")[:32]
-    if not safe_session_uuid:
-        raise ValueError("session_uuid must contain at least one alphanumeric character")
-    prefix = f"{safe_session_uuid}-unified"
+    prefix = f"{_sanitize_session_uuid(session_uuid)}-unified"
     return {
         "index": f"{prefix}-index",
         "datasource": f"{prefix}-ds",

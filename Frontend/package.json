@@ -45,7 +45,7 @@
     "rehype-slug": "^6.0.0",
     "remark-gfm": "^4.0.1",
     "remark-math": "^6.0.0",
-    "smiles-drawer": "^2.2.1",
+    "smiles-drawer": "^2.4.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
     "uuid": "^13.0.0",

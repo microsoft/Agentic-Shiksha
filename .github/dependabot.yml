@@ -1,0 +1,57 @@
+# Dependabot supplies the component detection half of the security task on
+# GitHub. Every manifest in the repo is listed explicitly; Dependabot errors on
+# a directory that has no manifest, so keep this in sync when projects move.
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+
+  # ── Python ──────────────────────────────────────────────────────────────
+  - package-ecosystem: pip
+    directory: "/Backend"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: pip
+    directory: "/Admin-Dashboard/backend"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  # ── Node ────────────────────────────────────────────────────────────────
+  - package-ecosystem: npm
+    directory: "/Frontend"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: npm
+    directory: "/Admin-Dashboard/frontend"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  # ── Containers ──────────────────────────────────────────────────────────
+  - package-ecosystem: docker
+    directory: "/Backend"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: docker
+    directory: "/Frontend"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: docker
+    directory: "/Admin-Dashboard/backend"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: docker
+    directory: "/Admin-Dashboard/frontend"
+    schedule:
+      interval: weekly

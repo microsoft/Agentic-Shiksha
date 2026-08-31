@@ -1,0 +1,32 @@
+{
+  "type": "function",
+  "name": "add_document",
+  "description": "Use this tool when the user asks you to create, generate, or produce a document, \nstudy guide, summary, notes, cheat sheet, lesson plan, syllabus, worksheet, \nor any structured educational content. The document will be displayed in a separate panel \nfor the user to view, download, or copy. \n\nUse this tool for:\n- Study guides\n- Chapter summaries  \n- Notes on a topic\n- Practice worksheets\n- Lesson plans\n- Topic explanations in document form\n- Any content the user wants to save/download\n\nDo NOT use for regular chat responses - only when creating a formal document.\nDo NOT use for quizzes (use add_quiz) or flashcards (use add_flashcard).\n\nIMPORTANT: When the document is long or has multiple sections, include a **numbered Table of Contents** at the top of the document (after the title) using markdown anchor links so users can click to jump to each section. Format each entry as: `- [1. Section Name](#1-section-name)`. The section headings in the document must also be numbered to match (e.g., `## 1. Introduction`, `## 2. Machine Learning`, `### 2.1 Types of ML`). Use hierarchical numbering for subsections.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string",
+        "description": "The title of the document (e.g., 'Input Embeddings Study Guide', 'Chapter 3 Summary')"
+      },
+      "content": {
+        "type": "string",
+        "description": "The full markdown content of the document including headings (# ## ###), sections, bullet points, tables, code blocks, etc. Use proper markdown formatting."
+      },
+      "doc_type": {
+        "type": "string",
+        "enum": [
+          "markdown",
+          "code",
+          "html"
+        ],
+        "description": "The type of document content. Use 'markdown' for most educational content, 'code' for code files, 'html' for interactive content.",
+        "default": "markdown"
+      }
+    },
+    "required": [
+      "title",
+      "content"
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "type": "function",
+  "name": "search_knowledge_base",
+  "description": "Search the unified knowledge base for educational content. This searches both course materials (textbooks, notes, slides) AND curated educational websites in a single query. Use this for any question about course topics.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "query": {
+        "type": "string",
+        "description": "The search query or question to find relevant content for"
+      },
+      "num_results": {
+        "type": "integer",
+        "description": "Number of results to return (default: 5)",
+        "default": 5
+      }
+    },
+    "required": [
+      "query"
+    ]
+  }
+}

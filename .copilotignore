@@ -1,0 +1,46 @@
+# VCS / metadata
+.git/
+**/.git/**
+
+# Node / frontend
+node_modules/
+**/node_modules/**
+dist/
+build/
+.next/
+out/
+coverage/
+*.map
+
+# Python
+.venv/
+venv/
+__pycache__/
+**/__pycache__/**
+*.pyc
+
+# Logs / caches
+*.log
+*.tmp
+.cache/
+**/.cache/**
+.DS_Store
+Thumbs.db
+
+# Large data / artifacts (adjust as needed)
+*.zip
+*.tar
+*.gz
+*.7z
+*.bin
+*.onnx
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.pdf
+*.mp4
+*.mov
+*.mkv
+*.sqlite
+*.db

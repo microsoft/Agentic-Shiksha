@@ -1,0 +1,25 @@
+# Keep the image small enough to push reliably. foundry_responses_cache.json
+# alone is ~281 MB of local cache that nothing reads at runtime.
+foundry_responses_cache.json
+
+# Secrets and local config. Supplied at runtime as App Service settings, which
+# take precedence over .env anyway (load_dotenv does not override real env vars).
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+
+# Local-only artefacts
+_phase1_archive/
+*.log
+test_sympy_plot.png
+token_usage_output.txt
+
+.git/
+.gitignore

@@ -1,0 +1,17 @@
+{
+  "type": "function",
+  "name": "add_message",
+  "description": "Use this tool ONLY when you need to send an intro/outro message BEFORE or BETWEEN content tools (add_document, add_quiz, add_flashcard, add_challenge).\n\nDO NOT use add_message for simple conversational responses. For simple text replies (no document/quiz/etc), just respond with normal text — the system delivers it automatically.\n\nWHEN TO USE add_message:\n- Before a document: add_message(\"Here's your study guide:\") → add_document(...)\n- Between content tools: add_document(...) → add_message(\"Now a quiz:\") → add_quiz(...)\n- NEVER as the only tool call — if you just want to send text, respond normally without any tool\n\nWHEN NOT TO USE add_message:\n- Simple greetings (\"Hi! How can I help?\") → just respond normally\n- Answering questions → just respond normally  \n- Any response that doesn't involve content tools → just respond normally\n\nExample valid flow:\n1. add_message(\"Here's your study guide:\")\n2. add_document(title=\"Study Guide\", content=\"...\")\n(system generates final follow-up automatically)\n",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "content": {
+        "type": "string",
+        "description": "The text content to display to the user. Use markdown formatting as needed."
+      }
+    },
+    "required": [
+      "content"
+    ]
+  }
+}

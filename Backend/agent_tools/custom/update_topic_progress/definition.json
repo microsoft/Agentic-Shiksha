@@ -1,0 +1,55 @@
+{
+  "type": "function",
+  "name": "update_topic_progress",
+  "description": "Use this tool to record a student's learning progress on a specific topic, and to record which threshold-concept misconceptions the student has now resolved.\n\nCall this tool when:\n- You begin teaching a new topic → status \"in_progress\"\n- The student demonstrates understanding (correct reasoning, accurate rephrasing, successful application) → status \"learned\"\n- The student's understanding evolves within a topic → same status, updated summary\n- A student finishes a concept inventory → record the threshold_concept plus every misconception their answers and reasoning show they no longer hold\n\nParameters:\n- topic: The exact topic name (must match a topic from the learning plan, or a new topic if the student explores beyond the plan)\n- status: \"in_progress\" / \"learned\"\n- summary: A 1-2 sentence description of what the student currently understands about this topic. Be specific about what they grasped and what gaps remain.\n- threshold_concept: The exact threshold-concept name, when you know it. Required to attach misconceptions.\n- misconceptions_addressed: The misconceptions the student has now cleared, each with a short note of the evidence you saw.\n\nAFTER A CONCEPT INVENTORY:\n- Look at each item's targeted misconception and the student's written reasoning\n- Only list a misconception as addressed when the student both answered correctly AND reasoned correctly — a lucky guess is not evidence\n- Write the note in terms of what the student actually said or did, not a generic \"answered correctly\"\n\nFREQUENCY GUIDANCE:\n- Call this in the same turn as any teaching on a curriculum topic — the student's progress panel is built entirely from these calls, so teaching without recording leaves them with no visible progress\n- Good triggers: you begin teaching a topic, student correctly explains a concept, solves a problem, asks a clarifying question that shows partial understanding, completes a concept inventory, or explicitly says they understand\n- Do not record topics you only mentioned in passing, and do not batch updates for later\n- Aim for one call per topic you actually taught or assessed in this turn",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "topic": {
+        "type": "string",
+        "description": "The topic name to update progress for."
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "in_progress",
+          "learned"
+        ],
+        "description": "The student's current status on this topic."
+      },
+      "summary": {
+        "type": "string",
+        "description": "A brief description of what the student understands about this topic right now."
+      },
+      "threshold_concept": {
+        "type": "string",
+        "description": "The exact threshold-concept name from get_threshold_concepts. Supply this when recording concept-inventory outcomes so progress and misconceptions attach to the right concept instead of being fuzzy-matched from the topic name."
+      },
+      "misconceptions_addressed": {
+        "type": "array",
+        "description": "Misconceptions from this threshold concept's misconception bank that the student has now resolved. Leave empty unless you have direct evidence. This is teacher-only metadata: never name a misconception in student-visible text.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "misconception": {
+              "type": "string",
+              "description": "The exact misconception text from the threshold concept's misconception bank returned by get_threshold_concepts."
+            },
+            "note": {
+              "type": "string",
+              "description": "1-2 sentences recording the evidence that the student no longer holds this misconception — quote or paraphrase what they actually said or answered."
+            }
+          },
+          "required": [
+            "misconception",
+            "note"
+          ]
+        }
+      }
+    },
+    "required": [
+      "topic",
+      "status"
+    ]
+  }
+}

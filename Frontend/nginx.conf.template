@@ -1,0 +1,38 @@
+server {
+    listen 80;
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Hide nginx version in the Server header
+    server_tokens off;
+
+    # Security headers (Web Compliance Portal / SDL requirements)
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    # Voice input needs the mic on our own origin; an empty allowlist blocks it everywhere.
+    add_header Permissions-Policy "geolocation=(), microphone=(self), camera=()" always;
+    # ${BACKEND_ORIGIN} is substituted at image build time from VITE_API_BASE_URL.
+    # img-src needs blob: for composer upload previews (URL.createObjectURL).
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://wcpstatic.microsoft.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://wcpstatic.microsoft.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' ${BACKEND_ORIGIN} https://login.microsoftonline.com https://login.live.com https://browser.pipe.aria.microsoft.com wss://eastus.stt.speech.microsoft.com https://eastus.stt.speech.microsoft.com; frame-src 'self' https://login.microsoftonline.com https://login.live.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; upgrade-insecure-requests" always;
+
+    # Asset filenames are content-hashed per build, so they can be cached indefinitely.
+    # Uses `expires` rather than `add_header`, which would drop the inherited security headers.
+    location /assets/ {
+        expires 1y;
+    }
+
+    # Never cache the entry point: a stale index.html keeps referencing the previous
+    # build's hashed bundles, which is what forces users into a manual hard refresh.
+    location = /index.html {
+        expires -1;
+    }
+
+    # SPA routing
+    location / {
+        try_files $uri /index.html;
+    }
+}

@@ -1,0 +1,37 @@
+fastapi==0.120.0
+uvicorn==0.38.0
+python-multipart==0.0.20  # Required by FastAPI for form/file upload endpoints
+
+azure-ai-projects==2.0.0b2
+azure-ai-agents==1.2.0b5
+azure-identity==1.25.1
+azure-core==1.37.0
+azure-storage-blob==12.25.1
+azure-ai-documentintelligence==1.0.0
+azure-cosmos==4.14.5
+azure-search-documents==11.7.0b2  # Preview SDK for Agentic Retrieval (Knowledge Sources/Bases) — required by current code
+azure-ai-evaluation>=1.17.0  # Groundedness & quality evaluation (GroundednessEvaluator)
+azure-mgmt-cognitiveservices  # For MCP project connection management
+
+pdf2image==1.17.0
+Pillow==12.0.0
+
+litellm==1.79.1
+
+streamlit==1.51.0
+python-dotenv==1.2.1
+
+tqdm==4.67.1
+
+python-docx==1.2.0
+
+aiofiles==24.1.0
+
+dulwich>=0.22.1  # Pure-Python git for curriculum version control
+
+msal>=1.28.0
+PyJWT>=2.8.0
+httpx>=0.27.0
+
+# Visualization tools (chemistry_visual, tikz_diagram)
+PyMuPDF>=1.24.0

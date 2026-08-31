@@ -1,0 +1,22 @@
+{
+  "type": "function",
+  "name": "suggest_next_queries",
+  "description": "ALWAYS call this at the very END of every response, as the last thing you do. It shows 3 clickable follow-up questions so the student can continue with one tap.\n\nThis applies to EVERY turn, including short plain-text answers that use no other tool. It is the one deliberate exception to any rule that says a plain text response should not call tools. Do not skip it because the answer was short.\n\nCall it after your explanation is complete - never before, and never instead of answering.\n\nRULES:\n- Provide exactly 3 suggestions.\n- Write each one in the STUDENT'S voice, as a message they would send you (e.g. 'Show me a worked example of gradient descent', not 'Would you like a worked example?').\n- Keep each under ~80 characters so it fits on a button.\n- Make them concrete and specific to what was just discussed. Never generic filler like 'Tell me more'.\n- The three must be meaningfully different from one another and must not repeat the student's previous question.\n- Do NOT also list these suggestions in your text; the UI renders them as buttons.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "queries": {
+        "type": "array",
+        "description": "Exactly 3 short follow-up messages written in the student's voice.",
+        "items": {
+          "type": "string"
+        },
+        "minItems": 3,
+        "maxItems": 3
+      }
+    },
+    "required": [
+      "queries"
+    ]
+  }
+}

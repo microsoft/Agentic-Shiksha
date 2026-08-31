@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en" class="h-full dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <title>Ekalaiva</title>
+  </head>
+  <body class="h-full">
+    <div id="root" class="h-full"></div>  <!-- must exist -->
+    <script type="module" src="/src/main.tsx"></script>  <!-- not main.jsx -->
+
+    <!-- Microsoft 1CP Cookie Consent Banner -->
+    <script src="https://wcpstatic.microsoft.com/mscc/lib/v2/wcp-consent.js"></script>
+    <script>
+      (function () {
+        function onConsentChanged(categoryPreferences) {
+          // Remove cookies the user no longer consents to
+          if (categoryPreferences) {
+            var allCookies = document.cookie.split(';');
+            // Category mappings: c1=Required, c2=Analytics, c3=Social/Advertising
+            for (var i = 0; i < allCookies.length; i++) {
+              var cookie = allCookies[i].trim();
+              var cookieName = cookie.split('=')[0];
+              // Keep essential/required cookies (session, auth)
+              var essentialCookies = ['msal.', 'XSRF', '__Host', '__Secure'];
+              var isEssential = essentialCookies.some(function (e) {
+                return cookieName.indexOf(e) === 0;
+              });
+              if (!isEssential && !categoryPreferences.Analytics) {
+                // Remove non-essential cookies if analytics not consented
+                document.cookie = cookieName + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+              }
+            }
+          }
+        }
+
+        if (typeof WcpConsent !== 'undefined') {
+          WcpConsent.init('en-US', 'cookie-banner', function (err, siteConsent) {
+            if (!err) {
+              window.siteConsent = siteConsent;
+              // Listen for preference changes
+              siteConsent.onConsentChanged(onConsentChanged);
+            }
+          });
+        }
+      })();
+    </script>
+    <div id="cookie-banner"></div>
+  </body>
+</html>

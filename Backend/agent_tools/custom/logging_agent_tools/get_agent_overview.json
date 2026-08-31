@@ -1,0 +1,16 @@
+{
+  "name": "get_agent_overview",
+  "description": "Get aggregate learning analytics for an agent/course across ALL students. Returns total student count, average completion percentage, completion distribution buckets (0-25%, 25-50%, 50-75%, 75-100%), and the most commonly struggled topics.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "agent_id": {
+        "type": "string",
+        "description": "The agent/course name (e.g. 'course-Machine-Learning')."
+      }
+    },
+    "required": [
+      "agent_id"
+    ]
+  }
+}

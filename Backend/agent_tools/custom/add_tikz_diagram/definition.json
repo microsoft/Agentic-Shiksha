@@ -1,0 +1,33 @@
+{
+  "type": "function",
+  "name": "add_tikz_diagram",
+  "description": "Generate and display a high-quality educational diagram using the TikZ Diagram Agent pipeline. The agent uses GPT-5.2 to generate TikZ code, compiles it, and validates the result with a GPT-5.2 vision discriminator — producing textbook-quality diagrams with automatic error correction.\n\nUse this for ANY educational diagram: physics, CS, networking, biology, maths, flowcharts, architecture diagrams, state machines, circuit schematics, data structures, etc.\n\nProvide a DETAILED natural-language description of what the diagram should contain: elements, labels, colours, layout, and relationships. The more specific your description, the better the result.\n\nAlways include a title and caption.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "description": {
+        "type": "string",
+        "description": "Detailed natural-language description of the diagram to generate. Be specific about: elements, labels, positions, colours, arrows, relationships, and any text annotations. Example: 'Free body diagram of a 5kg block on a 30-degree inclined plane with gravity mg (red, downward), normal force N (cyan, perpendicular to surface), friction f (green, opposing motion up the plane), and applied force F (purple, up the plane). Include dashed component axes along and perpendicular to the incline.'"
+      },
+      "title": {
+        "type": "string",
+        "description": "Title displayed above the diagram."
+      },
+      "caption": {
+        "type": "string",
+        "description": "Explanatory caption shown below the diagram."
+      },
+      "feedback_rounds": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 3,
+        "default": 1,
+        "description": "The MAXIMUM number of vision-critique refinement rounds the diagram pipeline may run (1-3). After each round a vision model scores the rendered image on visual hierarchy, spatial layout, alignment, accuracy and polish, then sends the generator its feedback. YOU choose this budget based on how hard the diagram is to draw - the pipeline does not decide for you.\n\nIt is a ceiling, not a fixed cost: the pipeline stops as soon as the diagram passes every quality criterion, so asking for 3 on a simple diagram usually still finishes in one round. Extra rounds only get spent when the diagram actually needs them.\n\nMore components means more ways the layout can go wrong (overlapping nodes, crossing arrows, labels colliding, mislabelled parts), so a busy diagram genuinely needs more passes to come out clean.\n\nGuidance:\n- 1 (default): simple, few elements, an obvious layout. A single shape, one axis pair, a 2-3 box flow, a basic free-body diagram.\n- 2: a moderate diagram with roughly 5-10 elements, several arrows or labels, or a layout where spacing matters (a labelled architecture, a circuit, a multi-force diagram).\n- 3: a dense or high-stakes diagram - many interacting components, nested or layered structure, multiple annotated pathways, or anything where a subtle spatial mistake would teach the wrong thing.\n\nEach round that actually runs costs noticeable time and tokens, so match the budget to the diagram rather than always asking for 3."
+      }
+    },
+    "required": [
+      "description",
+      "title"
+    ]
+  }
+}

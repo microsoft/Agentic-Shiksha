@@ -1,0 +1,186 @@
+{
+  "textbook_info": [
+    {
+      "name": "Textbook Title",
+      "edition": "1st Edition (Year)",
+      "authors": ["Author Name 1", "Author Name 2"],
+      "type": "primary",
+      "overview": "1-2 sentence summary of the textbook's scope and approach"
+    },
+    {
+      "name": "Reference Book Title",
+      "edition": "2nd Edition (Year)",
+      "authors": ["Author Name"],
+      "type": "reference",
+      "overview": "1-2 sentence summary"
+    }
+  ],
+
+  "institute_info": {
+    "institute_details": {
+      "name": "Full Institute Name (e.g., Indian Institute of Technology Madras)",
+      "description": "Brief history, reputation, and character of the institution",
+      "location": "City, State, Country",
+      "type": "Public/Private, Autonomous/Affiliated",
+      "established": "Year founded",
+      "societal_commitments": "Community outreach programs, social responsibility initiatives, rural engagement, sustainability efforts, NSS/NCC activities"
+    },
+    "department_details": {
+      "name": "Department Name (e.g., Computer Science and Engineering)",
+      "description": "Department's focus areas, research strengths, and teaching philosophy",
+      "faculty_strength": "Approximate number of faculty and their specializations",
+      "lab_facilities": "Key labs relevant to this course (e.g., ML Lab, GPU cluster)"
+    },
+    "campus_life": {
+      "hostels": [
+        {"name": "Hostel Name 1", "description": "Capacity, amenities, culture"},
+        {"name": "Hostel Name 2", "description": "Capacity, amenities, culture"}
+      ],
+      "student_clubs": [
+        {"name": "Relevant Club Name (e.g., AI Club, Coding Club)", "description": "Activities, competitions, how it relates to this course"}
+      ],
+      "library_resources": "Description of library, digital access, journal subscriptions relevant to the course",
+      "study_culture": "Typical study patterns — group study, late-night culture, peer tutoring norms"
+    },
+    "academic_structure": {
+      "curriculum_standards": "Credit system, semester structure, minimum credits per semester",
+      "exam_pattern": "Evaluation breakdown — mid-sem, end-sem, assignments, quizzes, weightages",
+      "grading_system": "Grading scale details (e.g., 10-point CGPA with grade letters S/A/B/C/D/E/U)",
+      "attendance_policy": "Minimum attendance requirements and consequences",
+      "backlog_policy": "How re-examinations and repeat courses work"
+    },
+    "student_profile": {
+      "typical_background": "Entrance exam context (e.g., JEE Advanced), expected math/programming maturity",
+      "batch_size": "Typical class size for this course",
+      "diversity": "Mix of branches/backgrounds if cross-listed",
+      "common_struggles": "Known weak areas students typically arrive with (e.g., weak probability, no Python experience)"
+    },
+    "industry_and_placement": {
+      "industry_focus": "Key hiring companies for this domain, placement statistics",
+      "project_expectations": "Whether course projects feed into placements/portfolios"
+    }
+  },
+
+  "syllabus": [
+    {
+      "module": 1,
+      "module_details": {
+        "name": "Module Title (follows textbook chapter structure)",
+        "description": "What this module covers, its role in the overall course, and why it matters"
+      },
+      "topics": [
+        {
+          "name": "Topic 1",
+          "description": "What this topic covers and key ideas"
+        },
+        {
+          "name": "Topic 2",
+          "description": "What this topic covers and key ideas"
+        },
+        {
+          "name": "Topic 3",
+          "description": "What this topic covers and key ideas"
+        }
+      ],
+      "learning_objectives": [
+        "Students will be able to ...",
+        "Students will understand ..."
+      ],
+      "estimated_hours": 4,
+      "prerequisites": [
+        {
+          "name": "Prerequisite concept or module name",
+          "description": "What specific knowledge is needed and why"
+        }
+      ]
+    },
+    {
+      "module": 2,
+      "module_details": {
+        "name": "Second Module Title",
+        "description": "Module overview and significance"
+      },
+      "topics": [
+        {"name": "Topic A", "description": "Description of Topic A"},
+        {"name": "Topic B", "description": "Description of Topic B"}
+      ],
+      "learning_objectives": ["Objective 1", "Objective 2"],
+      "estimated_hours": 6,
+      "prerequisites": [
+        {"name": "Module 1", "description": "Requires foundational concepts from Module 1"}
+      ]
+    }
+  ],
+
+  "threshold_concepts": [
+    {
+      "concept": "Name of the threshold concept",
+      "module": 1,
+      "description": "What this concept is — clear, concise explanation",
+      "why_threshold": "Why students find it transformative/troublesome — what changes in their understanding once they grasp it",
+      "misconceptions": [
+        {
+          "misconception": "The specific wrong belief students commonly hold",
+          "why_wrong": "Why this belief is incorrect — the key error in reasoning",
+          "diagnostic_question": "A question designed to surface this misconception",
+          "correct_answer": "The right answer to the diagnostic question",
+          "distractor_answers": [
+            "Wrong answer that represents this misconception",
+            "Another common wrong answer"
+          ]
+        },
+        {
+          "misconception": "Second common misconception",
+          "why_wrong": "Why it's wrong",
+          "diagnostic_question": "Question to detect it",
+          "correct_answer": "Correct answer",
+          "distractor_answers": ["Distractor 1", "Distractor 2"]
+        }
+      ],
+      "stuck_points": [
+        "Observable sign a student is stuck (e.g., 'keeps confusing X with Y')",
+        "Another stuck indicator"
+      ],
+      "concept_inventory_questions": [
+        {
+          "question": "MCQ question text that probes understanding of the concept",
+          "options": [
+            "A) Correct answer",
+            "B) Distractor representing misconception 1",
+            "C) Distractor representing misconception 2",
+            "D) Plausible but incorrect answer"
+          ],
+          "correct": 0,
+          "explanation": "Why A is correct and why each distractor is wrong",
+          "targets_misconception": "Which misconception this question is designed to detect"
+        },
+        {
+          "question": "Second MCQ probing a different angle of the same concept",
+          "options": ["A) ...", "B) ...", "C) ...", "D) ..."],
+          "correct": 2,
+          "explanation": "Explanation of correct answer and distractors",
+          "targets_misconception": "Targeted misconception name"
+        }
+      ]
+    }
+  ],
+
+  "concept_dependencies": [
+    {
+      "concept": "Threshold Concept B",
+      "depends_on": ["Threshold Concept A", "Some prerequisite knowledge"]
+    },
+    {
+      "concept": "Threshold Concept C",
+      "depends_on": ["Threshold Concept A", "Threshold Concept B"]
+    }
+  ],
+
+  "recommended_sequence": [
+    "Teach Module 1 first to establish foundational vocabulary and framework",
+    "Cover Module 2 before Module 3 because Concept A is prerequisite for Concept B",
+    "Introduce Module 4 after students have grasped threshold concept X",
+    "Module 5 and 6 can be taught in parallel — no dependency between them",
+    "End with Module N as it integrates all prior concepts"
+  ]
+}

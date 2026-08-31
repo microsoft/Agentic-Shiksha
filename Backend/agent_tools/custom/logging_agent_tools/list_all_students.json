@@ -1,0 +1,14 @@
+{
+  "name": "list_all_students",
+  "description": "List all students who have learning progress data, optionally filtered by a specific agent/course. Returns each student's user ID, agent, completion percentage, topic counts (learned / in_progress / not_started), and last active time.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "agent_id": {
+        "type": "string",
+        "description": "Optional. Filter to a specific agent/course name (e.g. 'course-Machine-Learning'). If omitted, returns students across all agents."
+      }
+    },
+    "required": []
+  }
+}

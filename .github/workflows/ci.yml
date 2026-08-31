@@ -1,0 +1,132 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Backend (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11']
+
+    # Placeholders only. azure_services/config.py resolves every required variable at
+    # import time and raises if one is missing, so the suite cannot even be collected
+    # without them. No test makes a live Azure call.
+    env:
+      PYTHONPATH: ${{ github.workspace }}/Backend
+      AZURE_AI_PROJECT_ENDPOINT: https://example.services.ai.azure.com/api/projects/ci
+      AZURE_AI_SEARCH_API_VERSION: 2025-11-01-preview
+      AZURE_AI_SEARCH_BLOB_CONTAINER: ci-container
+      AZURE_AI_SEARCH_CONNECTION_ID: /subscriptions/00000000-0000-0000-0000-000000000000/ci
+      AZURE_AI_SEARCH_ENDPOINT: https://example.search.windows.net
+      AZURE_AI_SEARCH_SERVICE_NAME: ci-search
+      AZURE_BING_CONNECTION_ID: /subscriptions/00000000-0000-0000-0000-000000000000/ci-bing
+      AZURE_BING_CUSTOM_SEARCH_CONNECTION_ID: /subscriptions/00000000-0000-0000-0000-000000000000/ci-bing-custom
+      AZURE_EVAL_MODEL: gpt-4.1
+      AZURE_FOUNDRY_ENDPOINT: https://example.services.ai.azure.com
+      AZURE_OPENAI_CHAT_MODEL: gpt-4.1-mini
+      AZURE_OPENAI_ENDPOINT: https://example.openai.azure.com
+      AZURE_RESOURCE_GROUP: ci-resource-group
+      AZURE_SUBSCRIPTION_ID: 00000000-0000-0000-0000-000000000000
+      BING_CONNECTION_ID: /subscriptions/00000000-0000-0000-0000-000000000000/ci-bing
+      COMMON_DATASOURCE_NAME: ci-datasource
+      COMMON_IMAGE_CONTAINER: ci-images
+      COMMON_INDEX_NAME: ci-index
+      COMMON_INDEXER_NAME: ci-indexer
+      COMMON_SKILLSET_NAME: ci-skillset
+      COSMOS_ENDPOINT: https://example.documents.azure.com:443/
+      COSMOS_DATABASE: ci-database
+      DEEP_RESEARCH_AGENT_ID: ci-deep-research-agent
+      DEEP_RESEARCH_BING_CONNECTION_ID: /subscriptions/00000000-0000-0000-0000-000000000000/ci-bing
+      DEEP_RESEARCH_PROJECT_ENDPOINT: https://example.services.ai.azure.com/api/projects/ci
+      DOCUMENT_INTELLIGENCE_ENDPOINT: https://example.cognitiveservices.azure.com
+      EMBEDDING_DIMENSIONS: '1024'
+      EMBEDDING_MODEL: text-embedding-3-large
+      GOOGLE_CLIENT_ID: ci-google-client-id
+      GOOGLE_CLIENT_SECRET: ci-google-client-secret
+      JWT_SECRET: ci-only-not-a-real-secret
+      PROJECT_ENDPOINT: https://example.services.ai.azure.com/api/projects/ci
+      PROJECT_NAME: ci-project
+      PROJECT_RESOURCE_ID: /subscriptions/00000000-0000-0000-0000-000000000000/ci
+      STORAGE_ACCOUNT_NAME: cistorageaccount
+      SUPER_ADMIN_EMAIL: admin@example.com
+      VITE_AZURE_CLIENT_ID: 00000000-0000-0000-0000-000000000000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: Backend/requirements.txt
+
+      - name: Install dependencies
+        working-directory: Backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-subtests
+
+      - name: Run tests
+        working-directory: Backend
+        run: python -m pytest tests/ -q
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: Frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: Frontend
+        run: npm ci
+
+      # The real .env.production is not committed; build against the example.
+      - name: Seed build env
+        working-directory: Frontend
+        run: cp .env.production.example .env.production
+
+      - name: Build
+        working-directory: Frontend
+        run: npx vite build --logLevel error
+
+  containers:
+    name: Container builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Build context is the service directory, so .dockerignore keeps .env out.
+      - name: Build backend image
+        run: docker build -t agentic-shiksha/backend:ci -f Backend/Dockerfile Backend
+
+      - name: Build frontend image
+        run: |
+          cp Frontend/.env.production.example Frontend/.env.production
+          docker build -t agentic-shiksha/frontend:ci -f Frontend/Dockerfile Frontend
+
+      - name: Assert no .env leaked into the backend image
+        run: |
+          if docker run --rm --entrypoint sh agentic-shiksha/backend:ci \
+               -c 'ls -a /app | grep -qE "^\.env$"'; then
+            echo "::error::.env was copied into the backend image"
+            exit 1
+          fi
+          echo "No .env in backend image."

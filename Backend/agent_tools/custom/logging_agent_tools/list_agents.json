@@ -1,0 +1,9 @@
+{
+  "name": "list_agents",
+  "description": "List all available agents/courses in the system. Returns each agent's ID, name, and description.",
+  "parameters": {
+    "type": "object",
+    "properties": {},
+    "required": []
+  }
+}

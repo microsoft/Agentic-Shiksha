@@ -1,0 +1,101 @@
+% ---------------------------------------------------------------------------
+% geomdump.tex -- make LaTeX itself report exact node geometry.
+%
+% Reverse-engineering "which node is this rectangle?" out of a PDF is guesswork.
+% Instead we ask the only component that actually knows: pgf. Every dumped node
+% writes its true bounding box (in picture-local pt) to \jobname.geom.
+%
+% Usage:
+%   \input{geomdump.tex}          % in the preamble
+%   \GeomOpen                     % once, before the first picture
+%   \begin{tikzpicture}[gdump]    % 'gdump' auto-registers every named node
+%     ...
+%     \GeomEdge{a}{b}             % declare edges (the compiler knows them)
+%     \GeomGroup{bg}              % mark container/fit nodes as groups
+%     \GeomPicture                % LAST line inside the picture
+%   \end{tikzpicture}
+%   \GeomClose
+%
+% If the auto hook misbehaves with an exotic shape, fall back to explicit
+% \GeomNode{id} calls -- the generated code knows every id it created anyway.
+% ---------------------------------------------------------------------------
+
+\makeatletter
+
+\newwrite\geom@out
+\newif\ifgeom@open \geom@openfalse
+
+\newcommand{\GeomOpen}{%
+  \ifgeom@open\else
+    \immediate\openout\geom@out=\jobname.geom\relax
+    \immediate\write\geom@out{VERSION|1}%
+    \geom@opentrue
+  \fi}
+
+\newcommand{\GeomClose}{%
+  \ifgeom@open\immediate\closeout\geom@out\geom@openfalse\fi}
+
+% \GeomNode{<node name>} -- writes:  NODE|<id>|x1|y1|x2|y2|...   (pipe-separated)
+%
+% Six anchors, not two. For a circle (and diamond, ellipse, ...) the
+% "south west" anchor is the 45-degree point on the shape, NOT the corner of
+% its bounding box -- a circle of diameter 5.6cm reports a 4cm box that way.
+% Taking the bbox over {sw, ne, w, e, n, s} is correct for every standard shape.
+\newcommand{\geom@acc}{}
+\newcommand{\geom@pt}[2]{%
+  \pgfpointanchor{#1}{#2}%
+  \edef\geom@acc{\geom@acc|\the\pgf@x|\the\pgf@y}}
+
+\newcommand{\GeomNodeAs}[2]{%
+  \ifgeom@open
+    \begingroup
+      \def\geom@acc{}%
+      \geom@pt{#1}{south west}\geom@pt{#1}{north east}%
+      \geom@pt{#1}{west}\geom@pt{#1}{east}%
+      \geom@pt{#1}{north}\geom@pt{#1}{south}%
+      \immediate\write\geom@out{NODE|#2\geom@acc}%
+    \endgroup
+  \fi}
+
+\newcommand{\GeomNode}[1]{\GeomNodeAs{#1}{#1}}
+
+% \GeomEdge{<src>}{<dst>}  and  \GeomEdgeL{<src>}{<dst>}{<label>}
+\newcommand{\GeomEdge}[2]{%
+  \ifgeom@open\immediate\write\geom@out{EDGE|#1|#2|}\fi}
+\newcommand{\GeomEdgeL}[3]{%
+  \ifgeom@open\immediate\write\geom@out{EDGE|#1|#2|#3}\fi}
+
+% \GeomGroup{<id>} -- container node: full containment of children is legal
+\newcommand{\GeomGroup}[1]{%
+  \ifgeom@open\immediate\write\geom@out{GROUP|#1}\fi}
+
+% \GeomShape{<id>}{<shape>} -- optional hint (rect|circle|ellipse|diamond|...)
+\newcommand{\GeomShape}[2]{%
+  \ifgeom@open\immediate\write\geom@out{SHAPE|#1|#2}\fi}
+
+% \GeomPicture -- MUST be the last thing inside the tikzpicture.
+% Emits the picture bbox, which calibrates local pt -> PDF page pt.
+\newcommand{\GeomPicture}{\GeomNodeAs{current bounding box}{__picture__}}
+
+% ---------------------------------------------------------------------------
+% Auto-registration: add [gdump] to the tikzpicture options and every *named*
+% node registers itself. Unnamed nodes are ignored (they have no id to report).
+% ---------------------------------------------------------------------------
+\tikzset{
+  gdump/.style={
+    every node/.append style={
+      append after command={\pgfextra{\geom@autodump}}
+    }
+  }
+}
+
+\newcommand{\geom@autodump}{%
+  \ifx\tikzlastnode\@undefined
+  \else
+    \expandafter\ifx\expandafter\relax\tikzlastnode\relax
+    \else
+      \GeomNode{\tikzlastnode}%
+    \fi
+  \fi}
+
+\makeatother

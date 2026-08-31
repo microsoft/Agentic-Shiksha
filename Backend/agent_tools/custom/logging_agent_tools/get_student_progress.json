@@ -1,0 +1,21 @@
+{
+  "name": "get_student_progress",
+  "description": "Get detailed learning progress for a specific student on a specific agent/course. Returns the full topic-by-topic breakdown grouped by status (learned, in_progress, not_started), overall completion percentage, recently active topics, struggle areas, and each topic's latest summary of what the student understood.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "user_id": {
+        "type": "string",
+        "description": "The student's user ID (e.g. their email address or user identifier)."
+      },
+      "agent_id": {
+        "type": "string",
+        "description": "The agent/course name (e.g. 'course-Machine-Learning')."
+      }
+    },
+    "required": [
+      "user_id",
+      "agent_id"
+    ]
+  }
+}

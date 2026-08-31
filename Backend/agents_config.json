@@ -1,0 +1,77 @@
+{
+  "course-Physics": {
+    "agent_name": "course-Physics",
+    "agent_version": "2",
+    "model_deployment": "gpt-5.2-chat"
+  },
+  "course-Certified-Blockchain-Associate": {
+    "agent_name": "course-Certified-Blockchain-Associate",
+    "agent_version": "2",
+    "model_deployment": "gpt-5.2-chat"
+  },
+  "course-FUNDAMENTALS-OF-ELECTRONICS": {
+    "agent_name": "course-FUNDAMENTALS-OF-ELECTRONICS",
+    "agent_version": "2",
+    "model_deployment": "gpt-5.2-chat"
+  },
+  "course-Advanced-Accountancy": {
+    "agent_name": "course-Advanced-Accountancy",
+    "agent_version": "6",
+    "model_deployment": "gpt-5.2-chat"
+  },
+  "course-Microprocessor-and-Microcontroller": {
+    "agent_name": "course-Microprocessor-and-Microcontroller",
+    "agent_version": "4",
+    "model_deployment": "gpt-5.2-chat"
+  },
+  "course-Blockchain-Technologies": {
+    "agent_name": "course-Blockchain-Technologies",
+    "agent_version": "4",
+    "model_deployment": "gpt-5.2-chat"
+  },
+  "course-Advanced-Data-Structures": {
+    "agent_name": "course-Advanced-Data-Structures",
+    "agent_version": "4",
+    "model_deployment": "gpt-5.2-chat"
+  },
+  "course-Algorithms-Temp-2": {
+    "agent_name": "course-Algorithms-Temp-2",
+    "agent_version": "2",
+    "model_deployment": "gpt-5.2-chat"
+  },
+  "course-agent-creation-agent": {
+    "agent_name": "course-agent-creation-agent",
+    "agent_version": "9",
+    "model_deployment": "gpt-5.2-chat"
+  },
+  "course-Algorithms-temp": {
+    "agent_name": "course-Algorithms-temp",
+    "agent_version": "2",
+    "model_deployment": "gpt-5.2-chat"
+  },
+  "course-Organic-chemistry": {
+    "agent_name": "course-Organic-chemistry",
+    "agent_version": "3",
+    "model_deployment": "gpt-5.2-chat"
+  },
+  "course-Chemistry": {
+    "agent_name": "course-Chemistry",
+    "agent_version": "2",
+    "model_deployment": "gpt-5.2-chat"
+  },
+  "course-Data-Structures-and-Algorithms": {
+    "agent_name": "course-Data-Structures-and-Algorithms",
+    "agent_version": "3",
+    "model_deployment": "gpt-5.2-chat"
+  },
+  "course-Operating-Systems": {
+    "agent_name": "course-Operating-Systems",
+    "agent_version": "3",
+    "model_deployment": "gpt-5.2-chat"
+  },
+  "course-conversational-agent": {
+    "agent_name": "course-conversational-agent",
+    "agent_version": "4",
+    "model_deployment": "gpt-5.2-chat"
+  }
+}

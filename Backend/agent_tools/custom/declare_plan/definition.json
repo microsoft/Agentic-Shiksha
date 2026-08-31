@@ -1,0 +1,20 @@
+{
+  "type": "function",
+  "name": "declare_plan",
+  "description": "Call this FIRST when your response includes output tools (add_document, add_quiz, add_flashcard, add_challenge). Do NOT call for simple text responses — just respond normally.\n\nInterleave add_message before each output tool so each piece gets its own contextual intro. NEVER end with add_message — the system handles the closing automatically.\n\nExamples:\n- Simple answer (NO plan needed): Just respond with normal text\n- Document: declare_plan(tools=[\"add_message\", \"add_document\"])\n- Quiz: declare_plan(tools=[\"add_message\", \"add_quiz\"])\n- Two quizzes: declare_plan(tools=[\"add_message\", \"add_quiz\", \"add_message\", \"add_quiz\"])\n- Doc + quiz: declare_plan(tools=[\"add_message\", \"add_document\", \"add_message\", \"add_quiz\"])\n- With threshold concepts: declare_plan(tools=[\"get_threshold_concepts\", \"add_message\", \"add_document\"])\n\nRules:\n- MUST be called before any other tool (only when using output tools)\n- Include ALL tools you plan to call, in order\n- Memory/search tools are called separately — don't include them\n- Each output tool should be preceded by an add_message intro\n- NEVER end a plan with add_message — the system handles the final follow-up",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "tools": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Ordered list of tool names to execute (e.g., ['add_message', 'add_document'])"
+      }
+    },
+    "required": [
+      "tools"
+    ]
+  }
+}

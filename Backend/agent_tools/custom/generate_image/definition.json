@@ -1,0 +1,32 @@
+{
+  "type": "function",
+  "name": "generate_image",
+  "description": "Generate an image from a text prompt and display it inline to the student.\n\nUse it for photo-like scenes, artistic illustrations, historical depictions, biological or geographical scenes, textured real-world objects, and annotated technical figures.\n\nTHE ONE RULE: this model is a RENDERER, not an author. It has no physics, biology, maths or domain knowledge of any kind. Nothing that must be correct may depend on it knowing anything - a label or relationship you leave to the model will come back plausible and wrong, and a confidently wrong figure teaches the student something false. YOU are the domain expert; the model only draws what you dictate.\n\nAlways include a title and caption.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "prompt": {
+        "type": "string",
+        "description": "The full visual specification. Sort every element of the picture into three tiers and write each one differently.\n\n1. LITERAL - all text, labels, axis names, numbers, formulas, legend entries. Write them verbatim, in quotes, exactly as they must appear. The model reproduces text you give it and fabricates text you don't. Spell formulas out in full with the exact symbols, subscripts and superscripts you want; never ask for 'the similarity formula' and hope. e.g. Label the three boxes \"Image Encoder (ViT)\", \"Shared Latent Space\", \"Text Encoder\", and caption the centre \"similarity = cos(z_img, z_txt)\".\n\n2. STRUCTURAL - position, containment, every arrow written as from -> to, and what each connection MEANS. State each explicitly; never say 'connect them appropriately' or 'show the flow'. Dynamics are structure, not style: say what travels along each arrow, what distinguishes one line style from another, and the order of the steps if there is one - the model will cheerfully draw arrows that look right and connect the wrong things. e.g. \"Tokenizer\" sits left of \"Embedding\"; an arrow runs from \"Tokenizer\" to \"Embedding\" carrying \"token ids\"; solid green arrows join matched pairs while red dashed arrows join non-matching pairs; steps run encode -> project -> compare.\n\n3. STYLISTIC - palette, line weight, mood, medium, lighting, viewpoint. Free prose, and the only tier you may leave open, because nothing correct depends on it. e.g. dark navy background, cyan and violet accents, thin lines, clean research-poster style.\n\nAnything you cannot pin down in tier 1 or 2 does not belong in the image - explain it in your own words instead.\n\nALWAYS ASK FOR MARGINS. Left to itself the model packs content edge to edge, which crops labels and looks cramped. End every prompt with framing such as: 'generous empty margin around all four edges, content comfortably inset from the border, nothing touching or running off the edge, uncluttered composition with breathing room between elements.'\n\nBAD (model authors the content, gets it wrong): 'A diagram explaining how CLIP works'.\nGOOD (model only renders): 'Research-poster figure titled \"CLIP - Contrastive Language-Image Pretraining\". Left column headed \"Image Encoder (ViT)\", right column headed \"Text Encoder\", centre panel headed \"Shared Latent Space\". An arrow runs from the left column into the centre labelled \"image embedding\", and one from the right column into the centre labelled \"text embedding\". Dark navy background, cyan and violet accents, thin lines, clean flat vector style. Generous empty margin around all four edges, content inset from the border, nothing touching the edge, plenty of breathing room between the three columns.'"
+      },
+      "title": {
+        "type": "string",
+        "description": "Title displayed above the image."
+      },
+      "caption": {
+        "type": "string",
+        "description": "Explanatory caption shown below the image."
+      },
+      "quality": {
+        "type": "string",
+        "enum": ["low", "medium"],
+        "description": "Rendering quality - you must choose one; there is no default. Pick 'low' for the common case: a supporting or decorative visual, a simple subject, a mood or scene, anything the student will glance at. Pick 'medium' ONLY when fine detail is the teaching point - intricate structure, many small labelled parts, or texture the student must actually inspect. 'medium' takes roughly twice as long and costs noticeably more, so do not reach for it by default."
+      }
+    },
+    "required": [
+      "prompt",
+      "title",
+      "quality"
+    ]
+  }
+}

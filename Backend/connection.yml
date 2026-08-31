@@ -1,0 +1,5 @@
+﻿name: aisearch-swapnik-aad
+type: azure_ai_search
+# Endpoint is environment-specific; substitute AZURE_AI_SEARCH_ENDPOINT before use.
+endpoint: ${AZURE_AI_SEARCH_ENDPOINT}
+api_version: 2024-05-01-preview

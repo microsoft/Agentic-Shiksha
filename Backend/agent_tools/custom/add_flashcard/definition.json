@@ -1,0 +1,39 @@
+{
+  "type": "function",
+  "name": "add_flashcard",
+  "description": "Use this tool to create a set of interactive flashcards for the user. \nThe flashcards will be rendered as flippable cards in the chat where the user \ncan click to reveal the answer, and navigate between cards.\n\nUse this tool when the user asks for:\n- Flashcards\n- Study cards\n- Vocabulary cards\n- Term/definition pairs\n- Key concept review cards\n- Memorization aids\n\nEach card has a front (question/term) and back (answer/definition).\nAlways include at least 3 cards. Keep front text concise and back text clear.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string",
+        "description": "The title of the flashcard set (e.g., 'Chapter 5 Key Terms', 'Biology Vocabulary')"
+      },
+      "cards": {
+        "type": "array",
+        "description": "Array of flashcard objects",
+        "items": {
+          "type": "object",
+          "properties": {
+            "front": {
+              "type": "string",
+              "description": "The front of the card (question, term, or prompt)"
+            },
+            "back": {
+              "type": "string",
+              "description": "The back of the card (answer, definition, or explanation)"
+            }
+          },
+          "required": [
+            "front",
+            "back"
+          ]
+        }
+      }
+    },
+    "required": [
+      "title",
+      "cards"
+    ]
+  }
+}

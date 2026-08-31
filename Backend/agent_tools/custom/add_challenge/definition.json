@@ -1,0 +1,56 @@
+{
+  "type": "function",
+  "name": "add_challenge",
+  "description": "Use this tool to create an interactive challenge for the user. The challenge will be\nrendered as an interactive UI in the chat where the user can read the problem,\noptionally view hints, and reveal the solution when ready.\n\nUse this tool when the user asks for:\n- A challenge or practice problem\n- A coding exercise or coding challenge\n- An equation to solve\n- A case study\n- A problem-solving exercise\n- A brain teaser or puzzle\n- Practice exercises or homework problems\n- Any problem that requires the user to work through a solution\n\nEach challenge must have:\n- A title\n- A description (the problem statement, can use markdown)\n- A difficulty level (easy, medium, or hard)\n- A solution (the full worked-out solution, can use markdown with code blocks)\n- Optional hints (array of progressive hints)\n- A challenge type (coding, problem, case_study, equation, or puzzle)\n\nCONTEXTUAL GROUNDING (strongly preferred):\nRoot the problem in the student's actual world rather than using abstract textbook exercises.\nUse memory to recall the student's institute, hostel, department, interests, or daily life and\nweave those details into the problem statement. For example, instead of \"Compute the mean of\n[12,15,11]\", frame it as \"Your hostel mess serves 300 students — given last week's arrival\ndata, what token system minimizes wait time?\" The underlying concept stays rigorous; only the\nframing becomes personal and consequential. Always include a transfer question in the solution\n(\"Why does this work?\" or \"What would change if...\").\n\nCHALLENGE-BASED PEDAGOGY:\n- Proactively suggest challenges after teaching a concept — don't wait for the student to ask.\n- Offer simple SEED challenges that are approachable and encourage the student to create their\n  own variations (\"Here's a starter — can you think of a harder version?\").\n- Suggest a GRAND CHALLENGE that spans the whole course and ties concepts together. This is a\n  long-running project the student pursues throughout the course with your help.\n- If the student proposes their own grand challenge, map course concepts to it and suggest\n  focused variations if the proposal is too broad or too far from the core subject.\n- The goal is student ownership of learning — from solving given challenges to framing their own.\n\nAlways provide a clear problem statement and a comprehensive solution with explanation.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string",
+        "description": "The title of the challenge (e.g., 'Binary Search Implementation', 'Solve the Differential Equation')"
+      },
+      "description": {
+        "type": "string",
+        "description": "The full problem statement in markdown. Include any constraints, input/output format, examples, etc."
+      },
+      "difficulty": {
+        "type": "string",
+        "enum": [
+          "easy",
+          "medium",
+          "hard"
+        ],
+        "description": "The difficulty level of the challenge"
+      },
+      "hints": {
+        "type": "array",
+        "description": "Optional array of progressive hints (revealed one at a time)",
+        "items": {
+          "type": "string"
+        }
+      },
+      "solution": {
+        "type": "string",
+        "description": "The full solution with explanation in markdown. Include code blocks, step-by-step working, and rationale."
+      },
+      "challenge_type": {
+        "type": "string",
+        "enum": [
+          "coding",
+          "problem",
+          "case_study",
+          "equation",
+          "puzzle"
+        ],
+        "description": "The type of challenge. Use 'coding' for programming problems, 'problem' for general problems, 'case_study' for case studies, 'equation' for math/physics equations, 'puzzle' for brain teasers.",
+        "default": "problem"
+      }
+    },
+    "required": [
+      "title",
+      "description",
+      "difficulty",
+      "solution"
+    ]
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "type": "function",
+  "name": "add_quiz",
+  "description": "Use this tool to create an interactive quiz for the user. The quiz will be \nrendered as an interactive UI in the chat where the user can select answers, \nsubmit, and see their score.\n\nUse this tool when the user asks for:\n- A quiz or test\n- Practice questions\n- Knowledge check\n- Assessment\n- Multiple choice questions\n- Multiple correct answer questions (more than one choice)\n- True/false questions\n- Concept inventory or diagnostic assessment\n\n**CONCEPT INVENTORY APPROACH (PREFERRED for quizzes):**\nWhen creating quizzes, primarily use the concept inventory methodology:\n- Design questions that probe **common misconceptions** and **conceptual understanding**, not rote memorization.\n- Each wrong option (distractor) should represent a **specific, known misconception** students commonly hold.\n- The explanation should address **why each distractor is wrong** and what misconception it represents.\n- Focus on understanding boundaries between related concepts (e.g., supervised vs unsupervised, classification vs regression).\n- Questions should test whether the student truly understands the concept or just memorized definitions.\n- Example: Instead of \"What is overfitting?\" (recall), ask a scenario question where the student must identify overfitting from symptoms.\n\nYou can create questions with a single correct answer OR questions where multiple options are correct.\nFor single-answer questions, set \"correct\" to the index of the correct option.\nFor multiple-correct-answer questions, set \"correct\" to an array of indices of the correct options (e.g., [0, 2, 3]).\n\nEach question must have:\n- A question text\n- 2-6 answer options\n- One or more correct answers (by index, 0-based) — use an integer for single-answer, or an array of integers for multiple correct answers\n- An optional explanation shown after answering\n\nAlways include at least 3 questions. Use clear, unambiguous question text.\nFor multiple-correct-answer questions, clearly mention in the question text that more than one option may be correct (e.g., \"Select all that apply\").",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "assessment_type": {
+        "type": "string",
+        "enum": [
+          "concept_inventory",
+          "practice_quiz"
+        ],
+        "description": "Use concept_inventory for a diagnostic check tied to one course threshold concept; otherwise use practice_quiz. For concept_inventory, threshold_concept and every questions[].targets_misconception are mandatory teacher-only metadata."
+      },
+      "threshold_concept": {
+        "type": "string",
+        "description": "For a concept_inventory, the exact associated threshold-concept name returned by get_threshold_concepts. Internal teacher-only metadata: never put this label in student-visible question, option, title, or explanation text. Leave empty for practice_quiz."
+      },
+      "title": {
+        "type": "string",
+        "description": "The title of the quiz, naming only the subject matter (e.g., 'Chapter 3: Neural Networks', 'Photosynthesis Knowledge Check'). Never include the words 'Concept Inventory', 'Quiz type', or the assessment type in the title: the UI already labels it. Write 'Learned Representations', not 'Concept Inventory: Learned Representations'."
+      },
+      "questions": {
+        "type": "array",
+        "description": "Array of quiz questions",
+        "items": {
+          "type": "object",
+          "properties": {
+            "question": {
+              "type": "string",
+              "description": "The question text"
+            },
+            "options": {
+              "type": "array",
+              "description": "Array of answer option strings (2-6 options). Write the answer text only: never prefix an option with a letter or number label such as 'A)', '(B)', 'C.' or '1.'. The UI shuffles the options and renders its own A/B/C/D labels, so a baked-in letter will contradict what the student sees.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "correct": {
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "description": "Index of the single correct answer (0-based)"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  },
+                  "description": "Array of indices of correct answers (0-based) for multiple-correct-answer questions"
+                }
+              ],
+              "description": "Index (or array of indices) of the correct answer(s), 0-based"
+            },
+            "explanation": {
+              "type": "string",
+              "description": "Student-facing explanation shown after answering. Explain the reasoning without naming the associated threshold concept, without labeling any misconception, and without exposing internal diagnostic mapping."
+            },
+            "targets_misconception": {
+              "type": "string",
+              "description": "REQUIRED for a concept_inventory. Copy one misconception VERBATIM from this threshold concept's misconceptions array returned by get_threshold_concepts, or give its 1-based position in that array. Do NOT write your own description of what the question probes (e.g. 'whether the student mistakes attention for explanation') — that is not a misconception and will be rejected. Each inventory item targets exactly one misconception. This is teacher-only metadata and must not be copied or labeled in student-visible text."
+            }
+          },
+          "required": [
+            "question",
+            "options",
+            "correct"
+          ]
+        }
+      }
+    },
+    "required": [
+      "assessment_type",
+      "title",
+      "questions"
+    ]
+  }
+}

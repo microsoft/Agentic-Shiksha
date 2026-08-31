@@ -1,0 +1,10 @@
+{
+  "type": "function",
+  "name": "get_threshold_concepts",
+  "description": "Use this tool to retrieve the student's learning state and threshold concepts.\n\nThis returns:\n- **All topics**: The full topic map with every topic's status (not_started / in_progress / learned)\n- **Threshold concepts**: The key transformative concepts students must grasp, with misconceptions and concept inventory questions\n- **Overall progress**: How many topics learned, in progress, not started, and percentage complete\n- **In-progress topics**: What the student is currently working on\n- **Struggle areas**: Topics where the student appears confused\n\nWHEN TO USE:\n- At the start of a conversation to see the student's current learning state\n- When deciding what to teach next — look at in-progress and not_started topics in syllabus order\n- When a student seems stuck — check struggle areas and in-progress topics\n- When the student asks about their progress or what's left to learn\n- When creating quizzes — target in-progress topics and threshold concepts\n\nCall this tool with no arguments — it returns the learning state automatically.",
+  "parameters": {
+    "type": "object",
+    "properties": {},
+    "required": []
+  }
+}

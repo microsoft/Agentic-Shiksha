@@ -1,0 +1,45 @@
+{
+  "type": "function",
+  "name": "ask_clarification",
+  "description": "Ask 1-3 clarifying questions and WAIT for the answers, then finish your response in the SAME turn.\n\nThis tool blocks for up to 60 seconds while the student answers. Its result contains their answers (or a note that they did not answer in time). As soon as it returns, continue and deliver your full response in this same turn - do NOT end your turn after calling it.\n\nUSE THIS PROACTIVELY - it is a core part of how you teach. A short, well-aimed question makes the session feel personal and keeps the student engaged. Decide for yourself when it helps; never wait to be told to use it.\n\nCall it whenever ANY of these is true:\n- The request is broad or open-ended ('teach me X', 'explain X', 'help me with X', 'I want to learn X').\n- You do not yet know this student's level, goal, or deadline for the topic.\n- The topic can legitimately be taught several ways (intuition vs. mathematics vs. implementation vs. exam preparation).\n- The student is opening a new topic, or this is early in the conversation.\n- Your answer would be long (roughly 500+ words) and its shape depends on what they actually want.\n- They ask for practice, a quiz, or a challenge without specifying difficulty or format.\n\nSkip it only when the request is genuinely self-contained: a specific factual question, a follow-up inside context you already established, a greeting, or an explicit instruction you can execute exactly.\n\nRULES:\n- Call this AT MOST ONCE per turn, and call it EARLY, before producing any other output. Put every question you need in the `questions` array - never call the tool twice.\n- Each question needs exactly 4 options: short, concrete, mutually distinct choices (roughly 3-10 words), phrased from the student's point of view.\n- Do NOT include a 'something else' / 'other' option yourself: the UI always adds a free-text box, and each question can be skipped.\n- Do not announce that you are about to ask or explain that you have a tool for it - just call it.\n- Because it blocks, never call this tool more than once and never call it after you have already started answering.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "questions": {
+        "type": "array",
+        "description": "The clarifying questions, shown one at a time in a single card.",
+        "minItems": 1,
+        "maxItems": 3,
+        "items": {
+          "type": "object",
+          "properties": {
+            "question": {
+              "type": "string",
+              "description": "The question to show (e.g. 'How deep should I go on backpropagation?')."
+            },
+            "options": {
+              "type": "array",
+              "description": "Exactly 4 short, concrete, mutually distinct options phrased from the student's point of view.",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 4,
+              "maxItems": 4
+            },
+            "context": {
+              "type": "string",
+              "description": "Optional one-line note explaining why you are asking. Keep it under ~120 characters."
+            }
+          },
+          "required": [
+            "question",
+            "options"
+          ]
+        }
+      }
+    },
+    "required": [
+      "questions"
+    ]
+  }
+}

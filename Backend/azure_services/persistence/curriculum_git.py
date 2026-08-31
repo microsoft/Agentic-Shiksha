@@ -14,6 +14,7 @@ import io
 import json
 import logging
 import os
+import re
 import shutil
 import tarfile
 import tempfile
@@ -24,6 +25,15 @@ from dulwich.objects import Blob, Commit, Tree
 from dulwich.repo import Repo
 
 logger = logging.getLogger(__name__)
+
+
+def _safe_id(agent_id: str) -> str:
+    """Reduce an agent id to characters that cannot traverse or escape a directory.
+
+    Agent ids reach this module from request bodies, so a value containing ``/`` or
+    ``..`` would otherwise decide where the temporary repo is created.
+    """
+    return re.sub(r"[^A-Za-z0-9._-]", "_", agent_id).lstrip(".")[:64] or "unknown"
 
 _COURSE_CURRICULUM_STORAGE_ACCOUNT = os.environ["STORAGE_ACCOUNT_NAME"]
 _COURSE_CURRICULUM_CONTAINER = "course-curriculum-v2"
@@ -143,7 +153,7 @@ def save_course_curriculum_version(
     Commit a new version of the course curriculum to the agent's git repo.
     Returns the commit SHA (hex string) as the version_id, or None on failure.
     """
-    tmp_dir = tempfile.mkdtemp(prefix=f"curriculum_git_{agent_id}_")
+    tmp_dir = tempfile.mkdtemp(prefix=f"curriculum_git_{_safe_id(agent_id)}_")
     repo_dir = os.path.join(tmp_dir, "repo.git")
     os.makedirs(repo_dir, exist_ok=True)
 
@@ -215,7 +225,7 @@ def list_course_curriculum_versions(agent_id: str) -> List[Dict[str, Any]]:
     List all commits (versions) from the agent's git repo.
     Returns list of version metadata dicts sorted newest-first.
     """
-    tmp_dir = tempfile.mkdtemp(prefix=f"curriculum_git_{agent_id}_")
+    tmp_dir = tempfile.mkdtemp(prefix=f"curriculum_git_{_safe_id(agent_id)}_")
     repo_dir = os.path.join(tmp_dir, "repo.git")
     os.makedirs(repo_dir, exist_ok=True)
 
@@ -284,7 +294,7 @@ def get_course_curriculum_version(
     Retrieve the course curriculum at a specific commit (version_id = commit SHA).
     Returns the version metadata + curriculum dict, or None if not found.
     """
-    tmp_dir = tempfile.mkdtemp(prefix=f"curriculum_git_{agent_id}_")
+    tmp_dir = tempfile.mkdtemp(prefix=f"curriculum_git_{_safe_id(agent_id)}_")
     repo_dir = os.path.join(tmp_dir, "repo.git")
     os.makedirs(repo_dir, exist_ok=True)
 
@@ -346,7 +356,7 @@ def diff_course_curriculum_versions(
     Get the curriculum JSON for two versions (for client-side diffing).
     Returns dict with 'old' and 'new' curriculum dicts, or None on error.
     """
-    tmp_dir = tempfile.mkdtemp(prefix=f"curriculum_git_{agent_id}_")
+    tmp_dir = tempfile.mkdtemp(prefix=f"curriculum_git_{_safe_id(agent_id)}_")
     repo_dir = os.path.join(tmp_dir, "repo.git")
     os.makedirs(repo_dir, exist_ok=True)
 

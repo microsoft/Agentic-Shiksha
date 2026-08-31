@@ -13,6 +13,7 @@ import type { UploadedFile } from "@/features/create/sharedUI";
 import { chatApi } from "@/lib/chatApi";
 import { CLARIFICATION_SUBMITTED_EVENT } from "@/features/chat/chatQueryEvent";
 import { getCourseName } from "@/lib/utils";
+import { prefixedId } from "@/lib/secureId";
 
 // Thinking token type for deep research
 export interface ThinkingToken {
@@ -709,8 +710,9 @@ export function useAgentChat(
     const userMsgTimestamp = sendOptions.userMessageTimestamp ?? Date.now();
     
     // Generate a new message group ID for this conversation turn (user message + its responses)
+    // Sent on as usage_event_id, so it must not be guessable from earlier ids.
     const messageGroupId = sendOptions.messageGroupId
-      ?? `mg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      ?? prefixedId("mg");
     currentMessageGroupRef.current = {
       id: messageGroupId,
       retryNumber: sendOptions.retryNumber ?? 0,

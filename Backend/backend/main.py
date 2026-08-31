@@ -244,7 +244,11 @@ def _agent_setup_dir(agent_id: str) -> Path:
     name = Path((agent_id or "").strip()).name
     if not name or name in (".", ".."):
         raise HTTPException(status_code=400, detail="invalid agent id")
-    return AGENT_SETUPS_BASE / name
+    # Rebuild from an allowlist so no separator or traversal token can survive.
+    safe = re.sub(r"[^A-Za-z0-9._-]", "_", name)[:128]
+    if not safe or safe in (".", ".."):
+        raise HTTPException(status_code=400, detail="invalid agent id")
+    return AGENT_SETUPS_BASE / safe
 
 
 

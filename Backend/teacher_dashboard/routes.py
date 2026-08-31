@@ -585,7 +585,9 @@ def proxy_blob(
     if len(path_parts) < 2:
         raise HTTPException(status_code=400, detail="Invalid blob path")
 
-    account_url = f"https://{parsed.hostname}"
+    # Built from config, not from the request: the check above proves they are equal,
+    # and using the constant keeps the user-supplied value out of the outbound URL.
+    account_url = f"https://{STORAGE_ACCOUNT}.blob.core.windows.net"
     container_name, blob_name = path_parts[0], path_parts[1]
     # This route exists to serve feedback attachments; it is not a general blob reader.
     if not container_name.startswith("feedback-attachments") or ".." in blob_name.split("/"):

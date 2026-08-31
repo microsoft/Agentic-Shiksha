@@ -15,7 +15,7 @@ import os
 import logging
 import requests
 from typing import Optional, Dict, Any, Tuple
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlunparse
 from azure.identity import DefaultAzureCredential
 
 logger = logging.getLogger(__name__)
@@ -64,38 +64,40 @@ def _get_access_token() -> str:
         return token.token
 
 
-def _assert_search_url(url: str) -> None:
-    """Reject any URL that is not on the configured Azure AI Search endpoint.
+def _safe_search_url(url: str) -> str:
+    """Rebuild ``url`` against the configured Azure AI Search endpoint.
 
     Index and datasource names are derived from caller-supplied session ids, so a name
     containing ``/`` or ``@`` could otherwise steer the request — and its bearer token —
-    to another host.
+    to another host. Reassembling from the configured scheme/netloc means the outbound
+    target is never the caller's string, only its path and query.
     """
     allowed = urlparse(os.getenv("AZURE_AI_SEARCH_ENDPOINT", SEARCH_ENDPOINT))
     target = urlparse(url)
     if (target.scheme, target.hostname, target.port) != (allowed.scheme, allowed.hostname, allowed.port):
         raise ValueError(f"Refusing request to non-search host: {target.scheme}://{target.hostname}")
+    return urlunparse((allowed.scheme, allowed.netloc, target.path, "", target.query, ""))
 
 
 def _make_request(method: str, url: str, json_body: Optional[Dict] = None, timeout: int = 60) -> requests.Response:
     """Make authenticated request to Azure AI Search"""
-    _assert_search_url(url)
+    safe_url = _safe_search_url(url)
     token = _get_access_token()
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
     }
     
-    logger.debug(f"Making {method} request to: {url}")
+    logger.debug(f"Making {method} request to: {safe_url}")
     
     if method == "GET":
-        response = requests.get(url, headers=headers, timeout=timeout)
+        response = requests.get(safe_url, headers=headers, timeout=timeout)
     elif method == "POST":
-        response = requests.post(url, headers=headers, json=json_body, timeout=timeout)
+        response = requests.post(safe_url, headers=headers, json=json_body, timeout=timeout)
     elif method == "PUT":
-        response = requests.put(url, headers=headers, json=json_body, timeout=timeout)
+        response = requests.put(safe_url, headers=headers, json=json_body, timeout=timeout)
     elif method == "DELETE":
-        response = requests.delete(url, headers=headers, timeout=timeout)
+        response = requests.delete(safe_url, headers=headers, timeout=timeout)
     else:
         raise ValueError(f"Unsupported method: {method}")
     

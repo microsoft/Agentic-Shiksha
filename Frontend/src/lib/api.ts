@@ -57,6 +57,22 @@ export function absoluteBackendUrl(u: string): string {
 }
 
 /**
+ * Checks whether a URL's host is an Azure Blob Storage host
+ * (`<account>.blob.core.windows.net`), by parsing the URL rather than doing
+ * a substring match, so arbitrary hosts embedding the domain elsewhere in
+ * the URL (path/query) are not misidentified as Azure Blob Storage.
+ */
+export function isAzureBlobUrl(url: string): boolean {
+  if (!url) return false;
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    return host === "blob.core.windows.net" || host.endsWith(".blob.core.windows.net");
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Converts an Azure Blob Storage URL to a proxied URL via our backend.
  * This is needed because blob URLs require authentication.
  * 
@@ -71,7 +87,7 @@ export function getBlobProxyUrl(url: string): string {
   
   // If it's an Azure Blob Storage URL, proxy it
   // Note: BASE already includes /api, so we just append /blob/proxy
-  if (url.includes('.blob.core.windows.net')) {
+  if (isAzureBlobUrl(url)) {
     // Decode the URL first to handle already-encoded URLs (like spaces as %20)
     // Then encode it properly for the query parameter
     // This prevents double-encoding issues (e.g., %20 becoming %2520)

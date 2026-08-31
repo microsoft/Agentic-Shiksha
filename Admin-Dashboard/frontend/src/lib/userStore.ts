@@ -6,7 +6,10 @@ import { type UserRole, DEFAULT_ROLE } from "./roles";
 const TEMP_USER_KEY = "ekalaiva.temp.userId";
 
 function generateTempUserId(): string {
-  const random = Math.random().toString(36).substring(2, 10);
+  // Uses a cryptographically secure random source instead of Math.random(),
+  // since this ID is used to identify users.
+  const randomValues = crypto.getRandomValues(new Uint32Array(2));
+  const random = (randomValues[0].toString(36) + randomValues[1].toString(36)).substring(0, 8);
   const timestamp = Date.now().toString(36);
   return `temp_${random}_${timestamp}`;
 }

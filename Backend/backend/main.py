@@ -232,6 +232,18 @@ def _require_session(session: str) -> str:
         raise HTTPException(status_code=400, detail="invalid session")
     return session
 
+def _require_agent_id(agent_id: str) -> str:
+    """Sanitize an agent id/name used to build filesystem paths under
+    AGENT_SETUPS_BASE, preventing path traversal via '..', path separators,
+    or embedded null bytes."""
+    raw = (agent_id or "").strip()
+    if "\x00" in raw:
+        raise HTTPException(status_code=400, detail="Invalid agent id")
+    safe = Path(raw).name
+    if not safe or safe != raw:
+        raise HTTPException(status_code=400, detail="Invalid agent id")
+    return safe
+
 def _kb_base(session: str, kb_scope: str) -> Path:
     kb_scope = _require_scope(kb_scope)
     session = _require_session(session)
@@ -2260,7 +2272,7 @@ def knowledge_delete_file(session: str, filename: str, kb_scope: str = Query(...
         raw_path.unlink()
 
     stem = Path(safe_name).stem
-    if derived_dir.exists():
+    if stem and re.fullmatch(r"[^/\\]+", stem) and ".." not in stem and derived_dir.exists():
         for p in derived_dir.glob(f"{stem}.*"):
             try:
                 p.unlink()
@@ -8012,6 +8024,7 @@ def safe_rmtree(path, retries=3, delay=0.5):
 @app.delete("/api/agents/setup/{agent_id}")
 def delete_agent_setup(agent_id: str):
     """Delete agent setup folder and all its contents"""
+    agent_id = _require_agent_id(agent_id)
     setup_dir = AGENT_SETUPS_BASE / agent_id
 
     if setup_dir.exists():
@@ -8132,6 +8145,7 @@ def azure_agents_delete(agent_id: str):
     Args:
         agent_id: The agent name (e.g., "my-course-agent")
     """
+    agent_id = _require_agent_id(agent_id)
     
     # Step 0: Get session UUID from setup to delete the index
     session_uuid = None
@@ -10990,6 +11004,7 @@ async def retry_threshold_research(agent_id: str):
     Re-run ONLY the threshold-concept-research-agent (Agent 2).
     Requires syllabus_research_raw.txt from a prior successful Agent 1 run.
     """
+    agent_id = _require_agent_id(agent_id)
     agent_meta = get_agent_metadata(agent_id)
     if not agent_meta:
         raise HTTPException(status_code=404, detail="Agent not found")
@@ -11218,6 +11233,7 @@ async def get_agent_course_curriculum(agent_name: str, status_only: bool = False
     from blob storage, in-memory cache, or local file fallback.
     If status_only=true, returns only the status without the full curriculum payload.
     """
+    agent_name = _require_agent_id(agent_name)
     try:
         # Try blob storage / cache first
         from azure_services.persistence.cosmos_db import get_course_curriculum as get_cc_from_store

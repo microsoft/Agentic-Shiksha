@@ -709,8 +709,10 @@ export function useAgentChat(
     const userMsgTimestamp = sendOptions.userMessageTimestamp ?? Date.now();
     
     // Generate a new message group ID for this conversation turn (user message + its responses)
+    // Uses a cryptographically secure random source instead of Math.random(),
+    // since this ID flows into usage_event_id which is used in a security-sensitive context.
     const messageGroupId = sendOptions.messageGroupId
-      ?? `mg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      ?? `mg-${Date.now()}-${crypto.getRandomValues(new Uint32Array(1))[0].toString(36)}`;
     currentMessageGroupRef.current = {
       id: messageGroupId,
       retryNumber: sendOptions.retryNumber ?? 0,

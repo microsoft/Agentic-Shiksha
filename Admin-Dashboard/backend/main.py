@@ -337,18 +337,24 @@ def get_feedback(limit: int = Query(200, ge=1, le=1000)):
 @app.get("/api/dashboard/blob/proxy", tags=["Feedback"])
 def proxy_blob(url: str = Query(...)):
     """Proxy a blob from Azure Storage (for feedback attachments)."""
+    import re
     from urllib.parse import urlparse
     from azure.storage.blob import BlobServiceClient
     from azure.identity import DefaultAzureCredential
 
     parsed = urlparse(url)
-    if not parsed.netloc.endswith(".blob.core.windows.net"):
+    hostname = parsed.hostname or ""
+    if parsed.scheme != "https" or not re.fullmatch(
+        r"[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?\.blob\.core\.windows\.net",
+        hostname,
+        re.IGNORECASE,
+    ):
         raise HTTPException(status_code=400, detail="Invalid blob storage URL")
     path_parts = parsed.path.lstrip("/").split("/", 1)
     if len(path_parts) < 2:
         raise HTTPException(status_code=400, detail="Invalid blob path")
 
-    account_url = f"https://{parsed.netloc}"
+    account_url = f"https://{hostname}"
     container_name, blob_name = path_parts[0], path_parts[1]
 
     try:

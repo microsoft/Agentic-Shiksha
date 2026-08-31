@@ -163,7 +163,11 @@ function generateId(): string {
 }
 
 function generateSessionId(): string {
-  return `session-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+  // Uses a cryptographically secure random source instead of Math.random(),
+  // since this ID is used to identify user sessions.
+  const randomValues = crypto.getRandomValues(new Uint32Array(2));
+  const random = (randomValues[0].toString(36) + randomValues[1].toString(36)).substring(0, 6);
+  return `session-${Date.now()}-${random}`;
 }
 
 function getDateKey(date: Date = new Date()): string {

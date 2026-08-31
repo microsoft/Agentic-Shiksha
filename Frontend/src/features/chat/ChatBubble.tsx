@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import Markdown from "@/components/common/Markdown";
 import { Textarea } from "@/components/ui/textarea";
-import { getBlobProxyUrl } from "@/lib/api";
+import { getBlobProxyUrl, isAzureBlobUrl } from "@/lib/api";
 import type { ChatMsg as BaseChatMsg } from "@/lib/types";
 import { useChatStore } from "@/lib/chatStore";
 import { chatApi } from "@/lib/chatApi";
@@ -523,7 +523,7 @@ function ChatBubble({
               console.log('[ChatBubble] Rendering image:', { 
                 originalUrl: url, 
                 displayUrl,
-                urlType: url?.startsWith('blob:') ? 'blob:' : url?.includes('.blob.core.windows.net') ? 'azure' : 'other',
+                urlType: url?.startsWith('blob:') ? 'blob:' : isAzureBlobUrl(url) ? 'azure' : 'other',
               });
               return (
                 <button

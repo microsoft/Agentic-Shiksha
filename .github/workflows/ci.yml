@@ -63,7 +63,7 @@ jobs:
       VITE_AZURE_CLIENT_ID: 00000000-0000-0000-0000-000000000000
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v5
         with:
@@ -86,7 +86,7 @@ jobs:
     name: Frontend
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v4
         with:
@@ -111,7 +111,7 @@ jobs:
     name: Container builds
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Build context is the service directory, so .dockerignore keeps .env out.
       - name: Build backend image

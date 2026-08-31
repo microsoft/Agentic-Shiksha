@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@azure/msal-browser": "^5.0.2",
+    "@azure/msal-browser": "^5.19.0",
     "@azure/msal-react": "^5.0.2",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-dialog": "^1.1.15",

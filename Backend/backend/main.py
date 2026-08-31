@@ -7652,7 +7652,16 @@ async def upload_agent_image(
         # Convert image to Progressive JPEG for smooth loading
         # Progressive JPEG loads in multiple passes: blurry -> sharper -> final
         img = Image.open(io.BytesIO(content))
-        
+
+        # content_type above is a client-supplied header. Re-check the format
+        # Pillow actually sniffed, before any decode, so a file renamed to look
+        # like a PNG cannot reach the PSD/FITS/JPEG2000 decoders.
+        if img.format not in ("PNG", "JPEG", "GIF", "WEBP"):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unsupported image format: {img.format}",
+            )
+
         # Convert to RGB if necessary (for PNG with transparency, etc.)
         if img.mode in ('RGBA', 'LA', 'P'):
             # Create white background for transparent images
@@ -7723,6 +7732,8 @@ async def upload_agent_image(
         
         return {"ok": True, "imageUrl": proxy_url}
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Failed to upload agent image for {agent_id}: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to upload image: {str(e)}")

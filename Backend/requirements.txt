@@ -1,6 +1,6 @@
 fastapi==0.120.0
 uvicorn==0.38.0
-python-multipart==0.0.20  # Required by FastAPI for form/file upload endpoints
+python-multipart==0.0.32  # Required by FastAPI for form/file upload endpoints
 
 azure-ai-projects==2.0.0b2
 azure-ai-agents==1.2.0b5
@@ -14,7 +14,7 @@ azure-ai-evaluation>=1.17.0  # Groundedness & quality evaluation (GroundednessEv
 azure-mgmt-cognitiveservices  # For MCP project connection management
 
 pdf2image==1.17.0
-Pillow==12.0.0
+Pillow==12.3.0
 
 litellm==1.79.1
 

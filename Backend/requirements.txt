@@ -1,5 +1,5 @@
 fastapi==0.120.0
-uvicorn==0.38.0
+uvicorn==0.52.4
 python-multipart==0.0.32  # Required by FastAPI for form/file upload endpoints
 
 azure-ai-projects==2.0.0b2

@@ -15,6 +15,14 @@ logger = logging.getLogger(__name__)
 # resolves the same however the app is launched; blob storage is the primary.
 AGENT_SETUPS_BASE = Path(__file__).resolve().parents[3] / "user_data" / "agent_setups"
 
+
+def _setup_dir(agent_name: str) -> Optional[Path]:
+    """Setup folder for ``agent_name``, or None if the name would escape the base dir."""
+    name = Path((agent_name or "").strip()).name
+    if not name or name in (".", ".."):
+        return None
+    return AGENT_SETUPS_BASE / name
+
 GET_THRESHOLD_CONCEPTS_TOOL_DEFINITION = load_tool_definition("get_threshold_concepts")
 
 # Backward-compatible alias so old imports still work
@@ -36,7 +44,9 @@ def _get_full_course_curriculum(agent_name: str) -> Optional[Dict[str, Any]]:
         logger.warning(f"Blob storage course curriculum lookup failed for '{agent_name}': {e}")
 
     # Fallback: check local file (backward compatibility)
-    setup_dir = AGENT_SETUPS_BASE / agent_name
+    setup_dir = _setup_dir(agent_name)
+    if setup_dir is None:
+        return None
     plan_path = setup_dir / "course_curriculum.json"
 
     if not plan_path.exists():
@@ -279,8 +289,8 @@ def get_tool_output_message(agent_name: str) -> str:
         pass
 
     # Fallback: check local file
-    setup_dir = AGENT_SETUPS_BASE / agent_name
-    plan_path = setup_dir / "course_curriculum.json"
-    if plan_path.exists():
+    setup_dir = _setup_dir(agent_name)
+    plan_path = setup_dir / "course_curriculum.json" if setup_dir else None
+    if plan_path and plan_path.exists():
         return "Threshold concepts and learning state loaded successfully. Use the topic map to see what the student has learned, what's in progress, and what to teach next."
     return "Threshold concepts not yet available. Teach based on your knowledge of the course topic."

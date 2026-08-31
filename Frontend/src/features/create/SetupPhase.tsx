@@ -62,7 +62,7 @@ import { DarkFileInput } from "@/components/common/DarkFileInput";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 import type { KnowledgeFile } from "@/lib/api";
-import { listAzureAgents } from "@/lib/api";
+import { listAzureAgents, safeImageSrc } from "@/lib/api";
 import type { AzureAgentRow } from "@/lib/types";
 import { getCourseName } from "@/lib/utils";
 // Model is controlled by backend - no model config imports needed
@@ -658,7 +658,7 @@ export function SetupPhase(props: SetupPhaseProps) {
                         </div>
                       )}
                       <img
-                        src={agentImagePreview}
+                        src={safeImageSrc(agentImagePreview)}
                         alt="Agent preview"
                         className={`w-full h-full object-cover rounded-[1.75rem] transition-opacity duration-300 ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
                         onLoad={() => setImageLoading(false)}

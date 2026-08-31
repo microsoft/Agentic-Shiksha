@@ -63,6 +63,36 @@ export function absoluteBackendUrl(u: string): string {
  * @param url - The URL to potentially convert
  * @returns Proxied URL if it's a blob URL, otherwise the original URL
  */
+/**
+ * True when `url` is an https URL whose host really is an Azure Blob Storage host.
+ * Checking the whole string for ".blob.core.windows.net" would also match a URL that
+ * merely contains it, e.g. https://attacker.example/?x=.blob.core.windows.net
+ */
+export function isAzureBlobUrl(url: string): boolean {
+  try {
+    const u = new URL(url);
+    return u.protocol === "https:" && u.hostname.endsWith(".blob.core.windows.net");
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Returns a source safe to hand to an <img>. Blocks javascript:/data:text URLs that
+ * would otherwise be reinterpreted by the browser.
+ */
+export function safeImageSrc(url: string | null | undefined): string | undefined {
+  if (!url) return undefined;
+  if (url.startsWith("blob:")) return url;
+  if (/^data:image\/(png|jpe?g|gif|webp|avif);/i.test(url)) return url;
+  try {
+    const u = new URL(url, window.location.origin);
+    return u.protocol === "http:" || u.protocol === "https:" ? u.href : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export function getBlobProxyUrl(url: string): string {
   if (!url) return url;
   
@@ -71,7 +101,7 @@ export function getBlobProxyUrl(url: string): string {
   
   // If it's an Azure Blob Storage URL, proxy it
   // Note: BASE already includes /api, so we just append /blob/proxy
-  if (url.includes('.blob.core.windows.net')) {
+  if (isAzureBlobUrl(url)) {
     // Decode the URL first to handle already-encoded URLs (like spaces as %20)
     // Then encode it properly for the query parameter
     // This prevents double-encoding issues (e.g., %20 becoming %2520)

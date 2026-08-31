@@ -25,7 +25,7 @@ tqdm==4.67.1
 
 python-docx==1.2.0
 
-aiofiles==24.1.0
+aiofiles==25.1.0
 
 dulwich>=0.22.1  # Pure-Python git for curriculum version control
 

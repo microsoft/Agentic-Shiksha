@@ -39,6 +39,7 @@ from azure_services.config import (
     COMMON_INDEXER_NAME,
     COMMON_IMAGE_CONTAINER,
 )
+from utils.log_safe import scrub
 
 # In-memory cache to skip redundant pipeline creation calls within same process
 _pipeline_ensured = False
@@ -152,7 +153,7 @@ def create_unified_datasource(session_uuid: str) -> Tuple[bool, str]:
     # Point to the session folder (covers both course/ and exam/ subfolders)
     blob_prefix = f"sessions/{session_uuid}/"
     
-    logger.info(f"Creating UNIFIED datasource '{datasource_name}' for path: {blob_prefix}")
+    logger.info(f"Creating UNIFIED datasource '{scrub(datasource_name)}' for path: {scrub(blob_prefix)}")
     
     url = f"{search_endpoint}/datasources/{datasource_name}?api-version={API_VERSION}"
     
@@ -171,7 +172,7 @@ def create_unified_datasource(session_uuid: str) -> Tuple[bool, str]:
     
     response = _make_request("PUT", url, body)
     if response.status_code in [200, 201, 204]:
-        logger.info(f"✓ Unified Datasource '{datasource_name}' created successfully")
+        logger.info(f"✓ Unified Datasource '{scrub(datasource_name)}' created successfully")
         return True, datasource_name
     else:
         logger.error(f"✗ Failed to create unified datasource: {response.status_code}")
@@ -187,7 +188,7 @@ def create_unified_index(session_uuid: str) -> Tuple[bool, str]:
     names = _get_unified_resource_names(session_uuid)
     index_name = names["index"]
     
-    logger.info(f"Creating UNIFIED index '{index_name}'")
+    logger.info(f"Creating UNIFIED index '{scrub(index_name)}'")
     
     url = f"{SEARCH_ENDPOINT}/indexes/{index_name}?api-version={API_VERSION}"
     
@@ -306,7 +307,7 @@ def create_unified_index(session_uuid: str) -> Tuple[bool, str]:
     
     response = _make_request("PUT", url, body)
     if response.status_code in [200, 201, 204]:
-        logger.info(f"✓ Unified Index '{index_name}' created successfully")
+        logger.info(f"✓ Unified Index '{scrub(index_name)}' created successfully")
         return True, index_name
     else:
         logger.error(f"✗ Failed to create unified index: {response.status_code} - {response.text}")
@@ -342,7 +343,7 @@ def create_course_datasource(session_uuid: str, kb_scope: str = "course") -> Tup
     # Blob path prefix for this course's files
     blob_prefix = f"sessions/{session_uuid}/{kb_scope}/"
     
-    logger.info(f"Creating datasource '{datasource_name}' for path: {blob_prefix}")
+    logger.info(f"Creating datasource '{scrub(datasource_name)}' for path: {scrub(blob_prefix)}")
     logger.info(f"Storage connection: {storage_connection}")
     
     url = f"{search_endpoint}/datasources/{datasource_name}?api-version={API_VERSION}"
@@ -364,13 +365,13 @@ def create_course_datasource(session_uuid: str, kb_scope: str = "course") -> Tup
     
     response = _make_request("PUT", url, body)
     if response.status_code in [200, 201, 204]:
-        logger.info(f"✓ Datasource '{datasource_name}' created successfully")
+        logger.info(f"✓ Datasource '{scrub(datasource_name)}' created successfully")
         return True, datasource_name
     else:
         logger.error(f"✗ Failed to create datasource: {response.status_code}")
         logger.error(f"Response headers: {dict(response.headers)}")
         logger.error(f"Response body: {response.text}")
-        logger.error(f"Request URL: {url}")
+        logger.error(f"Request URL: {scrub(url)}")
         return False, response.text
 
 
@@ -379,7 +380,7 @@ def create_course_index(session_uuid: str, kb_scope: str = "course") -> Tuple[bo
     names = _get_resource_names(session_uuid, kb_scope)
     index_name = names["index"]
     
-    logger.info(f"Creating index '{index_name}'")
+    logger.info(f"Creating index '{scrub(index_name)}'")
     
     url = f"{SEARCH_ENDPOINT}/indexes/{index_name}?api-version={API_VERSION}"
     
@@ -489,7 +490,7 @@ def create_course_index(session_uuid: str, kb_scope: str = "course") -> Tuple[bo
     
     response = _make_request("PUT", url, body)
     if response.status_code in [200, 201, 204]:
-        logger.info(f"✓ Index '{index_name}' created successfully")
+        logger.info(f"✓ Index '{scrub(index_name)}' created successfully")
         return True, index_name
     else:
         logger.error(f"✗ Failed to create index: {response.status_code} - {response.text}")
@@ -503,7 +504,7 @@ def create_course_skillset(session_uuid: str, kb_scope: str = "course") -> Tuple
     index_name = names["index"]
     image_container = names["image_container"]
     
-    logger.info(f"Creating skillset '{skillset_name}'")
+    logger.info(f"Creating skillset '{scrub(skillset_name)}'")
     
     url = f"{SEARCH_ENDPOINT}/skillsets/{skillset_name}?api-version={API_VERSION}"
     
@@ -598,7 +599,7 @@ def create_course_skillset(session_uuid: str, kb_scope: str = "course") -> Tuple
     
     response = _make_request("PUT", url, body)
     if response.status_code in [200, 201, 204]:
-        logger.info(f"✓ Skillset '{skillset_name}' created successfully")
+        logger.info(f"✓ Skillset '{scrub(skillset_name)}' created successfully")
         return True, skillset_name
     else:
         logger.error(f"✗ Failed to create skillset: {response.status_code} - {response.text}")
@@ -613,7 +614,7 @@ def create_course_indexer(session_uuid: str, kb_scope: str = "course") -> Tuple[
     index_name = names["index"]
     skillset_name = names["skillset"]
     
-    logger.info(f"Creating indexer '{indexer_name}'")
+    logger.info(f"Creating indexer '{scrub(indexer_name)}'")
     
     url = f"{SEARCH_ENDPOINT}/indexers/{indexer_name}?api-version={API_VERSION}"
     
@@ -642,7 +643,7 @@ def create_course_indexer(session_uuid: str, kb_scope: str = "course") -> Tuple[
     
     response = _make_request("PUT", url, body)
     if response.status_code in [200, 201, 204]:
-        logger.info(f"✓ Indexer '{indexer_name}' created successfully")
+        logger.info(f"✓ Indexer '{scrub(indexer_name)}' created successfully")
         return True, indexer_name
     else:
         logger.error(f"✗ Failed to create indexer: {response.status_code} - {response.text}")
@@ -654,13 +655,13 @@ def run_indexer(session_uuid: str, kb_scope: str = "course") -> Tuple[bool, str]
     names = _get_resource_names(session_uuid, kb_scope)
     indexer_name = names["indexer"]
     
-    logger.info(f"Running indexer '{indexer_name}'")
+    logger.info(f"Running indexer '{scrub(indexer_name)}'")
     
     url = f"{SEARCH_ENDPOINT}/indexers/{indexer_name}/run?api-version={API_VERSION}"
     
     response = _make_request("POST", url)
     if response.status_code in [200, 202, 204]:
-        logger.info(f"✓ Indexer '{indexer_name}' started successfully")
+        logger.info(f"✓ Indexer '{scrub(indexer_name)}' started successfully")
         return True, indexer_name
     else:
         logger.error(f"✗ Failed to run indexer: {response.status_code} - {response.text}")
@@ -707,7 +708,7 @@ def create_course_index_pipeline(session_uuid: str, kb_scope: str = "course") ->
     
     Returns: (success, index_name or error_message)
     """
-    logger.info(f"=== Creating index pipeline for session {session_uuid} ({kb_scope}) ===")
+    logger.info(f"=== Creating index pipeline for session {scrub(session_uuid)} ({scrub(kb_scope)}) ===")
     
     # Step 1: Create datasource
     success, result = create_course_datasource(session_uuid, kb_scope)
@@ -732,10 +733,10 @@ def create_course_index_pipeline(session_uuid: str, kb_scope: str = "course") ->
     # Step 5: Run indexer
     success, result = run_indexer(session_uuid, kb_scope)
     if not success:
-        logger.warning(f"Indexer run failed (may already be running): {result}")
+        logger.warning(f"Indexer run failed (may already be running): {scrub(result)}")
         # Don't fail the whole pipeline if indexer run fails
     
-    logger.info(f"=== Index pipeline created successfully: {index_name} ===")
+    logger.info(f"=== Index pipeline created successfully: {scrub(index_name)} ===")
     return True, index_name
 
 
@@ -751,7 +752,7 @@ def create_unified_index_pipeline(session_uuid: str) -> Tuple[bool, str]:
     
     Returns: (success, index_name or error_message)
     """
-    logger.info(f"=== Creating UNIFIED index pipeline for session {session_uuid} ===")
+    logger.info(f"=== Creating UNIFIED index pipeline for session {scrub(session_uuid)} ===")
     
     # Step 1: Create unified datasource (covers all subfolders)
     success, result = create_unified_datasource(session_uuid)
@@ -776,9 +777,9 @@ def create_unified_index_pipeline(session_uuid: str) -> Tuple[bool, str]:
     # Step 5: Run indexer
     success, result = run_unified_indexer(session_uuid)
     if not success:
-        logger.warning(f"Unified indexer run failed (may already be running): {result}")
+        logger.warning(f"Unified indexer run failed (may already be running): {scrub(result)}")
     
-    logger.info(f"=== UNIFIED index pipeline created successfully: {index_name} ===")
+    logger.info(f"=== UNIFIED index pipeline created successfully: {scrub(index_name)} ===")
     return True, index_name
 
 
@@ -789,7 +790,7 @@ def create_unified_skillset(session_uuid: str) -> Tuple[bool, str]:
     index_name = names["index"]
     image_container = names["image_container"]
     
-    logger.info(f"Creating UNIFIED skillset '{skillset_name}'")
+    logger.info(f"Creating UNIFIED skillset '{scrub(skillset_name)}'")
     
     url = f"{SEARCH_ENDPOINT}/skillsets/{skillset_name}?api-version={API_VERSION}"
     
@@ -869,7 +870,7 @@ def create_unified_skillset(session_uuid: str) -> Tuple[bool, str]:
     
     response = _make_request("PUT", url, body)
     if response.status_code in [200, 201, 204]:
-        logger.info(f"✓ Unified Skillset '{skillset_name}' created successfully")
+        logger.info(f"✓ Unified Skillset '{scrub(skillset_name)}' created successfully")
         return True, skillset_name
     else:
         logger.error(f"✗ Failed to create unified skillset: {response.status_code}")
@@ -885,7 +886,7 @@ def create_unified_indexer(session_uuid: str) -> Tuple[bool, str]:
     index_name = names["index"]
     skillset_name = names["skillset"]
     
-    logger.info(f"Creating UNIFIED indexer '{indexer_name}'")
+    logger.info(f"Creating UNIFIED indexer '{scrub(indexer_name)}'")
     
     url = f"{SEARCH_ENDPOINT}/indexers/{indexer_name}?api-version={API_VERSION}"
     
@@ -909,7 +910,7 @@ def create_unified_indexer(session_uuid: str) -> Tuple[bool, str]:
     
     response = _make_request("PUT", url, body)
     if response.status_code in [200, 201, 204]:
-        logger.info(f"✓ Unified Indexer '{indexer_name}' created successfully")
+        logger.info(f"✓ Unified Indexer '{scrub(indexer_name)}' created successfully")
         return True, indexer_name
     else:
         logger.error(f"✗ Failed to create unified indexer: {response.status_code}")
@@ -922,13 +923,13 @@ def run_unified_indexer(session_uuid: str) -> Tuple[bool, str]:
     names = _get_unified_resource_names(session_uuid)
     indexer_name = names["indexer"]
     
-    logger.info(f"Running UNIFIED indexer '{indexer_name}'")
+    logger.info(f"Running UNIFIED indexer '{scrub(indexer_name)}'")
     
     url = f"{SEARCH_ENDPOINT}/indexers/{indexer_name}/run?api-version={API_VERSION}"
     
     response = _make_request("POST", url)
     if response.status_code in [200, 202, 204]:
-        logger.info(f"✓ Unified Indexer '{indexer_name}' started successfully")
+        logger.info(f"✓ Unified Indexer '{scrub(indexer_name)}' started successfully")
         return True, indexer_name
     else:
         logger.error(f"✗ Failed to run unified indexer: {response.status_code}")
@@ -944,7 +945,7 @@ def delete_unified_index_pipeline(session_uuid: str) -> Tuple[bool, str]:
     names = _get_unified_resource_names(session_uuid)
     errors = []
     
-    logger.info(f"=== Deleting UNIFIED index pipeline for session {session_uuid} ===")
+    logger.info(f"=== Deleting UNIFIED index pipeline for session {scrub(session_uuid)} ===")
     
     for resource_type, resource_key in [
         ("indexers", "indexer"),
@@ -977,7 +978,7 @@ def delete_course_index_pipeline(session_uuid: str, kb_scope: str = "course") ->
     names = _get_resource_names(session_uuid, kb_scope)
     errors = []
     
-    logger.info(f"=== Deleting index pipeline for session {session_uuid} ({kb_scope}) ===")
+    logger.info(f"=== Deleting index pipeline for session {scrub(session_uuid)} ({scrub(kb_scope)}) ===")
     
     # Step 1: Delete indexer (must be first)
     indexer_name = names["indexer"]
@@ -986,7 +987,7 @@ def delete_course_index_pipeline(session_uuid: str, kb_scope: str = "course") ->
     if response.status_code not in [200, 204, 404]:
         errors.append(f"Indexer deletion failed: {response.text}")
     else:
-        logger.info(f"✓ Deleted indexer '{indexer_name}'")
+        logger.info(f"✓ Deleted indexer '{scrub(indexer_name)}'")
     
     # Step 2: Delete skillset
     skillset_name = names["skillset"]
@@ -995,7 +996,7 @@ def delete_course_index_pipeline(session_uuid: str, kb_scope: str = "course") ->
     if response.status_code not in [200, 204, 404]:
         errors.append(f"Skillset deletion failed: {response.text}")
     else:
-        logger.info(f"✓ Deleted skillset '{skillset_name}'")
+        logger.info(f"✓ Deleted skillset '{scrub(skillset_name)}'")
     
     # Step 3: Delete index
     index_name = names["index"]
@@ -1004,7 +1005,7 @@ def delete_course_index_pipeline(session_uuid: str, kb_scope: str = "course") ->
     if response.status_code not in [200, 204, 404]:
         errors.append(f"Index deletion failed: {response.text}")
     else:
-        logger.info(f"✓ Deleted index '{index_name}'")
+        logger.info(f"✓ Deleted index '{scrub(index_name)}'")
     
     # Step 4: Delete datasource
     datasource_name = names["datasource"]
@@ -1013,7 +1014,7 @@ def delete_course_index_pipeline(session_uuid: str, kb_scope: str = "course") ->
     if response.status_code not in [200, 204, 404]:
         errors.append(f"Datasource deletion failed: {response.text}")
     else:
-        logger.info(f"✓ Deleted datasource '{datasource_name}'")
+        logger.info(f"✓ Deleted datasource '{scrub(datasource_name)}'")
     
     if errors:
         return False, "; ".join(errors)
@@ -1130,7 +1131,7 @@ def create_unified_index_knowledge_source(
         # Assume unified index exists
         index_name = names["unified_index"]
     
-    logger.info(f"Creating Unified Index Knowledge Source '{ks_name}' for index '{index_name}'")
+    logger.info(f"Creating Unified Index Knowledge Source '{scrub(ks_name)}' for index '{scrub(index_name)}'")
     
     url = f"{SEARCH_ENDPOINT}/knowledgesources/{ks_name}?api-version={API_VERSION}"
     
@@ -1148,7 +1149,7 @@ def create_unified_index_knowledge_source(
     
     response = _make_request("PUT", url, body)
     if response.status_code in [200, 201, 204]:
-        logger.info(f"✓ Unified Index Knowledge Source '{ks_name}' created successfully")
+        logger.info(f"✓ Unified Index Knowledge Source '{scrub(ks_name)}' created successfully")
         return True, ks_name
     else:
         logger.error(f"✗ Failed to create Index Knowledge Source: {response.status_code}")
@@ -1175,7 +1176,7 @@ def create_unified_web_knowledge_source(
     names = _get_unified_kb_names(session_uuid)
     ks_name = names["web_ks"]
     
-    logger.info(f"Creating Unified Web Knowledge Source '{ks_name}'")
+    logger.info(f"Creating Unified Web Knowledge Source '{scrub(ks_name)}'")
     
     # Parse teacher URLs into domains if provided
     if teacher_urls and not allowed_domains:
@@ -1193,7 +1194,7 @@ def create_unified_web_knowledge_source(
                         "includeSubpages": True
                     })
             except Exception as e:
-                logger.warning(f"Could not parse URL '{url}': {e}")
+                logger.warning(f"Could not parse URL '{scrub(url)}': {scrub(e)}")
         logger.info(f"Parsed {len(allowed_domains)} unique domains from {len(teacher_urls)} URLs")
     
     # Default educational domains if none provided
@@ -1228,7 +1229,7 @@ def create_unified_web_knowledge_source(
     
     response = _make_request("PUT", url, body)
     if response.status_code in [200, 201, 204]:
-        logger.info(f"✓ Unified Web Knowledge Source '{ks_name}' created successfully")
+        logger.info(f"✓ Unified Web Knowledge Source '{scrub(ks_name)}' created successfully")
         logger.info(f"  Allowed domains: {[d.get('address') for d in allowed_domains]}")
         return True, ks_name
     else:
@@ -1254,7 +1255,7 @@ def create_session_knowledge_base(
     names = _get_unified_kb_names(session_uuid)
     kb_name = names["knowledge_base"]
     
-    logger.info(f"Creating Session Knowledge Base '{kb_name}'")
+    logger.info(f"Creating Session Knowledge Base '{scrub(kb_name)}'")
     
     url = f"{SEARCH_ENDPOINT}/knowledgebases/{kb_name}?api-version={API_VERSION}"
     
@@ -1303,7 +1304,7 @@ def create_session_knowledge_base(
     
     response = _make_request("PUT", url, body)
     if response.status_code in [200, 201, 204]:
-        logger.info(f"✓ Session Knowledge Base '{kb_name}' created successfully")
+        logger.info(f"✓ Session Knowledge Base '{scrub(kb_name)}' created successfully")
         logger.info(f"  Sources: {[s['name'] for s in knowledge_sources]}")
         return True, kb_name
     else:
@@ -1334,7 +1335,7 @@ def create_unified_knowledge_pipeline(
     Returns:
         (success, knowledge_base_name or error_message)
     """
-    logger.info(f"=== Creating UNIFIED Knowledge Pipeline for {session_uuid} ===")
+    logger.info(f"=== Creating UNIFIED Knowledge Pipeline for {scrub(session_uuid)} ===")
     
     # Step 1: Create Unified Index Knowledge Source
     success, result = create_unified_index_knowledge_source(session_uuid, index_names)
@@ -1349,13 +1350,13 @@ def create_unified_knowledge_pipeline(
             teacher_urls=teacher_urls
         )
         if not success:
-            logger.warning(f"Web KS creation failed (optional): {result}")
+            logger.warning(f"Web KS creation failed (optional): {scrub(result)}")
             include_web = False
     else:
         # No teacher URLs - still create with defaults
         success, result = create_unified_web_knowledge_source(session_uuid)
         if not success:
-            logger.warning(f"Web KS creation failed (optional): {result}")
+            logger.warning(f"Web KS creation failed (optional): {scrub(result)}")
             include_web = False
     
     # Step 3: Create unified Knowledge Base
@@ -1367,7 +1368,7 @@ def create_unified_knowledge_pipeline(
     if not success:
         return False, f"Knowledge Base failed: {kb_name}"
     
-    logger.info(f"=== UNIFIED Knowledge Pipeline created: {kb_name} ===")
+    logger.info(f"=== UNIFIED Knowledge Pipeline created: {scrub(kb_name)} ===")
     return True, kb_name
 
 
@@ -1379,7 +1380,7 @@ def delete_unified_knowledge_pipeline(session_uuid: str) -> Tuple[bool, str]:
     names = _get_unified_kb_names(session_uuid)
     errors = []
     
-    logger.info(f"=== Deleting UNIFIED Knowledge Pipeline for {session_uuid} ===")
+    logger.info(f"=== Deleting UNIFIED Knowledge Pipeline for {scrub(session_uuid)} ===")
     
     # Step 1: Delete Knowledge Base first
     kb_name = names["knowledge_base"]
@@ -1388,7 +1389,7 @@ def delete_unified_knowledge_pipeline(session_uuid: str) -> Tuple[bool, str]:
     if response.status_code not in [200, 204, 404]:
         errors.append(f"Knowledge Base deletion failed: {response.text}")
     else:
-        logger.info(f"✓ Deleted Knowledge Base '{kb_name}'")
+        logger.info(f"✓ Deleted Knowledge Base '{scrub(kb_name)}'")
     
     # Step 2: Delete Web Knowledge Source
     web_ks = names["web_ks"]
@@ -1397,7 +1398,7 @@ def delete_unified_knowledge_pipeline(session_uuid: str) -> Tuple[bool, str]:
     if response.status_code not in [200, 204, 404]:
         errors.append(f"Web KS deletion failed: {response.text}")
     else:
-        logger.info(f"✓ Deleted Web Knowledge Source '{web_ks}'")
+        logger.info(f"✓ Deleted Web Knowledge Source '{scrub(web_ks)}'")
     
     # Step 3: Delete Index Knowledge Source
     index_ks = names["index_ks"]
@@ -1406,7 +1407,7 @@ def delete_unified_knowledge_pipeline(session_uuid: str) -> Tuple[bool, str]:
     if response.status_code not in [200, 204, 404]:
         errors.append(f"Index KS deletion failed: {response.text}")
     else:
-        logger.info(f"✓ Deleted Index Knowledge Source '{index_ks}'")
+        logger.info(f"✓ Deleted Index Knowledge Source '{scrub(index_ks)}'")
     
     if errors:
         return False, "; ".join(errors)
@@ -1449,7 +1450,7 @@ def retrieve_from_unified_knowledge_base(
         "top": top_k,
     }
     
-    logger.info(f"Retrieving from Unified Knowledge Base '{kb_name}': {query[:50]}...")
+    logger.info(f"Retrieving from Unified Knowledge Base '{scrub(kb_name)}': {scrub(query[:50])}...")
     
     response = _make_request("POST", url, body)
     
@@ -1488,7 +1489,7 @@ def create_index_knowledge_source(session_uuid: str, kb_scope: str = "course") -
     ks_name = names["index_ks"]
     index_name = names["index"]
     
-    logger.info(f"Creating Index Knowledge Source '{ks_name}' for index '{index_name}'")
+    logger.info(f"Creating Index Knowledge Source '{scrub(ks_name)}' for index '{scrub(index_name)}'")
     
     url = f"{SEARCH_ENDPOINT}/knowledgesources/{ks_name}?api-version={API_VERSION}"
     
@@ -1507,7 +1508,7 @@ def create_index_knowledge_source(session_uuid: str, kb_scope: str = "course") -
     
     response = _make_request("PUT", url, body)
     if response.status_code in [200, 201, 204]:
-        logger.info(f"✓ Index Knowledge Source '{ks_name}' created successfully")
+        logger.info(f"✓ Index Knowledge Source '{scrub(ks_name)}' created successfully")
         return True, ks_name
     else:
         logger.error(f"✗ Failed to create Index Knowledge Source: {response.status_code}")
@@ -1535,7 +1536,7 @@ def create_web_knowledge_source(
     names = _get_kb_resource_names(session_uuid, kb_scope)
     ks_name = names["web_ks"]
     
-    logger.info(f"Creating Web Knowledge Source '{ks_name}'")
+    logger.info(f"Creating Web Knowledge Source '{scrub(ks_name)}'")
     
     url = f"{SEARCH_ENDPOINT}/knowledgesources/{ks_name}?api-version={API_VERSION}"
     
@@ -1568,7 +1569,7 @@ def create_web_knowledge_source(
     
     response = _make_request("PUT", url, body)
     if response.status_code in [200, 201, 204]:
-        logger.info(f"✓ Web Knowledge Source '{ks_name}' created successfully")
+        logger.info(f"✓ Web Knowledge Source '{scrub(ks_name)}' created successfully")
         logger.info(f"  Allowed domains: {[d.get('address') for d in allowed_domains]}")
         return True, ks_name
     else:
@@ -1594,7 +1595,7 @@ def create_unified_knowledge_base(
     names = _get_kb_resource_names(session_uuid, kb_scope)
     kb_name = names["knowledge_base"]
     
-    logger.info(f"Creating unified Knowledge Base '{kb_name}'")
+    logger.info(f"Creating unified Knowledge Base '{scrub(kb_name)}'")
     
     url = f"{SEARCH_ENDPOINT}/knowledgebases/{kb_name}?api-version={API_VERSION}"
     
@@ -1630,7 +1631,7 @@ def create_unified_knowledge_base(
     
     response = _make_request("PUT", url, body)
     if response.status_code in [200, 201, 204]:
-        logger.info(f"✓ Knowledge Base '{kb_name}' created successfully")
+        logger.info(f"✓ Knowledge Base '{scrub(kb_name)}' created successfully")
         logger.info(f"  Sources: {[s['name'] for s in knowledge_sources]}")
         return True, kb_name
     else:
@@ -1660,7 +1661,7 @@ def create_full_knowledge_pipeline(
     Returns:
         (success, knowledge_base_name or error_message)
     """
-    logger.info(f"=== Creating Knowledge Pipeline for {session_uuid} ({kb_scope}) ===")
+    logger.info(f"=== Creating Knowledge Pipeline for {scrub(session_uuid)} ({scrub(kb_scope)}) ===")
     
     # Parse teacher URLs into domain format
     allowed_domains = None
@@ -1688,7 +1689,7 @@ def create_full_knowledge_pipeline(
         allowed_domains=allowed_domains if allowed_domains else None
     )
     if not success:
-        logger.warning(f"Web KS creation failed (optional): {result}")
+        logger.warning(f"Web KS creation failed (optional): {scrub(result)}")
         # Continue without web - just use index
         include_web = False
     else:
@@ -1702,7 +1703,7 @@ def create_full_knowledge_pipeline(
     if not success:
         return False, f"Knowledge Base failed: {kb_name}"
     
-    logger.info(f"=== Knowledge Pipeline created: {kb_name} ===")
+    logger.info(f"=== Knowledge Pipeline created: {scrub(kb_name)} ===")
     return True, kb_name
 
 
@@ -1714,7 +1715,7 @@ def delete_knowledge_pipeline(session_uuid: str, kb_scope: str = "course") -> Tu
     names = _get_kb_resource_names(session_uuid, kb_scope)
     errors = []
     
-    logger.info(f"=== Deleting Knowledge Pipeline for {session_uuid} ({kb_scope}) ===")
+    logger.info(f"=== Deleting Knowledge Pipeline for {scrub(session_uuid)} ({scrub(kb_scope)}) ===")
     
     # Step 1: Delete Knowledge Base first (it references the sources)
     kb_name = names["knowledge_base"]
@@ -1723,7 +1724,7 @@ def delete_knowledge_pipeline(session_uuid: str, kb_scope: str = "course") -> Tu
     if response.status_code not in [200, 204, 404]:
         errors.append(f"Knowledge Base deletion failed: {response.text}")
     else:
-        logger.info(f"✓ Deleted Knowledge Base '{kb_name}'")
+        logger.info(f"✓ Deleted Knowledge Base '{scrub(kb_name)}'")
     
     # Step 2: Delete Web Knowledge Source
     web_ks = names["web_ks"]
@@ -1732,7 +1733,7 @@ def delete_knowledge_pipeline(session_uuid: str, kb_scope: str = "course") -> Tu
     if response.status_code not in [200, 204, 404]:
         errors.append(f"Web KS deletion failed: {response.text}")
     else:
-        logger.info(f"✓ Deleted Web Knowledge Source '{web_ks}'")
+        logger.info(f"✓ Deleted Web Knowledge Source '{scrub(web_ks)}'")
     
     # Step 3: Delete Index Knowledge Source
     index_ks = names["index_ks"]
@@ -1741,7 +1742,7 @@ def delete_knowledge_pipeline(session_uuid: str, kb_scope: str = "course") -> Tu
     if response.status_code not in [200, 204, 404]:
         errors.append(f"Index KS deletion failed: {response.text}")
     else:
-        logger.info(f"✓ Deleted Index Knowledge Source '{index_ks}'")
+        logger.info(f"✓ Deleted Index Knowledge Source '{scrub(index_ks)}'")
     
     if errors:
         return False, "; ".join(errors)
@@ -1785,7 +1786,7 @@ def retrieve_from_knowledge_base(
         "top": top_k,
     }
     
-    logger.info(f"Retrieving from Knowledge Base '{kb_name}': {query[:50]}...")
+    logger.info(f"Retrieving from Knowledge Base '{scrub(kb_name)}': {scrub(query[:50])}...")
     
     response = _make_request("POST", url, body)
     
@@ -3102,7 +3103,7 @@ def extract_and_index_images(
     import re
     from io import BytesIO
 
-    logger.info(f"Extracting images from '{filename}' for session {session_uuid[:8]}...")
+    logger.info(f"Extracting images from '{scrub(filename)}' for session {scrub(session_uuid[:8])}...")
 
     # --- Step 1: Call Document Intelligence to extract images ---
     di_endpoint = os.environ["DOCUMENT_INTELLIGENCE_ENDPOINT"]
@@ -3225,7 +3226,7 @@ def extract_and_index_images(
             )
             image_paths.append(blob_path)
         except Exception as e:
-            logger.warning(f"Failed to upload figure metadata {blob_path}: {e}")
+            logger.warning(f"Failed to upload figure metadata {scrub(blob_path)}: {scrub(e)}")
             continue
 
         # Build index record
@@ -3292,7 +3293,7 @@ def delete_session_documents(session_uuid: str) -> Tuple[bool, str]:
     """
     search_endpoint = os.getenv("AZURE_AI_SEARCH_ENDPOINT", SEARCH_ENDPOINT)
 
-    logger.info(f"Deleting documents for session {session_uuid} from common index")
+    logger.info(f"Deleting documents for session {scrub(session_uuid)} from common index")
 
     # Step 1: Find all document keys with this session_id
     search_url = f"{search_endpoint}/indexes/{COMMON_INDEX_NAME}/docs/search?api-version={API_VERSION}"
@@ -3311,10 +3312,10 @@ def delete_session_documents(session_uuid: str) -> Tuple[bool, str]:
     docs = results.get("value", [])
 
     if not docs:
-        logger.info(f"No documents found for session {session_uuid}")
+        logger.info(f"No documents found for session {scrub(session_uuid)}")
         return True, "No documents to delete"
 
-    logger.info(f"Found {len(docs)} documents to delete for session {session_uuid}")
+    logger.info(f"Found {scrub(len(docs))} documents to delete for session {scrub(session_uuid)}")
 
     # Step 2: Batch-delete in chunks of 1000
     total_deleted = 0
@@ -3336,7 +3337,7 @@ def delete_session_documents(session_uuid: str) -> Tuple[bool, str]:
             logger.error(f"  Batch delete failed: {del_response.status_code} - {del_response.text}")
             return False, f"Batch delete failed: {del_response.text}"
 
-    logger.info(f"✓ Deleted {total_deleted} documents for session {session_uuid}")
+    logger.info(f"✓ Deleted {scrub(total_deleted)} documents for session {scrub(session_uuid)}")
 
     # Step 3: Clean up extracted image blobs for this session
     try:
@@ -3361,7 +3362,7 @@ def delete_session_documents(session_uuid: str) -> Tuple[bool, str]:
                 container_client.delete_blob(blob.name)
                 deleted_blobs += 1
             if deleted_blobs:
-                logger.info(f"  Also deleted {deleted_blobs} image blobs for session {session_uuid}")
+                logger.info(f"  Also deleted {scrub(deleted_blobs)} image blobs for session {scrub(session_uuid)}")
     except Exception as img_err:
         logger.warning(f"  Image blob cleanup failed (non-fatal): {img_err}")
 

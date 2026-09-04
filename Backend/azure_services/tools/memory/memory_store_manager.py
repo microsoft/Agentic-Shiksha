@@ -22,6 +22,7 @@ from azure.ai.projects.models import (
     MemorySearchOptions,
     ResponsesUserMessageItemParam,
 )
+from utils.log_safe import scrub
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +113,7 @@ class MemoryStoreManager:
         # Check if already exists
         existing = self.get_memory_store(store_name)
         if existing:
-            logger.info(f"Memory store '{store_name}' already exists for agent '{agent_name}'")
+            logger.info(f"Memory store '{scrub(store_name)}' already exists for agent '{scrub(agent_name)}'")
             return existing
 
         # Create memory store options
@@ -137,7 +138,7 @@ class MemoryStoreManager:
             description=desc,
         )
 
-        logger.info(f"Created memory store '{store_name}' (id={memory_store.id}) for agent '{agent_name}'")
+        logger.info(f"Created memory store '{scrub(store_name)}' (id={scrub(memory_store.id)}) for agent '{scrub(agent_name)}'")
         
         return {
             "name": memory_store.name,
@@ -164,7 +165,7 @@ class MemoryStoreManager:
                     }
             return None
         except Exception as e:
-            logger.error(f"Error getting memory store '{store_name}': {e}")
+            logger.error(f"Error getting memory store '{scrub(store_name)}': {scrub(e)}")
             return None
 
     def list_memory_stores(self) -> List[Dict[str, Any]]:
@@ -191,10 +192,10 @@ class MemoryStoreManager:
         """
         try:
             self.project_client.memory_stores.delete(store_name)
-            logger.info(f"Deleted memory store '{store_name}'")
+            logger.info(f"Deleted memory store '{scrub(store_name)}'")
             return True
         except Exception as e:
-            logger.error(f"Error deleting memory store '{store_name}': {e}")
+            logger.error(f"Error deleting memory store '{scrub(store_name)}': {scrub(e)}")
             return False
 
     def delete_memory_store_for_agent(self, agent_name: str) -> bool:
@@ -288,10 +289,10 @@ class MemoryStoreManager:
                     "content": memory.memory_item.content,
                 })
             
-            logger.info(f"Found {len(results)} memories in '{store_name}' for scope '{scope}'")
+            logger.info(f"Found {scrub(len(results))} memories in '{scrub(store_name)}' for scope '{scrub(scope)}'")
             return results
         except Exception as e:
-            logger.error(f"Error searching memories in '{store_name}': {e}")
+            logger.error(f"Error searching memories in '{scrub(store_name)}': {scrub(e)}")
             return []
 
     def get_static_memories(
@@ -384,7 +385,7 @@ class MemoryStoreManager:
                 name=store_name,
                 scope=scope,
             )
-            logger.info(f"Deleted memories for scope '{scope}' in store '{store_name}'")
+            logger.info(f"Deleted memories for scope '{scrub(scope)}' in store '{scrub(store_name)}'")
             return True
         except Exception as e:
             logger.error(f"Error deleting scope memories: {e}")

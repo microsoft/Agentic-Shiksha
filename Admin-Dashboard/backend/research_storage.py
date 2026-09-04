@@ -14,6 +14,7 @@ import json
 import logging
 import threading
 from typing import Dict, Any, Optional, List
+from log_safe import scrub
 
 logger = logging.getLogger("dashboard.research_storage")
 
@@ -89,10 +90,10 @@ def save_institute_research(institute_name: str, data: Dict[str, Any]) -> bool:
             content_settings=ContentSettings(content_type="application/json"),
         )
         _institute_research_cache[key] = data
-        logger.info(f"Saved institute research for '{institute_name}' ({len(data_json)} chars, status={data.get('status')})")
+        logger.info(f"Saved institute research for '{scrub(institute_name)}' ({scrub(len(data_json))} chars, status={scrub(data.get('status'))})")
         return True
     except Exception as e:
-        logger.error(f"Failed to save institute research for '{institute_name}': {e}")
+        logger.error(f"Failed to save institute research for '{scrub(institute_name)}': {scrub(e)}")
         return False
 
 
@@ -108,7 +109,7 @@ def get_institute_research(institute_name: str) -> Optional[Dict[str, Any]]:
         download = blob_client.download_blob()
         data = json.loads(download.readall().decode("utf-8"))
         _institute_research_cache[key] = data
-        logger.info(f"Loaded institute research for '{institute_name}' from blob (status={data.get('status')})")
+        logger.info(f"Loaded institute research for '{scrub(institute_name)}' from blob (status={scrub(data.get('status'))})")
         return data
     except Exception:
         return None
@@ -147,10 +148,10 @@ def save_department_research(institute_name: str, department_name: str, data: Di
             content_settings=ContentSettings(content_type="application/json"),
         )
         _department_research_cache[cache_key] = data
-        logger.info(f"Saved department research for '{department_name}@{institute_name}' ({len(data_json)} chars, status={data.get('status')})")
+        logger.info(f"Saved department research for '{scrub(department_name)}@{scrub(institute_name)}' ({scrub(len(data_json))} chars, status={scrub(data.get('status'))})")
         return True
     except Exception as e:
-        logger.error(f"Failed to save department research for '{department_name}@{institute_name}': {e}")
+        logger.error(f"Failed to save department research for '{scrub(department_name)}@{scrub(institute_name)}': {scrub(e)}")
         return False
 
 
@@ -169,7 +170,7 @@ def get_department_research(institute_name: str, department_name: str) -> Option
         download = blob_client.download_blob()
         data = json.loads(download.readall().decode("utf-8"))
         _department_research_cache[cache_key] = data
-        logger.info(f"Loaded department research for '{department_name}@{institute_name}' from blob (status={data.get('status')})")
+        logger.info(f"Loaded department research for '{scrub(department_name)}@{scrub(institute_name)}' from blob (status={scrub(data.get('status'))})")
         return data
     except Exception:
         return None

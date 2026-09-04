@@ -9,6 +9,7 @@ from typing import Dict, Any, List, Optional
 from utils.tool_definitions import load_tool_definition
 from agent_tools.custom.base import CustomTool
 from agent_tools.custom.get_threshold_concepts import _get_full_course_curriculum
+from utils.log_safe import scrub
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +70,7 @@ def _concept_details(curriculum: Dict[str, Any], requested_name: str) -> tuple[s
         )
     if _normalized(resolved) != _normalized(requested_name):
         logger.info(
-            f"add_quiz mapped paraphrased threshold concept '{requested_name[:60]}' -> "
+            f"add_quiz mapped paraphrased threshold concept '{scrub(requested_name[:60])}' -> "
             f"'{resolved[:60]}'"
         )
     return resolved, details_by_name[resolved]
@@ -219,20 +220,20 @@ class AddQuizTool(CustomTool):
                     # the student is waiting on. Nothing invented is ever stored, and
                     # output() tells the model which questions missed.
                     logger.warning(
-                        f"add_quiz: question {index + 1} targets "
+                        f"add_quiz: question {scrub(index + 1)} targets "
                         f"'{target[:70] or '(nothing)'}', which is not a misconception of "
                         f"'{threshold_concept}' \u2014 leaving it unmapped"
                     )
                 else:
                     if _normalized(canonical_target) != _normalized(target):
                         logger.info(
-                            f"add_quiz mapped paraphrased misconception '{target[:60]}' -> "
+                            f"add_quiz mapped paraphrased misconception '{scrub(target[:60])}' -> "
                             f"'{canonical_target[:60]}'"
                         )
                     question["targetsMisconception"] = canonical_target
             sanitized_questions.append(question)
 
-        logger.info(f"add_quiz called: title='{title}', questions={len(sanitized_questions)}")
+        logger.info(f"add_quiz called: title='{scrub(title)}', questions={scrub(len(sanitized_questions))}")
 
         return {
             "type": "quiz",

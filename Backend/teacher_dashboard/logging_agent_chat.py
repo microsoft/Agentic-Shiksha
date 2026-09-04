@@ -23,6 +23,7 @@ from azure.ai.projects import AIProjectClient
 from common_azure_auth import get_sync_credential
 
 from . import logging_agent_tools as tools
+from utils.log_safe import scrub
 
 logger = logging.getLogger(__name__)
 
@@ -111,7 +112,7 @@ def chat_stream(
             known_scope = _conversation_scopes.get(conversation_id)
         if known_scope == scope_fingerprint:
             conv_id = conversation_id
-            logger.info(f"Continuing conversation: {conv_id}")
+            logger.info(f"Continuing conversation: {scrub(conv_id)}")
         else:
             conversation = oai.conversations.create()
             conv_id = conversation.id

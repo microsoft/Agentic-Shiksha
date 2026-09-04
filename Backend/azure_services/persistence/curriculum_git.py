@@ -23,6 +23,7 @@ from typing import Any, Dict, List, Optional
 
 from dulwich.objects import Blob, Commit, Tree
 from dulwich.repo import Repo
+from utils.log_safe import scrub
 
 logger = logging.getLogger(__name__)
 
@@ -87,14 +88,14 @@ def _download_repo(agent_id: str, target_dir: str) -> bool:
         with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
             # Safe extraction: filter='data' prevents path traversal (Python 3.12+)
             tar.extractall(path=target_dir, filter="data")
-        logger.debug(f"Downloaded git repo for '{agent_id}' ({len(data)} bytes)")
+        logger.debug(f"Downloaded git repo for '{scrub(agent_id)}' ({scrub(len(data))} bytes)")
         return True
     except Exception as e:
         # ResourceNotFoundError or similar — repo doesn't exist yet
         if "BlobNotFound" in str(e) or "ResourceNotFound" in str(e) or "404" in str(e):
-            logger.info(f"No existing git repo for '{agent_id}' — will initialize new")
+            logger.info(f"No existing git repo for '{scrub(agent_id)}' — will initialize new")
             return False
-        logger.error(f"Failed to download git repo for '{agent_id}': {e}")
+        logger.error(f"Failed to download git repo for '{scrub(agent_id)}': {scrub(e)}")
         return False
 
 
@@ -126,11 +127,11 @@ def _upload_repo(agent_id: str, repo_dir: str) -> bool:
             content_settings=ContentSettings(content_type="application/gzip"),
         )
         logger.info(
-            f"Uploaded git repo for '{agent_id}' ({len(tarball_bytes)} bytes)"
+            f"Uploaded git repo for '{scrub(agent_id)}' ({scrub(len(tarball_bytes))} bytes)"
         )
         return True
     except Exception as e:
-        logger.error(f"Failed to upload git repo for '{agent_id}': {e}")
+        logger.error(f"Failed to upload git repo for '{scrub(agent_id)}': {scrub(e)}")
         return False
 
 
@@ -209,12 +210,12 @@ def save_course_curriculum_version(
 
         version_id = commit.id.decode("ascii")
         logger.info(
-            f"Git commit {version_id[:8]} for '{agent_id}': {commit_message}"
+            f"Git commit {scrub(version_id[:8])} for '{scrub(agent_id)}': {scrub(commit_message)}"
         )
         return version_id
 
     except Exception as e:
-        logger.error(f"Failed to save git curriculum version for '{agent_id}': {e}")
+        logger.error(f"Failed to save git curriculum version for '{scrub(agent_id)}': {scrub(e)}")
         return None
     finally:
         shutil.rmtree(tmp_dir, ignore_errors=True)
@@ -281,7 +282,7 @@ def list_course_curriculum_versions(agent_id: str) -> List[Dict[str, Any]]:
         return versions
 
     except Exception as e:
-        logger.error(f"Failed to list git curriculum versions for '{agent_id}': {e}")
+        logger.error(f"Failed to list git curriculum versions for '{scrub(agent_id)}': {scrub(e)}")
         return []
     finally:
         shutil.rmtree(tmp_dir, ignore_errors=True)
@@ -319,7 +320,7 @@ def get_course_curriculum_version(
                 break
 
         if curriculum_blob_id is None:
-            logger.error(f"No curriculum.json in commit {version_id[:8]} for '{agent_id}'")
+            logger.error(f"No curriculum.json in commit {scrub(version_id[:8])} for '{scrub(agent_id)}'")
             return None
 
         blob_obj = repo.object_store[curriculum_blob_id]
@@ -340,10 +341,10 @@ def get_course_curriculum_version(
         }
 
     except KeyError:
-        logger.error(f"Commit '{version_id}' not found in repo for '{agent_id}'")
+        logger.error(f"Commit '{scrub(version_id)}' not found in repo for '{scrub(agent_id)}'")
         return None
     except Exception as e:
-        logger.error(f"Failed to get git curriculum version '{version_id}' for '{agent_id}': {e}")
+        logger.error(f"Failed to get git curriculum version '{scrub(version_id)}' for '{scrub(agent_id)}': {scrub(e)}")
         return None
     finally:
         shutil.rmtree(tmp_dir, ignore_errors=True)
@@ -386,7 +387,7 @@ def diff_course_curriculum_versions(
 
     except Exception as e:
         logger.error(
-            f"Failed to diff versions '{version_id_old}' vs '{version_id_new}' for '{agent_id}': {e}"
+            f"Failed to diff versions '{scrub(version_id_old)}' vs '{scrub(version_id_new)}' for '{scrub(agent_id)}': {scrub(e)}"
         )
         return None
     finally:

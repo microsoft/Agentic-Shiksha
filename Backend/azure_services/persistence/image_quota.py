@@ -17,6 +17,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 
 from azure.cosmos.exceptions import CosmosResourceNotFoundError
+from utils.log_safe import scrub
 
 logger = logging.getLogger(__name__)
 
@@ -103,7 +104,7 @@ def _read_usage(user_id: str, agent_id: str) -> Dict[str, int]:
         return {q: 0 for q in QUALITIES}
     except Exception as error:
         # Failing open would hand out unlimited images, so count it as spent.
-        logger.error(f"[image_quota] Usage read failed for {user_id}/{agent_id}: {error}")
+        logger.error(f"[image_quota] Usage read failed for {scrub(user_id)}/{scrub(agent_id)}: {scrub(error)}")
         raise
 
     if doc.get("weekStart") != _week_start():
@@ -176,7 +177,7 @@ def consume(user_id: str, agent_id: str, quality: str) -> bool:
         return False
 
     logger.info(
-        f"[image_quota] {user_id}/{agent_id} spent 1 {quality} "
+        f"[image_quota] {scrub(user_id)}/{scrub(agent_id)} spent 1 {scrub(quality)} "
         f"({used[quality]}/{limits[quality]} used this week)"
     )
     return True

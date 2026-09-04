@@ -27,6 +27,7 @@ from fastapi.responses import StreamingResponse
 from . import cosmos_queries as cq
 from . import teacher_scope as ts
 from .teacher_auth import get_current_teacher
+from utils.log_safe import scrub
 
 # ── Logging ─────────────────────────────────────────────────────────
 logger = logging.getLogger("teacher-dashboard")
@@ -135,7 +136,7 @@ def agent_overview(
         overview["students"] = students
         return overview
     except Exception as e:
-        logger.error(f"Failed to get overview for '{agent_id}': {e}")
+        logger.error(f"Failed to get overview for '{scrub(agent_id)}': {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -169,7 +170,7 @@ def agent_curriculum(
 
         curriculum = get_course_curriculum(agent_id) or {}
     except Exception as e:
-        logger.error(f"Could not load curriculum for '{agent_id}': {e}")
+        logger.error(f"Could not load curriculum for '{scrub(agent_id)}': {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
     concepts: List[Dict[str, Any]] = []
@@ -222,7 +223,7 @@ def _attach_concept_details(detail: Dict[str, Any], agent_id: str) -> None:
 
         curriculum = get_course_curriculum(agent_id) or {}
     except Exception as e:
-        logger.warning(f"Could not load curriculum for '{agent_id}': {e}")
+        logger.warning(f"Could not load curriculum for '{scrub(agent_id)}': {scrub(e)}")
         return
 
     # Enrich each threshold concept with its curriculum definition.

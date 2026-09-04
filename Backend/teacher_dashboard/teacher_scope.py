@@ -20,6 +20,7 @@ import time
 from typing import Dict, Any, List, Set, Optional
 
 from . import cosmos_queries as cq
+from utils.log_safe import scrub
 
 logger = logging.getLogger("teacher-dashboard.scope")
 
@@ -88,7 +89,7 @@ def get_teacher_agents(teacher_id: str, role: str = "teacher") -> List[Dict[str,
                 )
             )
         except Exception as e:
-            logger.error(f"Failed to list agents for {teacher_id} (role={role}): {e}")
+            logger.error(f"Failed to list agents for {scrub(teacher_id)} (role={scrub(role)}): {scrub(e)}")
             agents = []
 
         with _teacher_agents_cache_lock:

@@ -24,6 +24,7 @@ from pydantic import BaseModel, Field
 import cosmos_queries as cq
 import research_storage as rs
 from research_json import parse_research_json
+from log_safe import scrub
 
 # ── Logging ─────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -530,7 +531,7 @@ def agent_overview(agent_name: str):
         overview["usage"] = usage
         return overview
     except Exception as e:
-        logger.error(f"Failed to get overview for agent '{agent_name}': {e}")
+        logger.error(f"Failed to get overview for agent '{scrub(agent_name)}': {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -554,7 +555,7 @@ def student_detail(agent_name: str, user_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to get detail for user '{user_id}' on agent '{agent_name}': {e}")
+        logger.error(f"Failed to get detail for user '{scrub(user_id)}' on agent '{scrub(agent_name)}': {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -875,7 +876,7 @@ def logging_agent_chat_stream(payload: Dict[str, Any] = Body(...)):
         raise HTTPException(status_code=400, detail="text is required")
 
     logger.info(
-        f"[Logging Chat] text_len={len(text)}, conv_id={conversation_id}"
+        f"[Logging Chat] text_len={scrub(len(text))}, conv_id={scrub(conversation_id)}"
     )
 
     def generate_sse():
@@ -1481,7 +1482,7 @@ def api_trigger_institute_research(
         return {"status": "already_researching", "institute": name}
 
     background_tasks.add_task(_background_institute_research, institute_name=name, instructions=body.instructions or "")
-    logger.info(f"Background task scheduled: institute research for '{name}'")
+    logger.info(f"Background task scheduled: institute research for '{scrub(name)}'")
     return {"status": "researching", "institute": name}
 
 
@@ -1515,7 +1516,7 @@ def api_trigger_department_research(
         department_name=department,
         instructions=body.instructions or "",
     )
-    logger.info(f"Background task scheduled: department research for '{department}@{institute}'")
+    logger.info(f"Background task scheduled: department research for '{scrub(department)}@{scrub(institute)}'")
     return {"status": "researching", "institute": institute, "department": department}
 
 
@@ -1540,7 +1541,7 @@ def api_cancel_institute_research(name: str):
         "institute_name": name.strip(),
         "cancelled_at": datetime.utcnow().isoformat() + "Z",
     })
-    logger.info(f"Institute research cancelled for '{name}'")
+    logger.info(f"Institute research cancelled for '{scrub(name)}'")
     return {"status": "cancelled", "institute": name}
 
 
@@ -1557,7 +1558,7 @@ def api_cancel_department_research(institute: str, department: str):
         "department_name": department.strip(),
         "cancelled_at": datetime.utcnow().isoformat() + "Z",
     })
-    logger.info(f"Department research cancelled for '{department}@{institute}'")
+    logger.info(f"Department research cancelled for '{scrub(department)}@{scrub(institute)}'")
     return {"status": "cancelled", "institute": institute, "department": department}
 
 

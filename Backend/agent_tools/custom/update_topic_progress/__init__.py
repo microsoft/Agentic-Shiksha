@@ -6,6 +6,7 @@ from typing import Dict, Any
 
 from utils.tool_definitions import load_tool_definition
 from agent_tools.custom.base import CustomTool
+from utils.log_safe import scrub
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ def _init_learning_state(agent_name: str, user_id: str) -> bool:
             return False
         init_learning_state(user_id, agent_name, plan)
         logger.info(
-            f"Auto-initialised learning state for user='{user_id}', agent='{agent_name}' "
+            f"Auto-initialised learning state for user='{scrub(user_id)}', agent='{scrub(agent_name)}' "
             f"during update_topic_progress"
         )
         return True
@@ -167,7 +168,7 @@ def handle_update_topic_progress(
             )
 
         logger.info(
-            f"update_topic_progress: user='{user_id}', agent='{agent_name}', "
+            f"update_topic_progress: user='{scrub(user_id)}', agent='{scrub(agent_name)}', "
             f"topic='{topic}', {result.get('old_status')} → {result.get('new_status')}"
         )
         return result

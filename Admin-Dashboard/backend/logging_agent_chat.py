@@ -20,6 +20,7 @@ from azure.identity import DefaultAzureCredential
 from azure.ai.projects import AIProjectClient
 
 import logging_agent_tools as tools
+from log_safe import scrub
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +92,7 @@ def chat_stream(
     # Create or reuse conversation
     if conversation_id:
         conv_id = conversation_id
-        logger.info(f"Continuing conversation: {conv_id}")
+        logger.info(f"Continuing conversation: {scrub(conv_id)}")
     else:
         conversation = oai.conversations.create()
         conv_id = conversation.id

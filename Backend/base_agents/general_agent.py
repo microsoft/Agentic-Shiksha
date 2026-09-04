@@ -43,6 +43,7 @@ from agent_tools.custom import (
 
 from utils.prompt_unifier import load_prompt_file
 from utils import clarification_registry
+from utils.log_safe import scrub
 
 logger = logging.getLogger(__name__)
 
@@ -610,7 +611,7 @@ class GeneralAgent:
             api_version="2025-04-01-preview",
         )
         
-        logger.info(f"GeneralAgent initialized for agent: {agent_name}, session_id: {session_id}")
+        logger.info(f"GeneralAgent initialized for agent: {scrub(agent_name)}, session_id: {scrub(session_id)}")
 
     def start_chat(
         self, 
@@ -1712,7 +1713,7 @@ class GeneralAgent:
             raise ValueError("continue_chat_stream requires a non-empty user_id")
         _uid = user_id
 
-        logger.info(f"Continuing conversation: {conversation_id}")
+        logger.info(f"Continuing conversation: {scrub(conversation_id)}")
 
         web_context, web_citations = (
             self._get_live_web_context(user_text)

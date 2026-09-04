@@ -27,6 +27,7 @@ from agent_tools.hosted.bing_grounding.builder import build_bing_grounding_tool
 from agent_tools.hosted.bing_custom_search.builder import build_bing_custom_search_tool
 from agent_tools.hosted.memory_search.builder import build_memory_search_tool
 from agent_tools.hosted.azure_ai_search.builder import build_azure_ai_search_tool
+from utils.log_safe import scrub
 
 logger = logging.getLogger(__name__)
 
@@ -117,7 +118,7 @@ class AgentConfigStore:
         if agent_name in cfg:
             del cfg[agent_name]
             self._atomic_write(cfg)
-            logger.info(f"Removed '{agent_name}' from config")
+            logger.info(f"Removed '{scrub(agent_name)}' from config")
             return True
         return False
 
@@ -161,20 +162,20 @@ class AgentToolBuilder:
         tool = build_bing_grounding_tool(BING_CONNECTION_ID)
         if tool is not None:
             self._tools.append(tool)
-            logger.info(f"\u2713 Added BingGroundingTool to agent '{self.agent_name}'")
+            logger.info(f"\u2713 Added BingGroundingTool to agent '{scrub(self.agent_name)}'")
 
     def _add_bing_custom_search(self, instance_name: Optional[str]) -> None:
         effective_instance = instance_name or DEFAULT_CUSTOM_SEARCH_INSTANCE
         tool = build_bing_custom_search_tool(BING_CUSTOM_SEARCH_CONNECTION_ID, effective_instance)
         if tool is not None:
             self._tools.append(tool)
-            logger.info(f"\u2713 Added BingCustomSearchPreviewTool (instance='{effective_instance}') to agent '{self.agent_name}'")
+            logger.info(f"\u2713 Added BingCustomSearchPreviewTool (instance='{scrub(effective_instance)}') to agent '{scrub(self.agent_name)}'")
 
     def _add_memory(self, memory_store_name: Optional[str], memory_scope: str, memory_update_delay: int) -> None:
         tool = build_memory_search_tool(memory_store_name, memory_scope, memory_update_delay)
         if tool is not None:
             self._tools.append(tool)
-            logger.info(f"\u2713 Added MemorySearchPreviewTool (store='{memory_store_name}', scope='{memory_scope}', delay={memory_update_delay}s) to agent '{self.agent_name}'")
+            logger.info(f"\u2713 Added MemorySearchPreviewTool (store='{scrub(memory_store_name)}', scope='{scrub(memory_scope)}', delay={scrub(memory_update_delay)}s) to agent '{scrub(self.agent_name)}'")
 
     def _add_ai_search(
         self,
@@ -193,7 +194,7 @@ class AgentToolBuilder:
                 top_k=20,  # Retrieve more chunks to capture full document content
             )
             self._tools.append(ai_search_tool)
-            logger.info(f"\u2713 Added AzureAISearchTool (index='{search_index_name}', filter='{search_index_filter}', top_k=20) to agent '{self.agent_name}'")
+            logger.info(f"\u2713 Added AzureAISearchTool (index='{scrub(search_index_name)}', filter='{scrub(search_index_filter)}', top_k=20) to agent '{scrub(self.agent_name)}'")
         except Exception as e:
             logger.warning(f"Failed to add AzureAISearchTool: {e}")
 
@@ -209,7 +210,7 @@ class AgentToolBuilder:
                         strict=False,
                     )
                 )
-                logger.info(f"\u2713 Added {definition['name']} FunctionTool to agent '{self.agent_name}'")
+                logger.info(f"\u2713 Added {scrub(definition['name'])} FunctionTool to agent '{scrub(self.agent_name)}'")
             except Exception as e:
                 label = source if isinstance(source, str) else source.get("name", "unknown")
                 logger.warning(f"Failed to add FunctionTool '{label}': {e}")
@@ -346,11 +347,11 @@ class AgentCreator:
         """
         try:
             self.project_client.agents.delete(agent_name=agent_name)
-            logger.info(f"Deleted agent: {agent_name}")
+            logger.info(f"Deleted agent: {scrub(agent_name)}")
             self.config_store.remove(agent_name)
             return True
         except Exception as e:
-            logger.error(f"Failed to delete agent '{agent_name}': {e}")
+            logger.error(f"Failed to delete agent '{scrub(agent_name)}': {scrub(e)}")
             return False
 
     def get_agent(self, agent_name: str) -> Optional[Any]:

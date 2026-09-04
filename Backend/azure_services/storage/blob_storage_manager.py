@@ -45,6 +45,7 @@ from azure.ai.agents.models import (
     AzureAISearchTool,
     AzureAISearchQueryType,
 )
+from utils.log_safe import scrub
 
 # NOTE: FileSearchTool has been deprecated in favor of Azure AI Search
 # The following import is removed:
@@ -390,7 +391,7 @@ class AsyncFileProcessor:
         )
         
         blob_url = f"https://{self.storage_account_name}.blob.core.windows.net/{self.container_name}/{blob_name}"
-        logger.info(f"Uploaded to blob: {blob_name}")
+        logger.info(f"Uploaded to blob: {scrub(blob_name)}")
         return blob_url
     
     async def _cleanup_session_folder(self, session_folder: Path):

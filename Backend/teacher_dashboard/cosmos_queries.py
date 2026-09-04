@@ -19,6 +19,7 @@ from azure.cosmos import CosmosClient
 from azure.cosmos.exceptions import CosmosBatchOperationError, CosmosResourceExistsError
 
 from azure_services.persistence.cosmos_db import get_cosmos_client
+from utils.log_safe import scrub
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +124,7 @@ def get_agent_session_uuid(agent_id: str) -> Optional[str]:
     except CosmosResourceNotFoundError:
         return None
     except Exception as e:
-        logger.warning(f"Could not read agent {agent_id}: {e}")
+        logger.warning(f"Could not read agent {scrub(agent_id)}: {scrub(e)}")
         return None
 
 
@@ -232,7 +233,7 @@ def list_learning_states_for_agent(agent_id: str) -> List[Dict[str, Any]]:
     try:
         roster = enrolled_student_ids(agent_id) | active_student_ids(agent_id)
     except Exception as e:
-        logger.warning(f"roster lookup failed for {agent_id}: {e}")
+        logger.warning(f"roster lookup failed for {scrub(agent_id)}: {scrub(e)}")
 
     if roster:
         items = []
@@ -348,7 +349,7 @@ def _syllabus_topic_names(agent_id: str) -> set:
 
         curriculum = get_course_curriculum(agent_id) or {}
     except Exception as e:
-        logger.warning(f"Could not load curriculum for '{agent_id}': {e}")
+        logger.warning(f"Could not load curriculum for '{scrub(agent_id)}': {scrub(e)}")
         return set()
 
     names = set()
@@ -368,7 +369,7 @@ def agent_asset_counts(agent_id: str) -> Dict[str, int]:
             enable_cross_partition_query=True,
         ))
     except Exception as e:
-        logger.warning(f"Could not count assets for '{agent_id}': {e}")
+        logger.warning(f"Could not count assets for '{scrub(agent_id)}': {scrub(e)}")
         return {}
 
     counts: Dict[str, int] = defaultdict(int)
@@ -548,7 +549,7 @@ def agent_usage_stats(agent_id: str) -> Dict[str, Any]:
     try:
         enrolled = enrolled_student_ids(agent_id)
     except Exception as e:
-        logger.warning(f"enrolled student lookup failed for {agent_id}: {e}")
+        logger.warning(f"enrolled student lookup failed for {scrub(agent_id)}: {scrub(e)}")
         enrolled = set()
     return {
         "agent_id": agent_id,
@@ -1624,7 +1625,7 @@ def student_assets(user_id: str, agent_id: str, limit: int = 100) -> List[Dict[s
     try:
         assets = list_user_assets(user_id=user_id, agent_id=agent_id, limit=limit)
     except Exception as e:
-        logger.warning(f"Failed to list assets for '{user_id}' on '{agent_id}': {e}")
+        logger.warning(f"Failed to list assets for '{scrub(user_id)}' on '{scrub(agent_id)}': {scrub(e)}")
         return []
 
     return [

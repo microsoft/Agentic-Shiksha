@@ -39,6 +39,7 @@ from uuid import uuid4
 import shutil
 import os
 import re
+from utils.log_safe import scrub
 import time
 import asyncio
 import logging
@@ -606,7 +607,7 @@ def _load_setup_json(agent_id: str) -> dict | None:
                 if starters:
                     data["conversationStarters"] = starters
             except Exception as e:
-                logger.warning(f"Could not backfill conversation starters for '{agent_id}': {e}")
+                logger.warning(f"Could not backfill conversation starters for '{scrub(agent_id)}': {scrub(e)}")
         return data
 
     # 1. Blob storage (primary)
@@ -646,7 +647,7 @@ def _load_setup_json(agent_id: str) -> dict | None:
         }
         # Persist reconstructed setup to blob for future reads
         save_agent_setup(agent_id, data)
-        logger.info(f"Reconstructed setup.json for '{agent_id}' from Cosmos metadata")
+        logger.info(f"Reconstructed setup.json for '{scrub(agent_id)}' from Cosmos metadata")
         return data
 
     return None
@@ -1795,9 +1796,9 @@ class AgentsClientAdapter:
                     existing_tools = getattr(existing.definition, 'tools', None)
                 if existing_tools:
                     kwargs['tools'] = existing_tools
-                    logger.info(f"[AgentsClientAdapter] Preserved {len(existing_tools)} existing tools for '{agent_id}'")
+                    logger.info(f"[AgentsClientAdapter] Preserved {scrub(len(existing_tools))} existing tools for '{scrub(agent_id)}'")
             except Exception as e:
-                logger.warning(f"[AgentsClientAdapter] Could not fetch existing tools for '{agent_id}': {e}")
+                logger.warning(f"[AgentsClientAdapter] Could not fetch existing tools for '{scrub(agent_id)}': {scrub(e)}")
         
         # Build the definition dict — the new SDK expects a 'definition' inside the body
         definition_fields = {}
@@ -2100,7 +2101,7 @@ def knowledge_list_files(
     First checks local file system, then falls back to Azure Blob Storage
     where files are uploaded via /api/knowledge/build.
     """
-    logger.info(f"[Knowledge List] session={session}, kb_scope={kb_scope}, vector_store_id={vector_store_id}")
+    logger.info(f"[Knowledge List] session={scrub(session)}, kb_scope={scrub(kb_scope)}, vector_store_id={scrub(vector_store_id)}")
     items: List[Dict[str, Any]] = []
     
     # 1. Try local file system first (legacy approach)
@@ -2108,7 +2109,7 @@ def knowledge_list_files(
     raw_dir = base / "raw"
     derived_dir = base / "derived"
     
-    logger.info(f"[Knowledge List] Checking local path: {base}")
+    logger.info(f"[Knowledge List] Checking local path: {scrub(base)}")
 
     if raw_dir.exists():
         for raw in raw_dir.iterdir():
@@ -2180,9 +2181,9 @@ def knowledge_list_files(
                 })
             
             if items:
-                logger.info(f"[Knowledge List] Found {len(items)} files in blob storage for session={session}, kb_scope={kb_scope}")
+                logger.info(f"[Knowledge List] Found {scrub(len(items))} files in blob storage for session={scrub(session)}, kb_scope={scrub(kb_scope)}")
             else:
-                logger.info(f"[Knowledge List] No files found in blob storage at prefix: {prefix}")
+                logger.info(f"[Knowledge List] No files found in blob storage at prefix: {scrub(prefix)}")
         except Exception as e:
             logger.warning(f"[Knowledge List] Failed to list files from blob storage: {e}")
     
@@ -2365,7 +2366,7 @@ def get_agent_tools(agent_id: str):
                                     })
                         break
             except Exception as fallback_err:
-                logger.warning(f"Fallback tool extraction failed for '{agent_id}': {fallback_err}")
+                logger.warning(f"Fallback tool extraction failed for '{scrub(agent_id)}': {scrub(fallback_err)}")
         
         return {
             "agent_id": agent_id,
@@ -2458,7 +2459,7 @@ async def regenerate_agent_prompt(agent_id: str, payload: Dict[str, Any]):
     if not course_name:
         raise HTTPException(status_code=400, detail="courseName is required")
     
-    logger.info(f"[Regenerate] Regenerating prompt for agent '{agent_id}' — course: {course_name}")
+    logger.info(f"[Regenerate] Regenerating prompt for agent '{scrub(agent_id)}' — course: {scrub(course_name)}")
     
     try:
         # Step 1: Call CACA meta-agent for teaching assistant specification
@@ -2533,7 +2534,7 @@ async def regenerate_agent_prompt(agent_id: str, payload: Dict[str, Any]):
         }
         ac.update_agent(agent_id=agent_id, **update_kwargs)
         
-        logger.info(f"[Regenerate] ✓ Agent '{agent_id}' updated in Azure AI")
+        logger.info(f"[Regenerate] ✓ Agent '{scrub(agent_id)}' updated in Azure AI")
         
         # Step 5: Update Cosmos DB metadata (description, course details)
         # NOTE: conversation_starters from CACA are always empty (starters are
@@ -2546,7 +2547,7 @@ async def regenerate_agent_prompt(agent_id: str, payload: Dict[str, Any]):
                 conversation_starters=(course_starters or None),
                 additional_context=course_description,
             )
-            logger.info(f"[Regenerate] ✓ Updated Cosmos DB metadata for '{agent_id}'")
+            logger.info(f"[Regenerate] ✓ Updated Cosmos DB metadata for '{scrub(agent_id)}'")
         except Exception as meta_err:
             logger.warning(f"[Regenerate] Failed to update Cosmos DB metadata: {meta_err}")
             # Non-fatal — agent instructions are already updated
@@ -2564,12 +2565,12 @@ async def regenerate_agent_prompt(agent_id: str, payload: Dict[str, Any]):
                 setup_data["courseDuration"] = course_duration
                 setup_data["additionalContext"] = course_description
                 _save_setup_json(agent_id, setup_data)
-                logger.info(f"[Regenerate] ✓ Updated setup.json for '{agent_id}'")
+                logger.info(f"[Regenerate] ✓ Updated setup.json for '{scrub(agent_id)}'")
         except Exception as setup_err:
             logger.warning(f"[Regenerate] Failed to update setup.json: {setup_err}")
             # Non-fatal
         
-        logger.info(f"[Regenerate] ✓ Full regeneration complete for '{agent_id}'")
+        logger.info(f"[Regenerate] ✓ Full regeneration complete for '{scrub(agent_id)}'")
         
         return {
             "ok": True,
@@ -2582,7 +2583,7 @@ async def regenerate_agent_prompt(agent_id: str, payload: Dict[str, Any]):
         }
         
     except Exception as e:
-        logger.error(f"[Regenerate] Failed to regenerate prompt for agent '{agent_id}': {e}", exc_info=True)
+        logger.error(f"[Regenerate] Failed to regenerate prompt for agent '{scrub(agent_id)}': {scrub(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Failed to regenerate agent prompt: {str(e)}"
@@ -2714,7 +2715,7 @@ def agent_chat_stream(agent_id: str, request: Request, payload: Dict[str, Any] =
     if research_mode:
         tool_choice = "required"
     
-    logger.info(f"[Chat Stream] agent={agent_id}, text_len={len(text)}, conv_id={conversation_id}, tool_choice={tool_choice}, web_search={web_search_enabled}, inject_profile={inject_profile}")
+    logger.info(f"[Chat Stream] agent={scrub(agent_id)}, text_len={scrub(len(text))}, conv_id={scrub(conversation_id)}, tool_choice={scrub(tool_choice)}, web_search={scrub(web_search_enabled)}, inject_profile={scrub(inject_profile)}")
     
     if not text and not image_urls:
         raise HTTPException(status_code=400, detail="text or image_urls is required")
@@ -2732,13 +2733,13 @@ def agent_chat_stream(agent_id: str, request: Request, payload: Dict[str, Any] =
         if inline_profile and isinstance(inline_profile, dict):
             # Use frontend-cached profile directly — no Cosmos DB fetch needed
             user_profile = inline_profile
-            logger.info(f"[Chat Stream] Using inline profile from frontend (user={user_id})")
+            logger.info(f"[Chat Stream] Using inline profile from frontend (user={scrub(user_id)})")
         else:
             try:
                 user_profile = get_user_profile(user_id)
-                logger.info(f"[Chat Stream] Profile fetched from Cosmos DB (user={user_id})")
+                logger.info(f"[Chat Stream] Profile fetched from Cosmos DB (user={scrub(user_id)})")
             except Exception as e:
-                logger.warning(f"Could not fetch user profile for {user_id}: {e}")
+                logger.warning(f"Could not fetch user profile for {scrub(user_id)}: {scrub(e)}")
     elif user_id and not inject_profile:
         logger.info(f"[Chat Stream] Skipping profile injection (already injected for this thread)")
     
@@ -2749,9 +2750,9 @@ def agent_chat_stream(agent_id: str, request: Request, payload: Dict[str, Any] =
         if setup_data:
             session_uuid = setup_data.get("sessionUuid")
             if session_uuid:
-                logger.info(f"Loaded sessionUuid for agent {agent_id}: {session_uuid}")
+                logger.info(f"Loaded sessionUuid for agent {scrub(agent_id)}: {scrub(session_uuid)}")
     except Exception as e:
-        logger.warning(f"Could not load sessionUuid from setup.json for {agent_id}: {e}")
+        logger.warning(f"Could not load sessionUuid from setup.json for {scrub(agent_id)}: {scrub(e)}")
     
     def generate_stream():
         assistant_texts: List[str] = []
@@ -2991,7 +2992,7 @@ def _record_inferred_progress(
 
         record_taught_topics(user_id, agent_id, texts)
     except Exception as e:
-        logger.error(f"Failed to record inferred progress for {agent_id}: {e}")
+        logger.error(f"Failed to record inferred progress for {scrub(agent_id)}: {scrub(e)}")
 
 
 def _persist_stream_token_usage(
@@ -3020,7 +3021,7 @@ def _persist_stream_token_usage(
             result["existing"],
         )
     except Exception as e:
-        logger.error(f"Failed to persist token usage for {agent_id}: {e}")
+        logger.error(f"Failed to persist token usage for {scrub(agent_id)}: {scrub(e)}")
 
 
 def _guardrail_prior_progress(user_id: str, agent_id: str) -> Optional[Dict[str, Any]]:
@@ -3177,7 +3178,7 @@ def _open_agent_stream(agent_id: str, payload: Dict[str, Any], request: Request)
             try:
                 user_profile = get_user_profile(user_id)
             except Exception as e:
-                logger.warning(f"Could not fetch user profile for {user_id}: {e}")
+                logger.warning(f"Could not fetch user profile for {scrub(user_id)}: {scrub(e)}")
 
     session_uuid = None
     try:
@@ -3185,7 +3186,7 @@ def _open_agent_stream(agent_id: str, payload: Dict[str, Any], request: Request)
         if setup_data:
             session_uuid = setup_data.get("sessionUuid")
     except Exception as e:
-        logger.warning(f"Could not load sessionUuid for {agent_id}: {e}")
+        logger.warning(f"Could not load sessionUuid for {scrub(agent_id)}: {scrub(e)}")
 
     ga = get_general_agent(
         project_endpoint=PROJECT_ENDPOINT,
@@ -3253,7 +3254,7 @@ def agent_chat_agui(agent_id: str, request: Request, payload: Dict[str, Any] = B
     """
     from backend.agui import AGUITranslator, encode_sse
 
-    logger.info(f"[AG-UI] agent={agent_id}, conv={payload.get('thread_id')}")
+    logger.info(f"[AG-UI] agent={scrub(agent_id)}, conv={scrub(payload.get('thread_id'))}")
 
     stream_gen, conversation_id, user_id = _open_agent_stream(agent_id, payload, request)
 
@@ -3313,9 +3314,9 @@ async def generate_chat_title(payload: Dict[str, Any] = Body(...)):
     received_agent_name = payload.get("agent_name")
     
     logger.info(f"[TITLE] === generate_chat_title called ===")
-    logger.info(f"[TITLE] Payload keys: {list(payload.keys())}")
+    logger.info(f"[TITLE] Payload keys: {scrub(list(payload.keys()))}")
     logger.info(f"[TITLE] user_message length: {len(user_message)}, assistant_response length: {len(assistant_response)}")
-    logger.info(f"[TITLE] agent_name from payload: '{received_agent_name}'")
+    logger.info(f"[TITLE] agent_name from payload: '{scrub(received_agent_name)}'")
     
     if not user_message:
         logger.warning("[TITLE] ❌ No user_message provided — returning 400")
@@ -3330,7 +3331,7 @@ async def generate_chat_title(payload: Dict[str, Any] = Body(...)):
         return {"title": fallback_title}
     
     try:
-        logger.info(f"[TITLE] Using agent '{received_agent_name}' to generate title...")
+        logger.info(f"[TITLE] Using agent '{scrub(received_agent_name)}' to generate title...")
         
         # Use GeneralAgent.generate_title which sends an invisible question to the agent
         def _generate_title():
@@ -3352,7 +3353,7 @@ async def generate_chat_title(payload: Dict[str, Any] = Body(...)):
         # Fallback: use first few words of user message
         words = user_message.split()[:5]
         fallback_title = " ".join(words) + ("..." if len(words) >= 5 else "")
-        logger.info(f"[TITLE] Using fallback title: '{fallback_title}'")
+        logger.info(f"[TITLE] Using fallback title: '{scrub(fallback_title)}'")
         return {"title": fallback_title}
 
 
@@ -3572,7 +3573,7 @@ async def knowledge_build(
     
     logger.info(f"Processing {len(files)} files for Azure AI Search indexing")
     # Note: Files are uploaded to sessions/{session}/ - the per-session indexer will pick them up
-    logger.info(f"Session blob path: sessions/{session}/{kb_scope}/")
+    logger.info(f"Session blob path: sessions/{scrub(session)}/{scrub(kb_scope)}/")
     
     # Blob container that the Azure AI Search indexer is configured to watch
     # This should match the data source configuration in Azure AI Search
@@ -3666,7 +3667,7 @@ async def knowledge_build(
         
         logger.info(f"✓ Uploaded {len(blob_uris)} files to blob storage")
         logger.info(f"  Container: {INDEXER_CONTAINER}")
-        logger.info(f"  Path: sessions/{session}/{kb_scope}/")
+        logger.info(f"  Path: sessions/{scrub(session)}/{scrub(kb_scope)}/")
         logger.info("  Note: Per-session indexer will pick up files from this path")
         
         # --- Extract images from PDFs/PPTs and index them ---
@@ -3743,9 +3744,9 @@ def knowledge_attach(payload: Dict[str, Any]):
     # Query type for search
     query_type_str = payload.get("query_type", "vector_semantic_hybrid").lower()
     
-    logger.info(f"Attaching Azure AI Search index '{index_name}' to agent '{agent_id}'")
+    logger.info(f"Attaching Azure AI Search index '{scrub(index_name)}' to agent '{scrub(agent_id)}'")
     logger.info(f"  Connection ID: {SEARCH_CONNECTION_ID}")
-    logger.info(f"  Query type: {query_type_str}")
+    logger.info(f"  Query type: {scrub(query_type_str)}")
     
     # Create Azure AI Search tool using new azure.ai.projects API
     ai_search_tool = create_azure_ai_search_tool(
@@ -3781,7 +3782,7 @@ def knowledge_attach(payload: Dict[str, Any]):
             tools=all_tools,
         )
         
-        logger.info(f"✓ Attached Azure AI Search index '{index_name}' to agent '{agent_id}'")
+        logger.info(f"✓ Attached Azure AI Search index '{scrub(index_name)}' to agent '{scrub(agent_id)}'")
         
         return {
             "ok": True,
@@ -3825,14 +3826,14 @@ async def create_course_index(
         get_index_name,
     )
     
-    logger.info(f"Creating index for session {session_uuid}, scope {kb_scope}")
+    logger.info(f"Creating index for session {scrub(session_uuid)}, scope {scrub(kb_scope)}")
     
     try:
         success, result = create_course_index_pipeline(session_uuid, kb_scope)
         
         if success:
             index_name = get_index_name(session_uuid, kb_scope)
-            logger.info(f"✓ Index pipeline created: {index_name}")
+            logger.info(f"✓ Index pipeline created: {scrub(index_name)}")
             return {
                 "ok": True,
                 "index_name": index_name,
@@ -3841,7 +3842,7 @@ async def create_course_index(
                 "message": "Index pipeline created. Files are being indexed.",
             }
         else:
-            logger.error(f"✗ Index creation failed: {result}")
+            logger.error(f"✗ Index creation failed: {scrub(result)}")
             raise HTTPException(status_code=500, detail=result)
             
     except HTTPException:
@@ -3869,13 +3870,13 @@ async def delete_course_index(
     """
     from azure_services.tools.search.course_index_manager import delete_course_index_pipeline
     
-    logger.info(f"Deleting index for session {session_uuid}, scope {kb_scope}")
+    logger.info(f"Deleting index for session {scrub(session_uuid)}, scope {scrub(kb_scope)}")
     
     try:
         success, result = delete_course_index_pipeline(session_uuid, kb_scope)
         
         if success:
-            logger.info(f"✓ Index pipeline deleted for {session_uuid}/{kb_scope}")
+            logger.info(f"✓ Index pipeline deleted for {scrub(session_uuid)}/{scrub(kb_scope)}")
             return {
                 "ok": True,
                 "session_uuid": session_uuid,
@@ -3918,7 +3919,7 @@ async def update_course_index(
         get_common_index_name,
     )
     
-    logger.info(f"Updating common index for session {session_uuid}, scope {kb_scope}")
+    logger.info(f"Updating common index for session {scrub(session_uuid)}, scope {scrub(kb_scope)}")
     
     try:
         # Ensure pipeline exists (idempotent)
@@ -3973,7 +3974,7 @@ async def get_index_status(
         get_common_index_name,
     )
     
-    logger.info(f"Getting common indexer status (requested for session {session_uuid})")
+    logger.info(f"Getting common indexer status (requested for session {scrub(session_uuid)})")
     
     try:
         status = get_common_indexer_status()
@@ -4115,14 +4116,14 @@ async def create_unified_index_endpoint(
         get_unified_index_name,
     )
     
-    logger.info(f"Creating UNIFIED index for session {session_uuid}")
+    logger.info(f"Creating UNIFIED index for session {scrub(session_uuid)}")
     
     try:
         success, result = create_unified_index_pipeline(session_uuid)
         
         if success:
             index_name = get_unified_index_name(session_uuid)
-            logger.info(f"✓ UNIFIED Index pipeline created: {index_name}")
+            logger.info(f"✓ UNIFIED Index pipeline created: {scrub(index_name)}")
             return {
                 "ok": True,
                 "index_name": index_name,
@@ -4131,7 +4132,7 @@ async def create_unified_index_endpoint(
                 "message": "Unified index created. All files (course + exam) are being indexed.",
             }
         else:
-            logger.error(f"✗ Unified index creation failed: {result}")
+            logger.error(f"✗ Unified index creation failed: {scrub(result)}")
             raise HTTPException(status_code=500, detail=result)
             
     except HTTPException:
@@ -4151,13 +4152,13 @@ async def delete_unified_index_endpoint(
     """
     from azure_services.tools.search.course_index_manager import delete_unified_index_pipeline
     
-    logger.info(f"Deleting UNIFIED index for session {session_uuid}")
+    logger.info(f"Deleting UNIFIED index for session {scrub(session_uuid)}")
     
     try:
         success, result = delete_unified_index_pipeline(session_uuid)
         
         if success:
-            logger.info(f"✓ Unified index pipeline deleted for {session_uuid}")
+            logger.info(f"✓ Unified index pipeline deleted for {scrub(session_uuid)}")
             return {
                 "ok": True,
                 "session_uuid": session_uuid,
@@ -4207,7 +4208,7 @@ async def create_unified_knowledge_base(
         get_unified_index_name,
     )
     
-    logger.info(f"Creating UNIFIED Knowledge Base for session {session_uuid}")
+    logger.info(f"Creating UNIFIED Knowledge Base for session {scrub(session_uuid)}")
     
     # Parse teacher URLs if provided
     urls_list = None
@@ -4221,7 +4222,7 @@ async def create_unified_knowledge_base(
     
     # Use the unified index
     unified_index = get_unified_index_name(session_uuid)
-    logger.info(f"Using unified index: {unified_index}")
+    logger.info(f"Using unified index: {scrub(unified_index)}")
     
     try:
         success, result = create_unified_knowledge_pipeline(
@@ -4232,7 +4233,7 @@ async def create_unified_knowledge_base(
         
         if success:
             kb_name = get_unified_knowledge_base_name(session_uuid)
-            logger.info(f"✓ UNIFIED Knowledge Base created: {kb_name}")
+            logger.info(f"✓ UNIFIED Knowledge Base created: {scrub(kb_name)}")
             return {
                 "ok": True,
                 "knowledge_base_name": kb_name,
@@ -4242,7 +4243,7 @@ async def create_unified_knowledge_base(
                 "message": "Unified Knowledge Base created. Agent can now search all materials + web in one query.",
             }
         else:
-            logger.error(f"✗ Knowledge Base creation failed: {result}")
+            logger.error(f"✗ Knowledge Base creation failed: {scrub(result)}")
             raise HTTPException(status_code=500, detail=result)
             
     except HTTPException:
@@ -4265,13 +4266,13 @@ async def delete_unified_knowledge_base(
     """
     from azure_services.tools.search.course_index_manager import delete_unified_knowledge_pipeline
     
-    logger.info(f"Deleting UNIFIED Knowledge Base for session {session_uuid}")
+    logger.info(f"Deleting UNIFIED Knowledge Base for session {scrub(session_uuid)}")
     
     try:
         success, result = delete_unified_knowledge_pipeline(session_uuid)
         
         if success:
-            logger.info(f"✓ Unified Knowledge Pipeline deleted for {session_uuid}")
+            logger.info(f"✓ Unified Knowledge Pipeline deleted for {scrub(session_uuid)}")
             return {
                 "ok": True,
                 "session_uuid": session_uuid,
@@ -4316,7 +4317,7 @@ async def retrieve_from_unified_kb(
         get_unified_knowledge_base_name,
     )
     
-    logger.info(f"Retrieving from UNIFIED Knowledge Base for session {session_uuid}: {query[:50]}...")
+    logger.info(f"Retrieving from UNIFIED Knowledge Base for session {scrub(session_uuid)}: {scrub(query[:50])}...")
     
     try:
         result = retrieve_from_unified_knowledge_base(session_uuid, query, top_k)
@@ -4379,7 +4380,7 @@ def create_mcp_pipeline_endpoint(
         get_session_filter,
     )
     
-    logger.info(f"=== Ensuring common index pipeline for session {session_uuid} ===")
+    logger.info(f"=== Ensuring common index pipeline for session {scrub(session_uuid)} ===")
     
     try:
         # Idempotent: creates shared resources if they don't exist
@@ -4397,7 +4398,7 @@ def create_mcp_pipeline_endpoint(
         
         logger.info(f"✓ Common index pipeline ready!")
         logger.info(f"  Index: {index_name}")
-        logger.info(f"  Filter: {session_filter}")
+        logger.info(f"  Filter: {scrub(session_filter)}")
         
         return {
             "ok": True,
@@ -4428,7 +4429,7 @@ async def delete_mcp_pipeline_endpoint(
     """
     from azure_services.tools.search.course_index_manager import delete_session_documents
     
-    logger.info(f"=== Deleting session documents for {session_uuid} from common index ===")
+    logger.info(f"=== Deleting session documents for {scrub(session_uuid)} from common index ===")
     
     try:
         del_ok, del_result = delete_session_documents(session_uuid)
@@ -4555,13 +4556,13 @@ async def eventgrid_webhook(request: Request, background_tasks: BackgroundTasks)
         # 1. Subscription validation handshake
         if event_type == "Microsoft.EventGrid.SubscriptionValidationEvent":
             validation_code = event.get("data", {}).get("validationCode", "")
-            logger.info(f"[EventGrid] Subscription validation received, code: {validation_code}")
+            logger.info(f"[EventGrid] Subscription validation received, code: {scrub(validation_code)}")
             return {"validationResponse": validation_code}
         
         # 2. CloudEvents schema validation (alternative schema)
         if event.get("type") == "Microsoft.EventGrid.SubscriptionValidationEvent":
             validation_code = event.get("data", {}).get("validationCode", "")
-            logger.info(f"[EventGrid] CloudEvents validation received, code: {validation_code}")
+            logger.info(f"[EventGrid] CloudEvents validation received, code: {scrub(validation_code)}")
             return {"validationResponse": validation_code}
         
         # 3. Blob storage events → trigger indexer
@@ -4571,16 +4572,16 @@ async def eventgrid_webhook(request: Request, background_tasks: BackgroundTasks)
         ):
             subject = event.get("subject", "")
             blob_url = event.get("data", {}).get("url", "")
-            logger.info(f"[EventGrid] Blob event: {event_type} | subject={subject}")
+            logger.info(f"[EventGrid] Blob event: {scrub(event_type)} | subject={scrub(subject)}")
             
             # Only process events for course material container
             if "course-material" in subject or "course-material" in blob_url:
                 background_tasks.add_task(_debounced_run_indexer)
                 logger.info("[EventGrid] Indexer run queued in background")
             else:
-                logger.debug(f"[EventGrid] Ignoring event for non-course blob: {subject}")
+                logger.debug(f"[EventGrid] Ignoring event for non-course blob: {scrub(subject)}")
         else:
-            logger.debug(f"[EventGrid] Ignoring event type: {event_type}")
+            logger.debug(f"[EventGrid] Ignoring event type: {scrub(event_type)}")
     
     return {"status": "ok", "message": "Event processed"}
 
@@ -4675,7 +4676,7 @@ async def create_knowledge_base(
         check_index_exists,
     )
     
-    logger.info(f"Creating Knowledge Base for session {session_uuid}, scope {kb_scope}")
+    logger.info(f"Creating Knowledge Base for session {scrub(session_uuid)}, scope {scrub(kb_scope)}")
     
     # Parse teacher URLs if provided
     urls_list = None
@@ -4703,7 +4704,7 @@ async def create_knowledge_base(
         
         if success:
             kb_name = get_knowledge_base_name(session_uuid, kb_scope)
-            logger.info(f"✓ Knowledge Base created: {kb_name}")
+            logger.info(f"✓ Knowledge Base created: {scrub(kb_name)}")
             return {
                 "ok": True,
                 "knowledge_base_name": kb_name,
@@ -4712,7 +4713,7 @@ async def create_knowledge_base(
                 "message": "Knowledge Base created. Agent can now use unified retrieval.",
             }
         else:
-            logger.error(f"✗ Knowledge Base creation failed: {result}")
+            logger.error(f"✗ Knowledge Base creation failed: {scrub(result)}")
             raise HTTPException(status_code=500, detail=result)
             
     except HTTPException:
@@ -4735,13 +4736,13 @@ async def delete_knowledge_base(
     """
     from azure_services.tools.search.course_index_manager import delete_knowledge_pipeline
     
-    logger.info(f"Deleting Knowledge Base for session {session_uuid}, scope {kb_scope}")
+    logger.info(f"Deleting Knowledge Base for session {scrub(session_uuid)}, scope {scrub(kb_scope)}")
     
     try:
         success, result = delete_knowledge_pipeline(session_uuid, kb_scope)
         
         if success:
-            logger.info(f"✓ Knowledge Pipeline deleted for {session_uuid}/{kb_scope}")
+            logger.info(f"✓ Knowledge Pipeline deleted for {scrub(session_uuid)}/{scrub(kb_scope)}")
             return {
                 "ok": True,
                 "session_uuid": session_uuid,
@@ -4789,7 +4790,7 @@ async def retrieve_from_kb(
         get_knowledge_base_name,
     )
     
-    logger.info(f"Retrieving from Knowledge Base for session {session_uuid}: {query[:50]}...")
+    logger.info(f"Retrieving from Knowledge Base for session {scrub(session_uuid)}: {scrub(query[:50])}...")
     
     try:
         result = retrieve_from_knowledge_base(session_uuid, kb_scope, query, top_k)
@@ -5140,7 +5141,7 @@ def azure_agents_list(
                     "department_id": a.get("departmentId", "") or "",
                 })
             
-            logger.info(f"Listed {len(rows)} agents from Cosmos DB (user={user_id}, role={user_role})")
+            logger.info(f"Listed {scrub(len(rows))} agents from Cosmos DB (user={scrub(user_id)}, role={scrub(user_role)})")
             return _finish_agent_list_request(cache_key, rows)
     except Exception as e:
         logger.warning(f"Could not fetch agents from Cosmos DB, falling back to Azure: {e}")
@@ -5191,7 +5192,7 @@ def get_members(agent_id: str):
         members = get_agent_members(agent_id)
         return members
     except Exception as e:
-        logger.error(f"Failed to get members for agent {agent_id}: {e}")
+        logger.error(f"Failed to get members for agent {scrub(agent_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail="Failed to get agent members")
 
 
@@ -5228,7 +5229,7 @@ def add_member(agent_id: str, payload: AgentMemberPayload, requester_id: str = Q
         )
         return {"status": "ok", "agent_id": agent_id, "added": payload.user_id, "as": payload.member_type}
     except Exception as e:
-        logger.error(f"Failed to add member to agent {agent_id}: {e}")
+        logger.error(f"Failed to add member to agent {scrub(agent_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail="Failed to add member")
 
 
@@ -5260,7 +5261,7 @@ def remove_member(agent_id: str, target_user_id: str, requester_id: str = Query(
         _invalidate_agent_list_caches(target_user_id)
         return {"status": "ok", "agent_id": agent_id, "removed": target_user_id}
     except Exception as e:
-        logger.error(f"Failed to remove member from agent {agent_id}: {e}")
+        logger.error(f"Failed to remove member from agent {scrub(agent_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail="Failed to remove member")
 
 
@@ -5369,7 +5370,7 @@ async def create_agent_direct(payload: Dict[str, Any]):
             search_index_name = get_common_index_name()
             search_index_filter = get_session_filter(session_uuid)
             search_connection_id = SEARCH_CONNECTION_ID
-            logger.info(f"Common index ready: {search_index_name}, filter: {search_index_filter}")
+            logger.info(f"Common index ready: {scrub(search_index_name)}, filter: {scrub(search_index_filter)}")
         except Exception as e:
             logger.warning(f"Common index setup failed, continuing without: {e}")
 
@@ -7290,9 +7291,9 @@ async def _path2_create_agent(
             raise ValueError(msg)
         raise
     
-    logger.info(f"[Path 2] Created {agent_kind} agent '{final_name}' with ID {agent_id}")
+    logger.info(f"[Path 2] Created {scrub(agent_kind)} agent '{scrub(final_name)}' with ID {scrub(agent_id)}")
     if search_index_name:
-        logger.info(f"[Path 2] Agent configured with AzureAISearchTool (index={search_index_name}, filter={search_index_filter})")
+        logger.info(f"[Path 2] Agent configured with AzureAISearchTool (index={scrub(search_index_name)}, filter={scrub(search_index_filter)})")
     if course_urls:
         logger.info(f"[Path 2] Agent configured with {len(course_urls)} teacher-curated URLs for custom search")
     if memory_store_name:
@@ -7479,7 +7480,7 @@ async def create_agent_async(request: AsyncAgentCreateRequest, background_tasks:
             detail=f"Model '{model}' not allowed. Allowed: {sorted(ALLOWED_DEPLOYMENTS)}",
         )
     
-    logger.info(f"=== FAST Agent Creation for '{name}' ===")
+    logger.info(f"=== FAST Agent Creation for '{scrub(name)}' ===")
     if course_urls:
         logger.info(f"Teacher-curated URLs: {len(course_urls)} URLs provided")
     
@@ -7510,7 +7511,7 @@ async def create_agent_async(request: AsyncAgentCreateRequest, background_tasks:
                 raise Exception(f"Common index pipeline failed: {pipeline_result}")
             
             # Trigger indexer to process any new files for this session
-            logger.info(f"Running common indexer for session {session_uuid}...")
+            logger.info(f"Running common indexer for session {scrub(session_uuid)}...")
             indexer_ok, indexer_result = run_common_indexer()
             if not indexer_ok:
                 logger.warning(f"Common indexer run failed (may already be running): {indexer_result}")
@@ -7522,7 +7523,7 @@ async def create_agent_async(request: AsyncAgentCreateRequest, background_tasks:
             
             logger.info(f"✓ Common index pipeline ready")
             logger.info(f"  Index: {search_index_name}")
-            logger.info(f"  Filter: {search_index_filter}")
+            logger.info(f"  Filter: {scrub(search_index_filter)}")
             logger.info(f"  Connection: {search_connection_id}")
             
         except Exception as e:
@@ -7632,7 +7633,7 @@ def save_agent_setup_endpoint(details: AgentSetupDetails):
     """Save agent setup details to blob storage."""
     agent_id = details.agentId
     _save_setup_json(agent_id, details.dict())
-    logger.info(f"Saved setup details for agent {agent_id}")
+    logger.info(f"Saved setup details for agent {scrub(agent_id)}")
     return {"ok": True}
 
 
@@ -7741,12 +7742,12 @@ async def upload_agent_image(
         import time
         timestamp = int(time.time())
         proxy_url = f"/api/agents/image/{agent_id}?v={timestamp}"
-        logger.info(f"Uploaded agent image for {agent_id}, proxy URL: {proxy_url}")
+        logger.info(f"Uploaded agent image for {scrub(agent_id)}, proxy URL: {scrub(proxy_url)}")
         
         # Update Cosmos DB with the proxy URL (includes cache-buster)
         try:
             update_agent_metadata(agent_id, agent_image_url=proxy_url)
-            logger.info(f"Updated agent image URL in Cosmos DB for {agent_id}")
+            logger.info(f"Updated agent image URL in Cosmos DB for {scrub(agent_id)}")
         except Exception as cosmos_err:
             logger.warning(f"Failed to update Cosmos DB with image URL: {cosmos_err}")
             # Don't fail - blob upload succeeded
@@ -7756,7 +7757,7 @@ async def upload_agent_image(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to upload agent image for {agent_id}: {e}")
+        logger.error(f"Failed to upload agent image for {scrub(agent_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to upload image: {str(e)}")
 
 
@@ -7778,14 +7779,14 @@ async def delete_agent_image(agent_id: str):
         # Clear the image URL in Cosmos DB
         try:
             update_agent_metadata(agent_id, agent_image_url="")  # Set to empty string to clear
-            logger.info(f"Cleared agent image URL in Cosmos DB for {agent_id}")
+            logger.info(f"Cleared agent image URL in Cosmos DB for {scrub(agent_id)}")
         except Exception as cosmos_err:
             logger.warning(f"Failed to clear image URL in Cosmos DB: {cosmos_err}")
         
         return {"ok": True, "deleted": deleted_count}
         
     except Exception as e:
-        logger.warning(f"Error deleting agent image for {agent_id}: {e}")
+        logger.warning(f"Error deleting agent image for {scrub(agent_id)}: {scrub(e)}")
         return {"ok": True, "deleted": 0}  # Don't fail if image doesn't exist
 
 
@@ -7834,7 +7835,7 @@ async def get_agent_image(agent_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error fetching agent image for {agent_id}: {e}")
+        logger.error(f"Error fetching agent image for {scrub(agent_id)}: {scrub(e)}")
         raise HTTPException(status_code=404, detail="Agent image not found")
 
 
@@ -7975,7 +7976,7 @@ async def generate_conversation_starters(agent_id: str, user_id: Optional[str] =
 
     loop = asyncio.get_event_loop()
     raw = await loop.run_in_executor(None, _call_course_agent)
-    logger.info(f"[Starters] Agent {agent_id} returned {len(raw)} chars for starters")
+    logger.info(f"[Starters] Agent {scrub(agent_id)} returned {scrub(len(raw))} chars for starters")
 
     # 6. Parse JSON from the response
     starters: List[Dict[str, str]] = []
@@ -8032,10 +8033,10 @@ def safe_rmtree(path, retries=3, delay=0.5):
             return True
         except PermissionError as e:
             if attempt < retries - 1:
-                logger.warning(f"Retry {attempt + 1}/{retries} deleting {path}: {e}")
+                logger.warning(f"Retry {scrub(attempt + 1)}/{scrub(retries)} deleting {scrub(path)}: {scrub(e)}")
                 time.sleep(delay)
             else:
-                logger.error(f"Failed to delete {path} after {retries} attempts: {e}")
+                logger.error(f"Failed to delete {scrub(path)} after {scrub(retries)} attempts: {scrub(e)}")
                 # Don't raise - just log and continue
                 return False
     return False
@@ -8048,9 +8049,9 @@ def delete_agent_setup(agent_id: str):
 
     if setup_dir.exists():
         if safe_rmtree(setup_dir):
-            logger.info(f"Deleted setup folder for agent {agent_id}")
+            logger.info(f"Deleted setup folder for agent {scrub(agent_id)}")
         else:
-            logger.warning(f"Could not fully delete setup folder for agent {agent_id}")
+            logger.warning(f"Could not fully delete setup folder for agent {scrub(agent_id)}")
 
     return {"ok": True}
 
@@ -8171,64 +8172,64 @@ def azure_agents_delete(agent_id: str):
         setup_data = _load_setup_json(agent_id)
         if setup_data:
             session_uuid = setup_data.get("sessionUuid")
-            logger.info(f"Found sessionUuid for agent {agent_id}: {session_uuid}")
+            logger.info(f"Found sessionUuid for agent {scrub(agent_id)}: {scrub(session_uuid)}")
     except Exception as e:
-        logger.warning(f"Could not read setup for agent {agent_id}: {e}")
+        logger.warning(f"Could not read setup for agent {scrub(agent_id)}: {scrub(e)}")
     
     # Step 1: Delete all chat threads and messages for this agent
     try:
         chat_result = delete_agent_chats(agent_id)
-        logger.info(f"Deleted {chat_result['threads']} threads and {chat_result['messages']} messages for agent {agent_id}")
+        logger.info(f"Deleted {scrub(chat_result['threads'])} threads and {scrub(chat_result['messages'])} messages for agent {scrub(agent_id)}")
     except Exception as e:
-        logger.warning(f"Could not delete chats for agent {agent_id}: {e}")
+        logger.warning(f"Could not delete chats for agent {scrub(agent_id)}: {scrub(e)}")
     
     # Step 2: Remove agent metadata from Cosmos DB
     try:
         delete_agent_metadata(agent_id)
-        logger.info(f"Deleted agent metadata from Cosmos DB for {agent_id}")
+        logger.info(f"Deleted agent metadata from Cosmos DB for {scrub(agent_id)}")
     except Exception as e:
-        logger.warning(f"Could not delete agent metadata from Cosmos DB for {agent_id}: {e}")
+        logger.warning(f"Could not delete agent metadata from Cosmos DB for {scrub(agent_id)}: {scrub(e)}")
     
     # Step 2.5: Delete the agent's dedicated memory store
     try:
         if delete_memory_store_for_agent(agent_id):
-            logger.info(f"Deleted memory store for agent {agent_id}")
+            logger.info(f"Deleted memory store for agent {scrub(agent_id)}")
         else:
-            logger.info(f"No memory store found for agent {agent_id} (may not have been created)")
+            logger.info(f"No memory store found for agent {scrub(agent_id)} (may not have been created)")
     except Exception as e:
-        logger.warning(f"Could not delete memory store for agent {agent_id}: {e}")
+        logger.warning(f"Could not delete memory store for agent {scrub(agent_id)}: {scrub(e)}")
     
     # Step 2.6: Delete all learning states for this agent (across all users)
     try:
         from azure_services.persistence.cosmos_db import delete_all_learning_states_for_agent
         deleted_count = delete_all_learning_states_for_agent(agent_id)
         if deleted_count > 0:
-            logger.info(f"Deleted {deleted_count} learning state(s) for agent {agent_id}")
+            logger.info(f"Deleted {scrub(deleted_count)} learning state(s) for agent {scrub(agent_id)}")
         else:
-            logger.info(f"No learning states found for agent {agent_id}")
+            logger.info(f"No learning states found for agent {scrub(agent_id)}")
     except Exception as e:
-        logger.warning(f"Could not delete learning states for agent {agent_id}: {e}")
+        logger.warning(f"Could not delete learning states for agent {scrub(agent_id)}: {scrub(e)}")
     
     # Step 3: Delete from Azure AI Foundry
     deleted = False
     try:
         creator = AgentCreator(project_endpoint=PROJECT_ENDPOINT, model_deployment=AGENT_MODEL_DEPLOYMENT)
         creator.delete_agent(agent_id)
-        logger.info(f"Deleted agent from Azure AI Foundry: {agent_id}")
+        logger.info(f"Deleted agent from Azure AI Foundry: {scrub(agent_id)}")
         deleted = True
     except Exception as e:
-        logger.warning(f"Could not delete agent {agent_id}: {e}")
+        logger.warning(f"Could not delete agent {scrub(agent_id)}: {scrub(e)}")
     
     if not deleted:
-        logger.info(f"Agent {agent_id} was not found in Azure (may have been deleted already)")
+        logger.info(f"Agent {scrub(agent_id)} was not found in Azure (may have been deleted already)")
 
     # Step 4: Delete the setup folder
     setup_dir = _agent_setup_dir(agent_id)
     if setup_dir.exists():
         if safe_rmtree(setup_dir):
-            logger.info(f"Deleted setup folder for agent {agent_id}")
+            logger.info(f"Deleted setup folder for agent {scrub(agent_id)}")
         else:
-            logger.warning(f"Could not fully delete setup folder for agent {agent_id}")
+            logger.warning(f"Could not fully delete setup folder for agent {scrub(agent_id)}")
 
     # Step 5: Delete blob storage files for this session
     # With soft delete detection enabled on the datasource, the indexer will
@@ -8306,7 +8307,7 @@ async def deep_research(request: DeepResearchRequest):
     from azure.ai.projects import AIProjectClient
     
     try:
-        logger.info(f"Starting deep research for query: {request.query[:100]}...")
+        logger.info(f"Starting deep research for query: {scrub(request.query[:100])}...")
         
         def _run_sync():
             credential = get_sync_credential()
@@ -8818,7 +8819,7 @@ async def upload_file_to_blob(
             content_settings=ContentSettings(content_type=file.content_type or "application/octet-stream")
         )
         
-        logger.info(f"Uploaded file to blob: {blob_name}")
+        logger.info(f"Uploaded file to blob: {scrub(blob_name)}")
         
         return BlobUploadResponse(
             success=True,
@@ -9615,7 +9616,7 @@ def get_agent_memory_store(agent_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to get memory store for agent {agent_id}: {e}")
+        logger.error(f"Failed to get memory store for agent {scrub(agent_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -9645,7 +9646,7 @@ def create_agent_memory_store(agent_id: str, payload: Dict[str, Any] = Body(defa
         )
         return result
     except Exception as e:
-        logger.error(f"Failed to create memory store for agent {agent_id}: {e}")
+        logger.error(f"Failed to create memory store for agent {scrub(agent_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -9660,7 +9661,7 @@ def delete_agent_memory_store_endpoint(agent_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to delete memory store for agent {agent_id}: {e}")
+        logger.error(f"Failed to delete memory store for agent {scrub(agent_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -9823,7 +9824,7 @@ async def get_user_threads(user_id: str, agent_id: Optional[str] = None):
         threads = await asyncio.to_thread(list_threads_for_user, user_id, agent_id)
         return {"threads": threads}
     except Exception as e:
-        logger.error(f"Error fetching threads for user {user_id}: {e}")
+        logger.error(f"Error fetching threads for user {scrub(user_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -9844,7 +9845,7 @@ async def get_single_thread(thread_id: str, user_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error fetching thread {thread_id}: {e}")
+        logger.error(f"Error fetching thread {scrub(thread_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -9887,7 +9888,7 @@ async def update_existing_thread(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error updating thread {thread_id}: {e}")
+        logger.error(f"Error updating thread {scrub(thread_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -9904,7 +9905,7 @@ async def delete_chat_thread(thread_id: str, user_id: str):
         success = await asyncio.to_thread(delete_thread, thread_id, user_id)
         return {"success": success}
     except Exception as e:
-        logger.error(f"Error deleting thread {thread_id}: {e}")
+        logger.error(f"Error deleting thread {scrub(thread_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -9923,7 +9924,7 @@ async def delete_all_user_chat_data(user_id: str):
         result = await asyncio.to_thread(delete_all_user_data, user_id)
         return {"success": True, **result}
     except Exception as e:
-        logger.error(f"Error deleting all data for user {user_id}: {e}")
+        logger.error(f"Error deleting all data for user {scrub(user_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -10067,7 +10068,7 @@ async def create_share_link(thread_id: str, user_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error creating share link for thread {thread_id}: {e}")
+        logger.error(f"Error creating share link for thread {scrub(thread_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -10086,7 +10087,7 @@ async def revoke_share_link(thread_id: str, user_id: str):
         success = await asyncio.to_thread(revoke_share_token, thread_id, user_id)
         return {"success": success}
     except Exception as e:
-        logger.error(f"Error revoking share link for thread {thread_id}: {e}")
+        logger.error(f"Error revoking share link for thread {scrub(thread_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -10140,7 +10141,7 @@ async def get_shared_chat(share_token: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error fetching shared chat {share_token}: {e}")
+        logger.error(f"Error fetching shared chat {scrub(share_token)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -10361,7 +10362,7 @@ async def submit_first_quiz_attempt(
         )
     except Exception as exc:
         logger.warning(
-            f"Concept inventory mapping failed for quiz '{body.quizId}' on agent "
+            f"Concept inventory mapping failed for quiz '{scrub(body.quizId)}' on agent "
             f"'{body.agentId}'; storing the attempt unenriched: {exc}"
         )
         validated = None
@@ -10552,7 +10553,7 @@ async def get_asset_endpoint(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error fetching asset {asset_id}: {e}")
+        logger.error(f"Error fetching asset {scrub(asset_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -10577,7 +10578,7 @@ async def update_asset_endpoint(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error updating asset {asset_id}: {e}")
+        logger.error(f"Error updating asset {scrub(asset_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -10600,7 +10601,7 @@ async def delete_asset_endpoint(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Error deleting asset {asset_id}: {e}")
+        logger.error(f"Error deleting asset {scrub(asset_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -10638,7 +10639,7 @@ async def get_thread_messages(
         )
         return _sign_generated_images(result)
     except Exception as e:
-        logger.error(f"Error fetching messages for thread {thread_id}: {e}")
+        logger.error(f"Error fetching messages for thread {scrub(thread_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -10677,7 +10678,7 @@ async def delete_chat_message(message_id: str, user_id: str, thread_id: str):
         success = await asyncio.to_thread(delete_message, message_id, user_id)
         return {"success": success}
     except Exception as e:
-        logger.error(f"Error deleting message {message_id}: {e}")
+        logger.error(f"Error deleting message {scrub(message_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -10719,7 +10720,7 @@ async def sync_chat_data(request: SyncRequestModel, background_tasks: Background
             messagesUpserted=messages_result.get("upserted", 0)
         )
     except Exception as e:
-        logger.error(f"Error syncing chat data for user {request.userId}: {e}")
+        logger.error(f"Error syncing chat data for user {scrub(request.userId)}: {scrub(e)}")
         return SyncResponseModel(
             success=False,
             error=str(e)
@@ -10753,7 +10754,7 @@ async def load_all_chat_data(user_id: str, agent_id: Optional[str] = None):
             thread_ids = {t["id"] for t in threads}
             all_messages = [m for m in all_messages if m.get("threadId") in thread_ids]
         
-        logger.debug(f"Loaded {len(threads)} threads and {len(all_messages)} messages for user {user_id}")
+        logger.debug(f"Loaded {scrub(len(threads))} threads and {scrub(len(all_messages))} messages for user {scrub(user_id)}")
         
         return {
             "threads": threads,
@@ -10761,7 +10762,7 @@ async def load_all_chat_data(user_id: str, agent_id: Optional[str] = None):
             "messages": _sign_generated_images({"messages": all_messages})["messages"],
         }
     except Exception as e:
-        logger.error(f"Error loading chat data for user {user_id}: {e}")
+        logger.error(f"Error loading chat data for user {scrub(user_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -10797,7 +10798,7 @@ async def get_user(user_id: str):
         else:
             return {"success": True, "profile": None}
     except Exception as e:
-        logger.error(f"Error getting user profile {user_id}: {e}")
+        logger.error(f"Error getting user profile {scrub(user_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -10831,11 +10832,11 @@ async def update_user(user_id: str, profile: UserProfileModel):
         )
         
         _invalidate_agent_list_caches(invalidate_teacher_scope=False)
-        logger.info(f"Invalidated agents cache after user profile update for {user_id}")
+        logger.info(f"Invalidated agents cache after user profile update for {scrub(user_id)}")
         
         return {"success": True, "profile": updated_profile}
     except Exception as e:
-        logger.error(f"Error updating user profile {user_id}: {e}")
+        logger.error(f"Error updating user profile {scrub(user_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -10846,7 +10847,7 @@ async def delete_user(user_id: str):
         success = await asyncio.to_thread(delete_user_profile, user_id)
         return {"success": success}
     except Exception as e:
-        logger.error(f"Error deleting user profile {user_id}: {e}")
+        logger.error(f"Error deleting user profile {scrub(user_id)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -11229,7 +11230,7 @@ async def dedup_threshold_concepts(agent_id: str):
     # 6. Save back
     if save_course_curriculum(agent_id, curriculum):
         logger.info(
-            f"[Dedup TC] Saved deduplicated curriculum for '{agent_id}': "
+            f"[Dedup TC] Saved deduplicated curriculum for '{scrub(agent_id)}': "
             f"{len(tc_names)} → {len(new_names)} concepts"
         )
     else:
@@ -11291,7 +11292,7 @@ async def get_agent_course_curriculum(agent_name: str, status_only: bool = False
                 "message": "No course curriculum available. Create the agent with textbooks to generate one."}
 
     except Exception as e:
-        logger.error(f"Failed to get course curriculum for '{agent_name}': {e}")
+        logger.error(f"Failed to get course curriculum for '{scrub(agent_name)}': {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -11329,7 +11330,7 @@ async def update_agent_course_curriculum(agent_name: str, body: dict):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to update course curriculum for '{agent_name}': {e}")
+        logger.error(f"Failed to update course curriculum for '{scrub(agent_name)}': {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -11347,7 +11348,7 @@ async def list_curriculum_versions(agent_name: str):
                 versions = list_course_curriculum_versions(agent_name)
         return {"status": "ok", "versions": versions}
     except Exception as e:
-        logger.error(f"Failed to list curriculum versions for '{agent_name}': {e}")
+        logger.error(f"Failed to list curriculum versions for '{scrub(agent_name)}': {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -11367,7 +11368,7 @@ async def get_curriculum_version(agent_name: str, version_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to get curriculum version '{version_id}' for '{agent_name}': {e}")
+        logger.error(f"Failed to get curriculum version '{scrub(version_id)}' for '{scrub(agent_name)}': {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -11386,7 +11387,7 @@ async def diff_curriculum_versions(agent_name: str, old: str, new: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Failed to diff curriculum versions for '{agent_name}': {e}")
+        logger.error(f"Failed to diff curriculum versions for '{scrub(agent_name)}': {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -11425,7 +11426,7 @@ async def get_learning_progress(agent_name: str, user_id: str):
             },
         }
     except Exception as e:
-        logger.error(f"Failed to get learning progress for user={user_id}, agent={agent_name}: {e}")
+        logger.error(f"Failed to get learning progress for user={scrub(user_id)}, agent={scrub(agent_name)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -11445,7 +11446,7 @@ async def reset_learning_progress(agent_name: str, user_id: str):
             "message": "Learning progress has been reset. A fresh state will be created on next chat.",
         }
     except Exception as e:
-        logger.error(f"Failed to reset learning progress for user={user_id}, agent={agent_name}: {e}")
+        logger.error(f"Failed to reset learning progress for user={scrub(user_id)}, agent={scrub(agent_name)}: {scrub(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -11702,7 +11703,7 @@ async def create_course_agent(request: CourseAgentRequest):
         session_uuid = request.session_uuid
         
         # Ensure common index pipeline and run indexer
-        logger.info(f"Ensuring common index pipeline for session: {session_uuid}")
+        logger.info(f"Ensuring common index pipeline for session: {scrub(session_uuid)}")
         pipeline_ok, pipeline_result = ensure_common_index_pipeline()
         if not pipeline_ok:
             raise HTTPException(status_code=500, detail=f"Pipeline setup failed: {pipeline_result}")

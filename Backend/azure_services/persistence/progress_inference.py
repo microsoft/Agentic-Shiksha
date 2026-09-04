@@ -10,6 +10,7 @@ still requires the tutor's judgement or assessment evidence.
 import logging
 import re
 from typing import Any, Dict, Iterable, List, Optional
+from utils.log_safe import scrub
 
 logger = logging.getLogger(__name__)
 
@@ -85,9 +86,9 @@ def record_taught_topics(
 
         if recorded:
             logger.info(
-                f"[progress] Inferred in_progress for user='{user_id}', agent='{agent_id}': {recorded}"
+                f"[progress] Inferred in_progress for user='{scrub(user_id)}', agent='{scrub(agent_id)}': {scrub(recorded)}"
             )
         return recorded
     except Exception as e:
-        logger.error(f"[progress] Topic inference failed for user='{user_id}', agent='{agent_id}': {e}")
+        logger.error(f"[progress] Topic inference failed for user='{scrub(user_id)}', agent='{scrub(agent_id)}': {scrub(e)}")
         return []

@@ -7,6 +7,7 @@ from pathlib import Path
 
 from utils.tool_definitions import load_tool_definition
 from agent_tools.custom.base import CustomTool
+from utils.log_safe import scrub
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +42,7 @@ def _get_full_course_curriculum(agent_name: str) -> Optional[Dict[str, Any]]:
         if plan:
             return plan
     except Exception as e:
-        logger.warning(f"Blob storage course curriculum lookup failed for '{agent_name}': {e}")
+        logger.warning(f"Blob storage course curriculum lookup failed for '{scrub(agent_name)}': {scrub(e)}")
 
     # Fallback: check local file (backward compatibility)
     setup_dir = _setup_dir(agent_name)
@@ -64,13 +65,13 @@ def _get_full_course_curriculum(agent_name: str) -> Optional[Dict[str, Any]]:
         try:
             from azure_services.persistence.cosmos_db import save_course_curriculum
             save_course_curriculum(agent_name, plan)
-            logger.info(f"Migrated local course curriculum for '{agent_name}' to blob storage")
+            logger.info(f"Migrated local course curriculum for '{scrub(agent_name)}' to blob storage")
         except Exception as e:
             logger.warning(f"Failed to migrate course curriculum to blob storage: {e}")
 
         return plan
     except Exception as e:
-        logger.error(f"Error loading course curriculum for '{agent_name}': {e}")
+        logger.error(f"Error loading course curriculum for '{scrub(agent_name)}': {scrub(e)}")
         return None
 
 
@@ -198,7 +199,7 @@ def _resolve_threshold_concepts(
                 curriculum = _get_full_course_curriculum(agent_name)
 
                 logger.info(
-                    f"Returning learning state for user='{user_id}', agent='{agent_name}': "
+                    f"Returning learning state for user='{scrub(user_id)}', agent='{scrub(agent_name)}': "
                     f"{progress.get('overall', {}).get('learned', 0)}/{progress.get('overall', {}).get('total_topics', 0)} learned"
                 )
                 return {
@@ -226,7 +227,7 @@ def _resolve_threshold_concepts(
             progress = get_progress_summary(user_id, agent_name)
             topics = state.get("topics", {})
             concepts = state.get("threshold_concepts", {}) or {}
-            logger.info(f"Cold start: initialized learning state for user='{user_id}', agent='{agent_name}'")
+            logger.info(f"Cold start: initialized learning state for user='{scrub(user_id)}', agent='{scrub(agent_name)}'")
             return {
                 "all_topics": topics,
                 "objectives": state.get("objectives", {}),
@@ -238,7 +239,7 @@ def _resolve_threshold_concepts(
             }
 
         except Exception as e:
-            logger.error(f"Learning state lookup failed for user='{user_id}', agent='{agent_name}': {e}")
+            logger.error(f"Learning state lookup failed for user='{scrub(user_id)}', agent='{scrub(agent_name)}': {scrub(e)}")
             # Fall through to legacy path
             logger.info("Falling back to full curriculum return")
 

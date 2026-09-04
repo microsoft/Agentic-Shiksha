@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 
 from azure.cosmos import CosmosClient
 from azure.identity import DefaultAzureCredential, AzureCliCredential
+from log_safe import scrub
 
 logger = logging.getLogger(__name__)
 
@@ -993,7 +994,7 @@ def transfer_agent_ownership(agent_id: str, new_owner_id: str) -> Optional[Dict[
         agent["teacherIds"] = teacher_ids
     agent["updatedAt"] = datetime.now(timezone.utc).isoformat()
     _agents().upsert_item(body=agent)
-    logger.info(f"Transferred agent '{agent_id}' ownership to '{new_owner_id}'")
+    logger.info(f"Transferred agent '{scrub(agent_id)}' ownership to '{scrub(new_owner_id)}'")
     return agent
 
 
@@ -1021,7 +1022,7 @@ def set_agent_teachers(agent_id: str, teacher_ids: List[str]) -> Optional[Dict[s
     agent["teacherIds"] = unique_ids
     agent["updatedAt"] = datetime.now(timezone.utc).isoformat()
     _agents().upsert_item(body=agent)
-    logger.info(f"Set teachers for agent '{agent_id}': {unique_ids}")
+    logger.info(f"Set teachers for agent '{scrub(agent_id)}': {scrub(unique_ids)}")
     return agent
 
 
@@ -1046,7 +1047,7 @@ def get_invite_by_email(email: str) -> Optional[Dict[str, Any]]:
         ))
         return items[0] if items else None
     except Exception as e:
-        logger.error(f"Error querying invite by email {email}: {e}")
+        logger.error(f"Error querying invite by email {scrub(email)}: {scrub(e)}")
         return None
 
 
@@ -1062,7 +1063,7 @@ def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
         ))
         return items[0] if items else None
     except Exception as e:
-        logger.error(f"Error querying user by email {email}: {e}")
+        logger.error(f"Error querying user by email {scrub(email)}: {scrub(e)}")
         return None
 
 
@@ -1087,7 +1088,7 @@ def get_invite_by_id(invite_id: str) -> Optional[Dict[str, Any]]:
         ))
         return items[0] if items else None
     except Exception as e:
-        logger.error(f"Error querying invite by id {invite_id}: {e}")
+        logger.error(f"Error querying invite by id {scrub(invite_id)}: {scrub(e)}")
         return None
 
 
@@ -1171,7 +1172,7 @@ def invite_user(
         "updatedAt": now,
     }
     container.upsert_item(body=doc)
-    logger.info(f"Invited user {normalized_email} as {role} (id={dir_id})")
+    logger.info(f"Invited user {scrub(normalized_email)} as {scrub(role)} (id={scrub(dir_id)})")
     return (doc, True, False)
 
 
@@ -1255,12 +1256,12 @@ def remove_directory_user(user_id: str) -> bool:
 
     try:
         _users().delete_item(item=user_id, partition_key=user_id)
-        logger.info(f"Deleted user {user_id} from users_v1")
+        logger.info(f"Deleted user {scrub(user_id)} from users_v1")
         removed = True
     except CosmosResourceNotFoundError:
         pass
     except Exception as e:
-        logger.error(f"Error deleting user {user_id} from C2: {e}")
+        logger.error(f"Error deleting user {scrub(user_id)} from C2: {scrub(e)}")
 
     try:
         items = list(_invited().query_items(
@@ -1271,10 +1272,10 @@ def remove_directory_user(user_id: str) -> bool:
         if items:
             doc = items[0]
             _invited().delete_item(item=doc["id"], partition_key=doc["email"])
-            logger.info(f"Deleted invite {user_id} from invited_users_v1")
+            logger.info(f"Deleted invite {scrub(user_id)} from invited_users_v1")
             removed = True
     except Exception as e:
-        logger.error(f"Error deleting invite {user_id} from C1: {e}")
+        logger.error(f"Error deleting invite {scrub(user_id)} from C1: {scrub(e)}")
     return removed
 
 

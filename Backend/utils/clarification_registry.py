@@ -12,6 +12,7 @@ import threading
 import time
 import uuid
 from typing import Dict, List, Optional
+from utils.log_safe import scrub
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +56,7 @@ def submit(clarify_id: str, answers: List[Dict[str, str]]) -> bool:
     with _lock:
         entry = _pending.get(clarify_id)
     if entry is None:
-        logger.warning(f"[clarify] submit for unknown or expired id: {clarify_id}")
+        logger.warning(f"[clarify] submit for unknown or expired id: {scrub(clarify_id)}")
         return False
     entry.answers = answers
     entry.event.set()

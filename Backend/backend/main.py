@@ -240,9 +240,9 @@ def _kb_base(session: str, kb_scope: str) -> Path:
     kb_scope = _require_scope(kb_scope)
     session = _require_session(session)
     # Resolve and confirm containment; the callers walk this directory.
-    base = os.path.realpath(SESSION_DOCS_BASE)
-    target = os.path.realpath(os.path.join(base, kb_scope, session))
-    if os.path.commonprefix((target, base)) != base:
+    base = os.path.normpath(str(SESSION_DOCS_BASE))
+    target = os.path.normpath(os.path.join(base, kb_scope, session))
+    if not target.startswith(base):
         raise HTTPException(status_code=400, detail="invalid session")
     return Path(target)
 
@@ -257,9 +257,9 @@ def _agent_setup_dir(agent_id: str) -> Path:
     safe = re.sub(r"[^A-Za-z0-9._-]", "_", name).lstrip(".")[:128]
     if not safe:
         raise HTTPException(status_code=400, detail="invalid agent id")
-    base = os.path.realpath(AGENT_SETUPS_BASE)
-    target = os.path.realpath(os.path.join(base, safe))
-    if os.path.commonprefix((target, base)) != base:
+    base = os.path.normpath(str(AGENT_SETUPS_BASE))
+    target = os.path.normpath(os.path.join(base, safe))
+    if not target.startswith(base):
         raise HTTPException(status_code=400, detail="invalid agent id")
     return Path(target)
 

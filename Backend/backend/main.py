@@ -245,10 +245,14 @@ def _agent_setup_dir(agent_id: str) -> Path:
     if not name or name in (".", ".."):
         raise HTTPException(status_code=400, detail="invalid agent id")
     # Rebuild from an allowlist so no separator or traversal token can survive.
-    safe = re.sub(r"[^A-Za-z0-9._-]", "_", name)[:128]
-    if not safe or safe in (".", ".."):
+    safe = re.sub(r"[^A-Za-z0-9._-]", "_", name).lstrip(".")[:128]
+    if not safe:
         raise HTTPException(status_code=400, detail="invalid agent id")
-    return AGENT_SETUPS_BASE / safe
+    base = os.path.realpath(AGENT_SETUPS_BASE)
+    target = os.path.realpath(os.path.join(base, safe))
+    if target != base and not target.startswith(base + os.sep):
+        raise HTTPException(status_code=400, detail="invalid agent id")
+    return Path(target)
 
 
 
@@ -2959,8 +2963,8 @@ def agent_chat_stream(agent_id: str, request: Request, payload: Dict[str, Any] =
                 elif event_type == "error":
                     yield f"data: {json.dumps({'type': 'error', 'error': data, 'thread_id': conv_id, 'conversation_id': conv_id})}\n\n"
         except Exception as e:
-            logger.error(f"Stream error: {e}")
-            yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
+            logger.error(f"Stream error: {e}", exc_info=True)
+            yield f"data: {json.dumps({'type': 'error', 'error': 'Internal error'})}\n\n"
     
     return StreamingResponse(
         _with_sse_keepalive(generate_stream()),
@@ -8521,8 +8525,8 @@ async def stream_deep_research(request: DeepResearchStreamRequest):
                         logger.warning(f"[DeepResearch] Failed to delete thread: {e}")
                 
         except Exception as e:
-            logger.error(f"[DeepResearch] Thread error: {e}")
-            event_queue.put(('error', {'error': str(e)}))
+            logger.error(f"[DeepResearch] Thread error: {e}", exc_info=True)
+            event_queue.put(('error', {'error': 'Internal error'}))
         
         event_queue.put(None)
     
@@ -8550,8 +8554,8 @@ async def stream_deep_research(request: DeepResearchStreamRequest):
                 yield f"event: {event_type}\ndata: {json.dumps(data)}\n\n"
                 
         except Exception as e:
-            logger.error(f"Deep research stream error: {e}")
-            yield f"event: error\ndata: {json.dumps({'error': str(e)})}\n\n"
+            logger.error(f"Deep research stream error: {e}", exc_info=True)
+            yield f"event: error\ndata: {json.dumps({'error': 'Internal error'})}\n\n"
     
     return StreamingResponse(
         event_generator(),
@@ -8884,9 +8888,10 @@ async def upload_multiple_files_to_blob(
             })
             
         except Exception as e:
+            logger.error(f"Upload failed for {file.filename}: {e}", exc_info=True)
             errors.append({
                 "filename": file.filename,
-                "error": str(e)
+                "error": "Processing failed"
             })
     
     return {
@@ -9263,8 +9268,8 @@ async def extract_text_from_document(
         return {"success": True, "extracted_text": extracted, "filename": filename}
 
     except Exception as e:
-        logger.error(f"Document text extraction error for {filename}: {e}")
-        return {"success": False, "error": str(e)}
+        logger.error(f"Document text extraction error for {filename}: {e}", exc_info=True)
+        return {"success": False, "error": "Text extraction failed"}
 
 
 # Helper functions for Document Intelligence result parsing
@@ -9479,7 +9484,7 @@ async def async_process_single_file(
         return {
             "success": False,
             "filename": file.filename if file else "unknown",
-            "error": str(e)
+            "error": "Processing failed"
         }
 
 
@@ -9576,10 +9581,10 @@ async def async_create_vector_store_from_blobs(
         }
         
     except Exception as e:
-        logger.error(f"Vector store creation error: {e}")
+        logger.error(f"Vector store creation error: {e}", exc_info=True)
         return {
             "success": False,
-            "error": str(e)
+            "error": "Vector store creation failed"
         }
 
 

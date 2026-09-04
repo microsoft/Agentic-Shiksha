@@ -16,6 +16,7 @@ import threading
 from collections import OrderedDict
 from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
+from utils.log_safe import scrub
 from azure.cosmos import CosmosClient, PartitionKey
 from azure.cosmos.exceptions import (
     CosmosHttpResponseError,
@@ -889,7 +890,7 @@ def get_user_profile(user_id: str) -> Optional[Dict[str, Any]]:
     except CosmosResourceNotFoundError:
         return None
     except Exception as e:
-        logger.error(f"Error getting user profile {user_id}: {e}")
+        logger.error(f"Error getting user profile {scrub(user_id)}: {scrub(e)}")
         return None
 
 
@@ -903,7 +904,7 @@ def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
         items = list(_users_container.query_items(query=query, parameters=params, enable_cross_partition_query=True))
         return items[0] if items else None
     except Exception as e:
-        logger.error(f"Error querying user by email {email}: {e}")
+        logger.error(f"Error querying user by email {scrub(email)}: {scrub(e)}")
         return None
 
 
@@ -963,7 +964,7 @@ def upsert_user_profile(
     # Auto-promote "invited" -> "active" once onboarding is completed
     if profile["onboardingCompleted"] and profile.get("status") == "invited":
         profile["status"] = "active"
-        logger.info(f"Auto-promoted user {user_id} from 'invited' to 'active' (onboarding completed)")
+        logger.info(f"Auto-promoted user {scrub(user_id)} from 'invited' to 'active' (onboarding completed)")
 
     # Privacy: don't persist student names in Cosmos DB — names stay in browser only
     if profile.get("role") == "student":
@@ -979,7 +980,7 @@ def upsert_user_profile(
     profile["activeAffiliation"] = existing.get("activeAffiliation", 0) if existing else 0
     
     _users_container.upsert_item(body=profile)
-    logger.info(f"Upserted user profile for {user_id}")
+    logger.info(f"Upserted user profile for {scrub(user_id)}")
     return profile
 
 
@@ -989,10 +990,10 @@ def delete_user_profile(user_id: str) -> bool:
     
     try:
         _users_container.delete_item(item=user_id, partition_key=user_id)
-        logger.info(f"Deleted user profile {user_id}")
+        logger.info(f"Deleted user profile {scrub(user_id)}")
         return True
     except CosmosResourceNotFoundError:
-        logger.warning(f"User profile {user_id} not found for deletion")
+        logger.warning(f"User profile {scrub(user_id)} not found for deletion")
         return False
 
 
@@ -1016,7 +1017,7 @@ def get_invite_by_email(email: str) -> Optional[Dict[str, Any]]:
         ))
         return items[0] if items else None
     except Exception as e:
-        logger.error(f"Error querying invite by email {email}: {e}")
+        logger.error(f"Error querying invite by email {scrub(email)}: {scrub(e)}")
         return None
 
 
@@ -1067,13 +1068,13 @@ def invite_user(
             for a in affiliations
         )
         if dup:
-            logger.info(f"invite_user: {email} already has affiliation {institute}/{department}")
+            logger.info(f"invite_user: {scrub(email)} already has affiliation {scrub(institute)}/{scrub(department)}")
             return (existing, False, False)
         affiliations.append(new_aff)
         existing["affiliations"] = affiliations
         existing["updatedAt"] = datetime.utcnow().isoformat() + "Z"
         _invited_users_container.upsert_item(body=existing)
-        logger.info(f"invite_user: appended affiliation {institute}/{department}/{role} for {email}")
+        logger.info(f"invite_user: appended affiliation {scrub(institute)}/{scrub(department)}/{scrub(role)} for {scrub(email)}")
         return (existing, False, True)
 
     # Also check users_v1 in case user already active — add affiliation there
@@ -1092,13 +1093,13 @@ def invite_user(
             for a in affiliations
         )
         if dup:
-            logger.info(f"invite_user: active {email} already has affiliation {institute}/{department}")
+            logger.info(f"invite_user: active {scrub(email)} already has affiliation {scrub(institute)}/{scrub(department)}")
             return (active, False, False)
         affiliations.append(new_aff)
         active["affiliations"] = affiliations
         active["updatedAt"] = datetime.utcnow().isoformat() + "Z"
         _users_container.upsert_item(body=active)
-        logger.info(f"invite_user: appended affiliation {institute}/{department}/{role} for active user {email}")
+        logger.info(f"invite_user: appended affiliation {scrub(institute)}/{scrub(department)}/{scrub(role)} for active user {scrub(email)}")
         return (active, False, True)
 
     dir_id = f"dir-{uuid.uuid4().hex[:8]}"
@@ -1119,7 +1120,7 @@ def invite_user(
         "updatedAt": now,
     }
     _invited_users_container.upsert_item(body=doc)
-    logger.info(f"Invited user {normalized_email} as {role} (id={dir_id})")
+    logger.info(f"Invited user {scrub(normalized_email)} as {scrub(role)} (id={scrub(dir_id)})")
     return (doc, True, False)
 
 
@@ -1296,7 +1297,7 @@ def switch_active_affiliation(user_id: str, index: int) -> Optional[Dict[str, An
 
     affiliations = profile.get("affiliations", [])
     if not affiliations or index < 0 or index >= len(affiliations):
-        logger.warning(f"switch_active_affiliation: invalid index {index} for user {user_id} (has {len(affiliations)} affiliations)")
+        logger.warning(f"switch_active_affiliation: invalid index {scrub(index)} for user {scrub(user_id)} (has {scrub(len(affiliations))} affiliations)")
         return None
 
     aff = affiliations[index]
@@ -1308,7 +1309,7 @@ def switch_active_affiliation(user_id: str, index: int) -> Optional[Dict[str, An
     profile["updatedAt"] = datetime.utcnow().isoformat() + "Z"
 
     _users_container.upsert_item(body=profile)
-    logger.info(f"Switched user {user_id} to affiliation {index}: {aff}")
+    logger.info(f"Switched user {scrub(user_id)} to affiliation {scrub(index)}: {scrub(aff)}")
     return profile
 
 
@@ -1335,10 +1336,10 @@ def remove_directory_user(user_id: str) -> bool:
             _invited_users_container.delete_item(
                 item=doc["id"], partition_key=doc["email"],
             )
-            logger.info(f"Deleted invite {user_id} from invited_users_v1")
+            logger.info(f"Deleted invite {scrub(user_id)} from invited_users_v1")
             return True
     except Exception as e:
-        logger.error(f"Error deleting invite {user_id} from C1: {e}")
+        logger.error(f"Error deleting invite {scrub(user_id)} from C1: {scrub(e)}")
     return False
 
 
@@ -1374,7 +1375,7 @@ def rename_institute(old_name: str, new_name: str) -> int:
             doc["updatedAt"] = datetime.utcnow().isoformat() + "Z"
             _invited_users_container.upsert_item(body=doc)
             count += 1
-        logger.info(f"Renamed institute '{old_name}' -> '{new_name}' for {count} docs")
+        logger.info(f"Renamed institute '{scrub(old_name)}' -> '{scrub(new_name)}' for {scrub(count)} docs")
         return count
     except Exception as e:
         logger.error(f"Error renaming institute: {e}")
@@ -1413,7 +1414,7 @@ def delete_institute(name: str) -> int:
             doc["updatedAt"] = datetime.utcnow().isoformat() + "Z"
             _invited_users_container.upsert_item(body=doc)
             count += 1
-        logger.info(f"Deleted institute '{name}', cleared {count} docs")
+        logger.info(f"Deleted institute '{scrub(name)}', cleared {scrub(count)} docs")
         return count
     except Exception as e:
         logger.error(f"Error deleting institute: {e}")
@@ -1445,7 +1446,7 @@ def rename_department(institute: str, old_name: str, new_name: str) -> int:
             doc["updatedAt"] = datetime.utcnow().isoformat() + "Z"
             _invited_users_container.upsert_item(body=doc)
             count += 1
-        logger.info(f"Renamed department '{old_name}' -> '{new_name}' under '{institute}' for {count} docs")
+        logger.info(f"Renamed department '{scrub(old_name)}' -> '{scrub(new_name)}' under '{scrub(institute)}' for {scrub(count)} docs")
         return count
     except Exception as e:
         logger.error(f"Error renaming department: {e}")
@@ -1556,7 +1557,7 @@ def create_agent_metadata(
     
     container = _get_agents_container()
     container.create_item(body=agent_doc)
-    logger.info(f"Created agent metadata for {agent_id} ({name})")
+    logger.info(f"Created agent metadata for {scrub(agent_id)} ({scrub(name)})")
     return agent_doc
 
 
@@ -1610,7 +1611,7 @@ def get_agent_metadata(agent_id: str) -> Optional[Dict[str, Any]]:
     except CosmosResourceNotFoundError:
         return None
     except Exception as e:
-        logger.error(f"Error getting agent metadata {agent_id}: {e}")
+        logger.error(f"Error getting agent metadata {scrub(agent_id)}: {scrub(e)}")
         return None
 
 
@@ -1626,7 +1627,7 @@ def update_agent_metadata(
     """Update agent metadata."""
     existing = get_agent_metadata(agent_id)
     if not existing:
-        logger.warning(f"Agent {agent_id} not found for update")
+        logger.warning(f"Agent {scrub(agent_id)} not found for update")
         return None
     
     # Update only provided fields
@@ -1647,7 +1648,7 @@ def update_agent_metadata(
     
     container = _get_agents_container()
     container.upsert_item(body=existing)
-    logger.info(f"Updated agent metadata for {agent_id}")
+    logger.info(f"Updated agent metadata for {scrub(agent_id)}")
     return existing
 
 
@@ -1662,13 +1663,13 @@ def delete_agent_metadata(agent_id: str) -> bool:
             delete_course_curriculum(agent_id)
         except Exception:
             pass
-        logger.info(f"Deleted agent metadata {agent_id}")
+        logger.info(f"Deleted agent metadata {scrub(agent_id)}")
         return True
     except CosmosResourceNotFoundError:
-        logger.warning(f"Agent metadata {agent_id} not found for deletion")
+        logger.warning(f"Agent metadata {scrub(agent_id)} not found for deletion")
         return False
     except Exception as e:
-        logger.error(f"Error deleting agent metadata {agent_id}: {e}")
+        logger.error(f"Error deleting agent metadata {scrub(agent_id)}: {scrub(e)}")
         return False
 
 
@@ -1793,9 +1794,9 @@ def save_course_curriculum(agent_id: str, course_curriculum: Dict[str, Any]) -> 
         blob_client = blob_service.get_blob_client(container=_COURSE_CURRICULUM_CONTAINER, blob=blob_name)
         blob_client.upload_blob(curriculum_json.encode("utf-8"), overwrite=True, content_settings=ContentSettings(content_type="application/json"))
         blob_url = f"https://{_COURSE_CURRICULUM_STORAGE_ACCOUNT}.blob.core.windows.net/{_COURSE_CURRICULUM_CONTAINER}/{blob_name}"
-        logger.info(f"Uploaded course curriculum for '{agent_id}' to blob ({curriculum_size} chars)")
+        logger.info(f"Uploaded course curriculum for '{scrub(agent_id)}' to blob ({scrub(curriculum_size)} chars)")
     except Exception as e:
-        logger.error(f"Failed to upload course curriculum to blob for '{agent_id}': {e}")
+        logger.error(f"Failed to upload course curriculum to blob for '{scrub(agent_id)}': {scrub(e)}")
         return False
 
     # Step 2: Store reference in Cosmos DB agent metadata
@@ -1806,19 +1807,19 @@ def save_course_curriculum(agent_id: str, course_curriculum: Dict[str, Any]) -> 
         agent["courseCurriculumUpdatedAt"] = datetime.utcnow().isoformat() + "Z"
         agent["updatedAt"] = datetime.utcnow().isoformat() + "Z"
         container.upsert_item(body=agent)
-        logger.info(f"Saved course curriculum blob reference for '{agent_id}' to Cosmos DB")
+        logger.info(f"Saved course curriculum blob reference for '{scrub(agent_id)}' to Cosmos DB")
     except Exception as e:
-        logger.warning(f"Failed to save blob reference to Cosmos DB for '{agent_id}': {e}")
+        logger.warning(f"Failed to save blob reference to Cosmos DB for '{scrub(agent_id)}': {scrub(e)}")
         # Blob is still saved — reference can be reconstructed from convention
 
     # Step 3: Update cache (partial saves stay uncached so later reads see the finished version)
     with _course_curriculum_cache_lock:
         if _curriculum_is_complete(course_curriculum):
             _cache_course_curriculum(agent_id, course_curriculum)
-            logger.info(f"Course curriculum for '{agent_id}' saved to blob + cached ({curriculum_size} chars)")
+            logger.info(f"Course curriculum for '{scrub(agent_id)}' saved to blob + cached ({scrub(curriculum_size)} chars)")
         else:
             _course_curriculum_cache.pop(agent_id, None)
-            logger.info(f"Course curriculum for '{agent_id}' saved to blob, not cached — still generating ({curriculum_size} chars)")
+            logger.info(f"Course curriculum for '{scrub(agent_id)}' saved to blob, not cached — still generating ({scrub(curriculum_size)} chars)")
     return True
 
 
@@ -1856,7 +1857,7 @@ def _legacy_get_course_curriculum_version(agent_id: str, version_id: str) -> Opt
         data = json.loads(blob_client.download_blob().readall().decode("utf-8"))
         return data
     except Exception as e:
-        logger.error(f"Failed to get curriculum version '{version_id}' for '{agent_id}': {e}")
+        logger.error(f"Failed to get curriculum version '{scrub(version_id)}' for '{scrub(agent_id)}': {scrub(e)}")
         return None
 
 
@@ -1872,14 +1873,14 @@ def get_course_curriculum(agent_id: str) -> Optional[Dict[str, Any]]:
     """
     cached = _get_cached_course_curriculum(agent_id)
     if cached is not None:
-        logger.debug(f"Course curriculum cache HIT for '{agent_id}'")
+        logger.debug(f"Course curriculum cache HIT for '{scrub(agent_id)}'")
         return cached
 
     # Only callers for the same course wait; unrelated curricula still load in parallel.
     with _get_course_curriculum_load_lock(agent_id):
         cached = _get_cached_course_curriculum(agent_id)
         if cached is not None:
-            logger.debug(f"Course curriculum cache HIT for '{agent_id}'")
+            logger.debug(f"Course curriculum cache HIT for '{scrub(agent_id)}'")
             return cached
         return _load_course_curriculum_uncached(agent_id)
 
@@ -1899,16 +1900,16 @@ def _load_course_curriculum_uncached(agent_id: str) -> Optional[Dict[str, Any]]:
         # process, and a cached partial would otherwise never refresh.
         if _curriculum_is_complete(curriculum):
             _cache_course_curriculum(agent_id, curriculum)
-            logger.info(f"Course curriculum cache MISS for '{agent_id}' — loaded from blob and cached ({len(curriculum_json)} chars)")
+            logger.info(f"Course curriculum cache MISS for '{scrub(agent_id)}' — loaded from blob and cached ({scrub(len(curriculum_json))} chars)")
         else:
-            logger.info(f"Course curriculum for '{agent_id}' still generating — loaded from blob, not cached")
+            logger.info(f"Course curriculum for '{scrub(agent_id)}' still generating — loaded from blob, not cached")
         return curriculum
     except ResourceNotFoundError:
         pass
     except Exception as e:
         # A read failure (for example missing Storage Blob Data Reader) is not the
         # same as an absent curriculum; surface it instead of reporting an empty plan.
-        logger.error(f"Could not read course curriculum for '{agent_id}': {type(e).__name__}: {e}")
+        logger.error(f"Could not read course curriculum for '{scrub(agent_id)}': {scrub(type(e).__name__)}: {scrub(e)}")
         return None
 
     # Migration fallback: check old "learning-plans" container with old blob name
@@ -1919,19 +1920,19 @@ def _load_course_curriculum_uncached(agent_id: str) -> Optional[Dict[str, Any]]:
         download = blob_client.download_blob()
         curriculum_json = download.readall().decode("utf-8")
         curriculum = json.loads(curriculum_json)
-        logger.info(f"Found curriculum in old 'learning-plans' container for '{agent_id}' — migrating to new container")
+        logger.info(f"Found curriculum in old 'learning-plans' container for '{scrub(agent_id)}' — migrating to new container")
         # Migrate to new container
         try:
             save_course_curriculum(agent_id, curriculum)
-            logger.info(f"Migrated curriculum for '{agent_id}' from learning-plans → course-curriculum")
+            logger.info(f"Migrated curriculum for '{scrub(agent_id)}' from learning-plans → course-curriculum")
         except Exception as me:
-            logger.warning(f"Migration save failed for '{agent_id}': {me}")
+            logger.warning(f"Migration save failed for '{scrub(agent_id)}': {scrub(me)}")
             _cache_course_curriculum(agent_id, curriculum)
         return curriculum
     except Exception:
         pass
 
-    logger.debug(f"No course curriculum found in any blob container for '{agent_id}'")
+    logger.debug(f"No course curriculum found in any blob container for '{scrub(agent_id)}'")
     return None
 
 
@@ -1950,9 +1951,9 @@ def delete_course_curriculum(agent_id: str) -> bool:
         blob_service = _get_blob_service_client()
         blob_client = blob_service.get_blob_client(container=_COURSE_CURRICULUM_CONTAINER, blob=blob_name)
         blob_client.delete_blob()
-        logger.info(f"Deleted course curriculum blob for '{agent_id}'")
+        logger.info(f"Deleted course curriculum blob for '{scrub(agent_id)}'")
     except Exception as e:
-        logger.warning(f"Could not delete course curriculum blob for '{agent_id}': {e}")
+        logger.warning(f"Could not delete course curriculum blob for '{scrub(agent_id)}': {scrub(e)}")
 
     # Remove reference from Cosmos DB
     try:
@@ -1979,7 +1980,7 @@ def invalidate_course_curriculum_cache(agent_id: Optional[str] = None):
     if agent_id:
         with _course_curriculum_cache_lock:
             _course_curriculum_cache.pop(agent_id, None)
-        logger.debug(f"Invalidated course curriculum cache for '{agent_id}'")
+        logger.debug(f"Invalidated course curriculum cache for '{scrub(agent_id)}'")
     else:
         with _course_curriculum_cache_lock:
             _course_curriculum_cache.clear()
@@ -2072,7 +2073,7 @@ def get_institute_research(institute_name: str) -> Optional[Dict[str, Any]]:
         download = blob_client.download_blob()
         data = json.loads(download.readall().decode("utf-8"))
         _institute_research_cache[key] = data
-        logger.info(f"Loaded institute research for '{institute_name}' from blob (status={data.get('status')})")
+        logger.info(f"Loaded institute research for '{scrub(institute_name)}' from blob (status={scrub(data.get('status'))})")
         return data
     except Exception:
         return None
@@ -2153,7 +2154,7 @@ def get_department_research(institute_name: str, department_name: str) -> Option
         download = blob_client.download_blob()
         data = json.loads(download.readall().decode("utf-8"))
         _department_research_cache[cache_key] = data
-        logger.info(f"Loaded department research for '{department_name}@{institute_name}' from blob (status={data.get('status')})")
+        logger.info(f"Loaded department research for '{scrub(department_name)}@{scrub(institute_name)}' from blob (status={scrub(data.get('status'))})")
         return data
     except Exception:
         return None
@@ -2233,10 +2234,10 @@ def save_agent_setup(agent_id: str, setup_data: Dict[str, Any]) -> bool:
             data_json.encode("utf-8"), overwrite=True,
             content_settings=ContentSettings(content_type="application/json"),
         )
-        logger.info(f"Saved agent setup for '{agent_id}' to blob storage ({len(data_json)} chars)")
+        logger.info(f"Saved agent setup for '{scrub(agent_id)}' to blob storage ({scrub(len(data_json))} chars)")
         return True
     except Exception as e:
-        logger.error(f"Failed to save agent setup for '{agent_id}': {e}")
+        logger.error(f"Failed to save agent setup for '{scrub(agent_id)}': {scrub(e)}")
         return False
 
 
@@ -2248,7 +2249,7 @@ def load_agent_setup(agent_id: str) -> Optional[Dict[str, Any]]:
         blob_client = blob_service.get_blob_client(container=_AGENT_SETUPS_CONTAINER, blob=blob_name)
         download = blob_client.download_blob()
         data = json.loads(download.readall().decode("utf-8"))
-        logger.info(f"Loaded agent setup for '{agent_id}' from blob storage")
+        logger.info(f"Loaded agent setup for '{scrub(agent_id)}' from blob storage")
         return data
     except Exception:
         return None
@@ -2306,7 +2307,7 @@ def get_learning_state(user_id: str, agent_id: str) -> Optional[Dict[str, Any]]:
 
     # Check cache
     if key in _learning_state_cache:
-        logger.debug(f"Learning state cache HIT for '{key}'")
+        logger.debug(f"Learning state cache HIT for '{scrub(key)}'")
         return _learning_state_cache[key]
 
     # Cache miss — read from Cosmos DB (learning_states container, partitioned by userId)
@@ -2314,13 +2315,13 @@ def get_learning_state(user_id: str, agent_id: str) -> Optional[Dict[str, Any]]:
         container = _get_learning_states_container()
         doc = container.read_item(item=key, partition_key=user_id)
         _learning_state_cache[key] = doc
-        logger.info(f"Learning state cache MISS for '{key}' — loaded from Cosmos")
+        logger.info(f"Learning state cache MISS for '{scrub(key)}' — loaded from Cosmos")
         return doc
     except CosmosResourceNotFoundError:
-        logger.debug(f"No learning state found for '{key}'")
+        logger.debug(f"No learning state found for '{scrub(key)}'")
         return None
     except Exception as e:
-        logger.error(f"Error reading learning state for '{key}': {e}")
+        logger.error(f"Error reading learning state for '{scrub(key)}': {scrub(e)}")
         return None
 
 
@@ -2347,10 +2348,10 @@ def save_learning_state(user_id: str, agent_id: str, state: Dict[str, Any]) -> b
         container = _get_learning_states_container()
         container.upsert_item(body=state)
         _learning_state_cache[key] = state
-        logger.info(f"Saved learning state for '{key}'")
+        logger.info(f"Saved learning state for '{scrub(key)}'")
         return True
     except Exception as e:
-        logger.error(f"Failed to save learning state for '{key}': {e}")
+        logger.error(f"Failed to save learning state for '{scrub(key)}': {scrub(e)}")
         return False
 
 
@@ -2429,7 +2430,7 @@ def init_learning_state(user_id: str, agent_id: str, course_curriculum: Dict[str
     }
 
     save_learning_state(user_id, agent_id, state)
-    logger.info(f"Initialized learning state for user='{user_id}', agent='{agent_id}': "
+    logger.info(f"Initialized learning state for user='{scrub(user_id)}', agent='{scrub(agent_id)}': "
                 f"{len(topics)} topics, {len(objectives)} objectives, {len(threshold_concepts)} threshold concepts")
     return state
 
@@ -2454,12 +2455,12 @@ def ensure_learning_state(user_id: str, agent_id: str) -> Optional[Dict[str, Any
 
         curriculum = _get_full_course_curriculum(agent_id)
     except Exception as e:
-        logger.error(f"Could not load curriculum to initialise learning state for '{agent_id}': {e}")
+        logger.error(f"Could not load curriculum to initialise learning state for '{scrub(agent_id)}': {scrub(e)}")
         return None
 
     if not curriculum:
         logger.warning(
-            f"No curriculum available for agent='{agent_id}' — cannot initialise learning state "
+            f"No curriculum available for agent='{scrub(agent_id)}' — cannot initialise learning state "
             f"for user='{user_id}'"
         )
         return None
@@ -2467,7 +2468,7 @@ def ensure_learning_state(user_id: str, agent_id: str) -> Optional[Dict[str, Any
     try:
         return init_learning_state(user_id, agent_id, curriculum)
     except Exception as e:
-        logger.error(f"Failed to initialise learning state for user='{user_id}', agent='{agent_id}': {e}")
+        logger.error(f"Failed to initialise learning state for user='{scrub(user_id)}', agent='{scrub(agent_id)}': {scrub(e)}")
         return None
 
 
@@ -2593,7 +2594,7 @@ def update_topic_in_state(
             "latest_summary": None,
             "last_touched": None,
         }
-        logger.info(f"Created new off-plan topic '{topic}' for user='{user_id}', agent='{agent_id}'")
+        logger.info(f"Created new off-plan topic '{scrub(topic)}' for user='{scrub(user_id)}', agent='{scrub(agent_id)}'")
 
     # Update the topic
     old_status = topics[topic]["status"]
@@ -2640,23 +2641,23 @@ def update_topic_in_state(
         state["threshold_concepts"] = concepts
         if concept_status != status:
             logger.info(
-                f"Threshold concept '{concept_key}' held at in_progress for user='{user_id}', "
+                f"Threshold concept '{scrub(concept_key)}' held at in_progress for user='{scrub(user_id)}', "
                 f"agent='{agent_id}': topic marked learned but no misconception evidence recorded"
             )
         else:
             logger.info(
-                f"Threshold concept '{concept_key}' -> {concept_status} for user='{user_id}', agent='{agent_id}'"
+                f"Threshold concept '{scrub(concept_key)}' -> {scrub(concept_status)} for user='{scrub(user_id)}', agent='{scrub(agent_id)}'"
             )
     elif misconceptions:
         logger.warning(
-            f"Misconceptions supplied for topic '{topic}' but no threshold concept matched "
+            f"Misconceptions supplied for topic '{scrub(topic)}' but no threshold concept matched "
             f"(user='{user_id}', agent='{agent_id}')"
         )
 
     save_learning_state(user_id, agent_id, state)
 
     status_change = f"{old_status} → {status}" if old_status != status else f"{status} (summary updated)"
-    logger.info(f"Updated topic '{topic}' for user='{user_id}': {status_change}")
+    logger.info(f"Updated topic '{scrub(topic)}' for user='{scrub(user_id)}': {scrub(status_change)}")
 
     concepts_learned = sum(1 for c in concepts.values() if c.get("status") == "learned")
     return {
@@ -2744,14 +2745,14 @@ def delete_learning_state(user_id: str, agent_id: str) -> bool:
         container = _get_learning_states_container()
         container.delete_item(item=key, partition_key=user_id)
         _learning_state_cache.pop(key, None)
-        logger.info(f"Deleted learning state for '{key}'")
+        logger.info(f"Deleted learning state for '{scrub(key)}'")
         return True
     except CosmosResourceNotFoundError:
-        logger.debug(f"Learning state '{key}' not found for deletion")
+        logger.debug(f"Learning state '{scrub(key)}' not found for deletion")
         _learning_state_cache.pop(key, None)
         return True
     except Exception as e:
-        logger.error(f"Failed to delete learning state for '{key}': {e}")
+        logger.error(f"Failed to delete learning state for '{scrub(key)}': {scrub(e)}")
         return False
 
 
@@ -2782,9 +2783,9 @@ def delete_all_learning_states_for_agent(agent_id: str) -> int:
                 count += 1
             except Exception as e:
                 logger.warning(f"Failed to delete learning state {item['id']}: {e}")
-        logger.info(f"Deleted {count} learning states for agent '{agent_id}'")
+        logger.info(f"Deleted {scrub(count)} learning states for agent '{scrub(agent_id)}'")
     except Exception as e:
-        logger.error(f"Failed to query learning states for agent '{agent_id}': {e}")
+        logger.error(f"Failed to query learning states for agent '{scrub(agent_id)}': {scrub(e)}")
     return count
 
 
@@ -2830,7 +2831,7 @@ def delete_agent_chats(agent_id: str) -> Dict[str, int]:
             enable_cross_partition_query=True
         ))
         
-        logger.info(f"Found {len(threads)} threads to delete for agent {agent_id}")
+        logger.info(f"Found {scrub(len(threads))} threads to delete for agent {scrub(agent_id)}")
         
         for thread in threads:
             thread_id = thread["id"]
@@ -2861,10 +2862,10 @@ def delete_agent_chats(agent_id: str) -> Dict[str, int]:
             except Exception as e:
                 logger.warning(f"Failed to delete thread {thread_id}: {e}")
         
-        logger.info(f"Deleted {deleted_threads} threads and {deleted_messages} messages for agent {agent_id}")
+        logger.info(f"Deleted {scrub(deleted_threads)} threads and {scrub(deleted_messages)} messages for agent {scrub(agent_id)}")
         
     except Exception as e:
-        logger.error(f"Error deleting chats for agent {agent_id}: {e}")
+        logger.error(f"Error deleting chats for agent {scrub(agent_id)}: {scrub(e)}")
     
     return {"threads": deleted_threads, "messages": deleted_messages}
 
@@ -2968,7 +2969,7 @@ def list_agents_for_user(
         max_item_count=limit,
         enable_cross_partition_query=True,
     ))
-    logger.debug(f"list_agents_for_user({user_id}, {user_role}) → {len(agents)} agents")
+    logger.debug(f"list_agents_for_user({scrub(user_id)}, {scrub(user_role)}) → {scrub(len(agents))} agents")
     return agents
 
 
@@ -2998,7 +2999,7 @@ def add_agent_member(
         container.upsert_item(body=agent, etag=etag, match_condition=MatchConditions.IfNotModified)
     else:
         container.upsert_item(body=agent)
-    logger.info(f"Added {member_type} {user_id} to agent {agent_id}")
+    logger.info(f"Added {scrub(member_type)} {scrub(user_id)} to agent {scrub(agent_id)}")
     return agent
 
 
@@ -3023,7 +3024,7 @@ def remove_agent_member(
     agent["updatedAt"] = datetime.utcnow().isoformat() + "Z"
     container = _get_agents_container()
     container.upsert_item(body=agent)
-    logger.info(f"Removed {member_type} {user_id} from agent {agent_id}")
+    logger.info(f"Removed {scrub(member_type)} {scrub(user_id)} from agent {scrub(agent_id)}")
     return agent
 
 
@@ -3702,7 +3703,7 @@ def get_asset(asset_id: str, user_id: str) -> Optional[Dict[str, Any]]:
     except CosmosResourceNotFoundError:
         return None
     except Exception as e:
-        logger.error(f"Error fetching asset {asset_id}: {e}")
+        logger.error(f"Error fetching asset {scrub(asset_id)}: {scrub(e)}")
         return None
 
 
@@ -3824,7 +3825,7 @@ def list_user_assets(
         ))
         return items
     except Exception as e:
-        logger.error(f"Error listing assets for user {user_id}: {e}")
+        logger.error(f"Error listing assets for user {scrub(user_id)}: {scrub(e)}")
         return []
 
 
@@ -3920,7 +3921,7 @@ def create_department(
         "updatedAt": datetime.utcnow().isoformat() + "Z",
     }
     container.create_item(body=doc)
-    logger.info(f"Created department {dept_id} ({name})")
+    logger.info(f"Created department {scrub(dept_id)} ({scrub(name)})")
     return doc
 
 
@@ -3957,7 +3958,7 @@ def update_department(dept_id: str, updates: Dict[str, Any]) -> Optional[Dict[st
     dept["updatedAt"] = datetime.utcnow().isoformat() + "Z"
     container = _get_departments_container()
     container.upsert_item(body=dept)
-    logger.info(f"Updated department {dept_id}")
+    logger.info(f"Updated department {scrub(dept_id)}")
     return dept
 
 
@@ -3970,7 +3971,7 @@ def delete_department(dept_id: str) -> bool:
     dept["updatedAt"] = datetime.utcnow().isoformat() + "Z"
     container = _get_departments_container()
     container.upsert_item(body=dept)
-    logger.info(f"Soft-deleted department {dept_id}")
+    logger.info(f"Soft-deleted department {scrub(dept_id)}")
     return True
 
 
@@ -3987,7 +3988,7 @@ def add_user_to_department(user_id: str, dept_id: str) -> Optional[Dict[str, Any
     profile["updatedAt"] = datetime.utcnow().isoformat() + "Z"
     get_cosmos_client()
     _users_container.upsert_item(body=profile)
-    logger.info(f"Added user {user_id} to department {dept_id}")
+    logger.info(f"Added user {scrub(user_id)} to department {scrub(dept_id)}")
     return profile
 
 
@@ -4004,7 +4005,7 @@ def remove_user_from_department(user_id: str, dept_id: str) -> Optional[Dict[str
     profile["updatedAt"] = datetime.utcnow().isoformat() + "Z"
     get_cosmos_client()
     _users_container.upsert_item(body=profile)
-    logger.info(f"Removed user {user_id} from department {dept_id}")
+    logger.info(f"Removed user {scrub(user_id)} from department {scrub(dept_id)}")
     return profile
 
 

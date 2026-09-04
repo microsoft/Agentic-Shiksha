@@ -837,8 +837,8 @@ def logging_agent_chat_stream(
                 elif event_type == "error":
                     yield f"data: {json.dumps({'type': 'error', 'error': data, 'thread_id': conv_id, 'conversation_id': conv_id})}\n\n"
         except Exception as e:
-            logger.error(f"SSE stream error: {e}")
-            yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
+            logger.error(f"SSE stream error: {e}", exc_info=True)
+            yield f"data: {json.dumps({'type': 'error', 'error': 'Internal error'})}\n\n"
 
     return StreamingResponse(
         generate_sse(),

@@ -631,7 +631,8 @@ async def evaluate_groundedness_batch(payload: Dict[str, Any] = Body(...)):
                 scores.append(float(score))
             results.append({"index": i, "ok": True, **result})
         except Exception as e:
-            results.append({"index": i, "ok": False, "error": str(e)})
+            logger.error(f"Groundedness evaluation failed for item {i}: {e}", exc_info=True)
+            results.append({"index": i, "ok": False, "error": "Evaluation failed"})
 
     avg_score = sum(scores) / len(scores) if scores else None
 
@@ -903,8 +904,8 @@ def logging_agent_chat_stream(payload: Dict[str, Any] = Body(...)):
                 elif event_type == "error":
                     yield f"data: {json.dumps({'type': 'error', 'error': data, 'thread_id': conv_id, 'conversation_id': conv_id})}\n\n"
         except Exception as e:
-            logger.error(f"SSE stream error: {e}")
-            yield f"data: {json.dumps({'type': 'error', 'error': str(e)})}\n\n"
+            logger.error(f"SSE stream error: {e}", exc_info=True)
+            yield f"data: {json.dumps({'type': 'error', 'error': 'Internal error'})}\n\n"
 
     return StreamingResponse(
         generate_sse(),
@@ -1311,7 +1312,7 @@ def _background_institute_research(institute_name: str, instructions: str = ""):
         rs.save_institute_research(institute_name, {
             "status": "failed",
             "institute_name": institute_name,
-            "error": str(e),
+            "error": "Research failed",
         })
 
 
@@ -1432,7 +1433,7 @@ def _background_department_research(institute_name: str, department_name: str, i
             "status": "failed",
             "institute_name": institute_name,
             "department_name": department_name,
-            "error": str(e),
+            "error": "Research failed",
         })
 
 

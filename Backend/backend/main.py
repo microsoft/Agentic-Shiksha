@@ -247,6 +247,18 @@ def _kb_base(session: str, kb_scope: str) -> Path:
     return Path(target)
 
 
+def _kb_file(directory: Path, filename: str) -> Path:
+    """Resolve ``filename`` inside ``directory``, rejecting anything that escapes it."""
+    name = Path((filename or "").strip()).name
+    if not name or name in (".", ".."):
+        raise HTTPException(status_code=400, detail="invalid filename")
+    root = os.path.normpath(str(directory))
+    target = os.path.normpath(os.path.join(root, name))
+    if not target.startswith(root):
+        raise HTTPException(status_code=400, detail="invalid filename")
+    return Path(target)
+
+
 def _agent_setup_dir(agent_id: str) -> Path:
     """Agent setup folder for ``agent_id``, rejecting ids that escape AGENT_SETUPS_BASE."""
     # Path(...).name drops any directory component, so "../../etc" collapses to "etc".
@@ -2247,16 +2259,15 @@ def knowledge_download_blob_file(session: str, filename: str, kb_scope: str = Qu
 @app.get("/api/knowledge/download/{session}/{filename}")
 def knowledge_download_file(session: str, filename: str, kb_scope: str = Query(...)):
     base = _kb_base(session, kb_scope)
-    safe_name = Path(filename).name
 
     raw_dir = base / "raw"
     derived_dir = base / "derived"
 
     candidates: List[Path] = []
     if raw_dir.exists():
-        candidates.append(raw_dir / safe_name)
+        candidates.append(_kb_file(raw_dir, filename))
     if derived_dir.exists():
-        candidates.append(derived_dir / safe_name)
+        candidates.append(_kb_file(derived_dir, filename))
 
     path = next((p for p in candidates if p.exists()), None)
     if not path:
@@ -2277,15 +2288,14 @@ def knowledge_download_file(session: str, filename: str, kb_scope: str = Query(.
 @app.delete("/api/knowledge/files/{session}/{filename}")
 def knowledge_delete_file(session: str, filename: str, kb_scope: str = Query(...)):
     base = _kb_base(session, kb_scope)
-    safe_name = Path(filename).name
 
-    raw_path = (base / "raw" / safe_name)
+    raw_path = _kb_file(base / "raw", filename)
     derived_dir = base / "derived"
 
     if raw_path.exists():
         raw_path.unlink()
 
-    stem = Path(safe_name).stem
+    stem = raw_path.stem
     if derived_dir.exists():
         # Compare stems instead of globbing: a filename of "*" would otherwise
         # expand into a wildcard and delete every derived file in the scope.

@@ -221,8 +221,8 @@ class AddQuizTool(CustomTool):
                     # output() tells the model which questions missed.
                     logger.warning(
                         f"add_quiz: question {scrub(index + 1)} targets "
-                        f"'{target[:70] or '(nothing)'}', which is not a misconception of "
-                        f"'{threshold_concept}' \u2014 leaving it unmapped"
+                        f"'{scrub(target[:70] or '(nothing)')}', which is not a misconception of "
+                        f"'{scrub(threshold_concept)}' — leaving it unmapped"
                     )
                 else:
                     if _normalized(canonical_target) != _normalized(target):

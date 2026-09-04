@@ -2461,7 +2461,7 @@ def ensure_learning_state(user_id: str, agent_id: str) -> Optional[Dict[str, Any
     if not curriculum:
         logger.warning(
             f"No curriculum available for agent='{scrub(agent_id)}' — cannot initialise learning state "
-            f"for user='{user_id}'"
+            f"for user='{scrub(user_id)}'"
         )
         return None
 
@@ -2642,7 +2642,7 @@ def update_topic_in_state(
         if concept_status != status:
             logger.info(
                 f"Threshold concept '{scrub(concept_key)}' held at in_progress for user='{scrub(user_id)}', "
-                f"agent='{agent_id}': topic marked learned but no misconception evidence recorded"
+                f"agent='{scrub(agent_id)}': topic marked learned but no misconception evidence recorded"
             )
         else:
             logger.info(
@@ -2651,7 +2651,7 @@ def update_topic_in_state(
     elif misconceptions:
         logger.warning(
             f"Misconceptions supplied for topic '{scrub(topic)}' but no threshold concept matched "
-            f"(user='{user_id}', agent='{agent_id}')"
+            f"(user='{scrub(user_id)}', agent='{scrub(agent_id)}')"
         )
 
     save_learning_state(user_id, agent_id, state)

@@ -903,7 +903,9 @@ def logging_agent_chat_stream(payload: Dict[str, Any] = Body(...)):
                 elif event_type == "done":
                     yield f"data: {json.dumps({'type': 'done', 'thread_id': conv_id, 'conversation_id': conv_id})}\n\n"
                 elif event_type == "error":
-                    yield f"data: {json.dumps({'type': 'error', 'error': data, 'thread_id': conv_id, 'conversation_id': conv_id})}\n\n"
+                    # `data` can carry upstream exception text; keep it server-side only.
+                    logger.error("Agent stream error event: %s", scrub(data))
+                    yield f"data: {json.dumps({'type': 'error', 'error': 'Internal error', 'thread_id': conv_id, 'conversation_id': conv_id})}\n\n"
         except Exception as e:
             logger.error(f"SSE stream error: {e}", exc_info=True)
             yield f"data: {json.dumps({'type': 'error', 'error': 'Internal error'})}\n\n"

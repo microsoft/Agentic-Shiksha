@@ -540,7 +540,7 @@ def learning_activity_analytics(
         result["scope"] = scope
         return result
     except Exception as e:
-        logger.error("Failed to build %s analytics: %s", metric, e)
+        logger.error("Failed to build %s analytics: %s", scrub(metric), scrub(e))
         raise HTTPException(status_code=500, detail="Failed to load learning activity analytics")
 
 
@@ -836,7 +836,9 @@ def logging_agent_chat_stream(
                     yield f"data: {json.dumps({'type': 'evidence_citations', **citation_result, 'thread_id': conv_id, 'conversation_id': conv_id})}\n\n"
                     yield f"data: {json.dumps({'type': 'done', 'thread_id': conv_id, 'conversation_id': conv_id})}\n\n"
                 elif event_type == "error":
-                    yield f"data: {json.dumps({'type': 'error', 'error': data, 'thread_id': conv_id, 'conversation_id': conv_id})}\n\n"
+                    # `data` can carry upstream exception text; keep it server-side only.
+                    logger.error("Agent stream error event: %s", scrub(data))
+                    yield f"data: {json.dumps({'type': 'error', 'error': 'Internal error', 'thread_id': conv_id, 'conversation_id': conv_id})}\n\n"
         except Exception as e:
             logger.error(f"SSE stream error: {e}", exc_info=True)
             yield f"data: {json.dumps({'type': 'error', 'error': 'Internal error'})}\n\n"

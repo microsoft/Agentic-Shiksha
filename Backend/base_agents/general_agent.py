@@ -168,9 +168,9 @@ def _profile_research_instructions(user_profile: Dict[str, Any]) -> Optional[str
             context = _research_context(get_institute_research(college))
             if context:
                 parts.append(f"Institute context ({college}): {context}")
-                logger.info("Injected institute research context for '%s'", college)
+                logger.info("Injected institute research context for '%s'", scrub(college))
         except Exception as error:
-            logger.warning("Could not load institute research for '%s': %s", college, error)
+            logger.warning("Could not load institute research for '%s': %s", scrub(college), scrub(error))
 
     if college and department:
         try:
@@ -181,15 +181,15 @@ def _profile_research_instructions(user_profile: Dict[str, Any]) -> Optional[str
                 parts.append(f"Department context ({department} at {college}): {context}")
                 logger.info(
                     "Injected department research context for '%s@%s'",
-                    department,
-                    college,
+                    scrub(department),
+                    scrub(college),
                 )
         except Exception as error:
             logger.warning(
                 "Could not load department research for '%s@%s': %s",
-                department,
-                college,
-                error,
+                scrub(department),
+                scrub(college),
+                scrub(error),
             )
 
     return " ".join(parts) if parts else None

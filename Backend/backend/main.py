@@ -231,12 +231,20 @@ def _require_session(session: str) -> str:
     session = Path(session).name
     if not session:
         raise HTTPException(status_code=400, detail="invalid session")
+    session = re.sub(r"[^A-Za-z0-9._-]", "_", session).lstrip(".")[:128]
+    if not session:
+        raise HTTPException(status_code=400, detail="invalid session")
     return session
 
 def _kb_base(session: str, kb_scope: str) -> Path:
     kb_scope = _require_scope(kb_scope)
     session = _require_session(session)
-    return SESSION_DOCS_BASE / kb_scope / session
+    # Resolve and confirm containment; the callers walk this directory.
+    base = os.path.realpath(SESSION_DOCS_BASE)
+    target = os.path.realpath(os.path.join(base, kb_scope, session))
+    if os.path.commonprefix((target, base)) != base:
+        raise HTTPException(status_code=400, detail="invalid session")
+    return Path(target)
 
 
 def _agent_setup_dir(agent_id: str) -> Path:
@@ -251,7 +259,7 @@ def _agent_setup_dir(agent_id: str) -> Path:
         raise HTTPException(status_code=400, detail="invalid agent id")
     base = os.path.realpath(AGENT_SETUPS_BASE)
     target = os.path.realpath(os.path.join(base, safe))
-    if target != base and not target.startswith(base + os.sep):
+    if os.path.commonprefix((target, base)) != base:
         raise HTTPException(status_code=400, detail="invalid agent id")
     return Path(target)
 
@@ -965,7 +973,7 @@ def _resolve_user_id(request: Request, claimed_user_id: Any) -> str:
             if claimed and claimed != session_user_id:
                 logger.warning(
                     "[Auth] user_id mismatch: body claimed '%s' but session is '%s' — using session",
-                    claimed, session_user_id,
+                    scrub(claimed), scrub(session_user_id),
                 )
             return session_user_id
 
@@ -3016,7 +3024,7 @@ def _persist_stream_token_usage(
         )
         logger.info(
             "Token usage persisted: agent=%s stored=%s existing=%s",
-            agent_id,
+            scrub(agent_id),
             result["stored"],
             result["existing"],
         )
@@ -4911,7 +4919,7 @@ async def detect_sections_skill(request: Request):
             "values": [{
                 "recordId": "0",
                 "data": {"logical_section": None},
-                "errors": [{"message": str(e)}],
+                "errors": [{"message": "Section detection failed"}],
                 "warnings": None
             }]
         }
@@ -4962,7 +4970,7 @@ async def detect_sections_with_di_skill(request: Request):
             "values": [{
                 "recordId": "0",
                 "data": {"logical_section": None},
-                "errors": [{"message": str(e)}],
+                "errors": [{"message": "Section detection failed"}],
                 "warnings": None
             }]
         }
@@ -10363,7 +10371,7 @@ async def submit_first_quiz_attempt(
     except Exception as exc:
         logger.warning(
             f"Concept inventory mapping failed for quiz '{scrub(body.quizId)}' on agent "
-            f"'{body.agentId}'; storing the attempt unenriched: {exc}"
+            f"'{scrub(body.agentId)}'; storing the attempt unenriched: {scrub(exc)}"
         )
         validated = None
     if validated:

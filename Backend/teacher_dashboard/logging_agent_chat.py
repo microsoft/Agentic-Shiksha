@@ -367,12 +367,13 @@ def chat_stream(
                         yield ("message_block", json.dumps({"type": "message_block", "content": full}), conv_id)
 
             except Exception as e:
-                logger.error(f"Followup round {tool_round} error: {e}")
-                yield ("error", str(e), conv_id)
+                logger.error(f"Followup round {tool_round} error: {e}", exc_info=True)
+                # The consumer streams this to the browser, so keep the detail in the log.
+                yield ("error", "Internal error", conv_id)
                 break
 
         yield ("done", "", conv_id)
 
     except Exception as e:
-        logger.error(f"Chat stream error: {e}")
-        yield ("error", str(e), conv_id)
+        logger.error(f"Chat stream error: {e}", exc_info=True)
+        yield ("error", "Internal error", conv_id)

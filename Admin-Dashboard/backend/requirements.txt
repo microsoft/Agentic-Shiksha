@@ -5,7 +5,7 @@ azure-identity==1.25.1
 python-dotenv==1.2.3
 azure-ai-projects==2.0.0b2
 azure-search-documents==11.7.0b2
-azure-ai-evaluation>=1.0.0b5
+azure-ai-evaluation>=1.18.3
 azure-storage-blob>=12.20.0
 json-repair==0.61.7
 PyJWT>=2.8.0

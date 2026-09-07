@@ -16,7 +16,7 @@ azure-mgmt-cognitiveservices  # For MCP project connection management
 pdf2image==1.17.0
 Pillow==12.3.0
 
-litellm==1.98.0
+litellm==1.99.0
 
 python-dotenv==1.2.3
 

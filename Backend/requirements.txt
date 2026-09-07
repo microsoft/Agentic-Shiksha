@@ -9,7 +9,7 @@ azure-core==1.41.0
 azure-storage-blob==12.25.1
 azure-ai-documentintelligence==1.0.0
 azure-cosmos==4.14.5
-azure-search-documents==11.7.0b2  # Preview SDK for Agentic Retrieval (Knowledge Sources/Bases) — required by current code
+azure-search-documents==12.1.0b2  # Preview SDK for Agentic Retrieval (Knowledge Sources/Bases) — required by current code
 azure-ai-evaluation>=1.17.0  # Groundedness & quality evaluation (GroundednessEvaluator)
 azure-mgmt-cognitiveservices  # For MCP project connection management
 

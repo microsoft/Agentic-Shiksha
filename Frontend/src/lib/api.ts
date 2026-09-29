@@ -6,6 +6,7 @@ import {
 import type {
   AzureAgentRow,
 } from "./types";
+import type { AgentCapabilities } from "./agentCapabilities";
 
 /* ------------------------------ Base + helpers ------------------------------ */
 
@@ -1545,6 +1546,7 @@ export type AgentSetupDetails = {
   conversationStarters?: Array<string | { title: string; prompt: string }>;  // Starters: {title, prompt} objects or legacy strings
   agentImageUrl?: string | null;  // Azure Blob Storage URL for agent image
   sessionUuid?: string | null;  // Session UUID for KB file storage location
+  capabilities?: AgentCapabilities;
 };
 
 /**
@@ -1634,6 +1636,7 @@ export async function createAgentAsync(params: {
   model?: string;
   createdById?: string;
   createdByName?: string;
+  capabilities?: AgentCapabilities;
   // Knowledge processing params
   sessionUuid?: string;
   kbScope?: "course" | "exam";

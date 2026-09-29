@@ -72,6 +72,7 @@ import { DarkFileInput } from "@/components/common/DarkFileInput";
 import { IconButton } from "../create/sharedUI";
 import { useAppContext } from "@/layouts/MainLayout";
 import { applyFixedFirstStarter } from "@/lib/starters";
+import type { AgentCapabilities } from "@/lib/agentCapabilities";
 
 type EditMode = "simplistic" | "advanced";
 type AdvancedTab = "chat" | "configure" | "preview";
@@ -197,6 +198,7 @@ export function EditView() {
   const [courseNotes, setCourseNotes] = useState("");
   const [courseCode, setCourseCode] = useState("");
   const [prerequisites, setPrerequisites] = useState<string[]>([]);
+  const [capabilities, setCapabilities] = useState<AgentCapabilities | undefined>();
   
   // Course URLs (for course materials)
   const [courseUrls, setCourseUrls] = useState<Array<{ url: string; description?: string }>>([]);
@@ -394,6 +396,7 @@ export function EditView() {
 
     // Reset vector store ID before loading — single reset point avoids race conditions
     setVectorStoreId(null);
+    setCapabilities(undefined);
 
     async function loadSetupDetails() {
       setIsLoading(true);
@@ -402,6 +405,7 @@ export function EditView() {
         const details = await fetchAgentSetupDetails(agentId);
         console.log("[EditView] Loaded setup details:", details);
         if (details) {
+          setCapabilities(details.capabilities);
           setCourseName(details.courseName || "");
           setCourseLevel(details.courseLevel || "");
           setCourseSpan(details.courseDuration || "");
@@ -674,6 +678,7 @@ export function EditView() {
         additionalContext: courseNotes,
         courseCode,
         prerequisites,
+        capabilities,
         textbooks,
         vectorStoreId: finalIndexName || vectorStoreId, // Use new indexName or fall back to vectorStoreId
         knowledgeUrls: courseUrls.length > 0 ? courseUrls : (knowledgeUrls.length > 0 ? knowledgeUrls.map(u => ({ url: u })) : undefined),

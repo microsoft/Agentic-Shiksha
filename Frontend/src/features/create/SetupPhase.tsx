@@ -64,6 +64,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import type { KnowledgeFile } from "@/lib/api";
 import { listAzureAgents, safeImageSrc } from "@/lib/api";
 import type { AzureAgentRow } from "@/lib/types";
+import type { AgentCapabilities } from "@/lib/agentCapabilities";
 import { getCourseName } from "@/lib/utils";
 // Model is controlled by backend - no model config imports needed
 
@@ -80,6 +81,7 @@ export type TextbookEntry = {
 import { PANEL, FIELD, LABEL } from "./designSystem";
 import { LoadingButton, StatusBadge, IconButton, ProgressIndicator } from "./sharedUI";
 import { CreateButton } from "@/components/ui/CreateButton";
+import { CapabilityControls } from "./CapabilityControls";
 
 type SetupPhaseProps = {
   mode?: "create" | "edit"; // NEW: Differentiate between create and edit modes
@@ -99,6 +101,8 @@ type SetupPhaseProps = {
   setCourseCode: (v: string) => void;
   prerequisites: string[];
   setPrerequisites: (v: string[]) => void;
+  capabilities?: AgentCapabilities;
+  onCapabilitiesChange?: (capabilities: AgentCapabilities) => void;
   
   // Agent image (optional) - preview URL from parent
   agentImagePreview?: string | null;
@@ -196,6 +200,8 @@ export function SetupPhase(props: SetupPhaseProps) {
     setCourseCode,
     prerequisites,
     setPrerequisites,
+    capabilities,
+    onCapabilitiesChange,
     // Agent image
     agentImagePreview,
     onSelectAgentImage,
@@ -267,7 +273,6 @@ export function SetupPhase(props: SetupPhaseProps) {
     }
   }, [agentImagePreview]);
 
-  // Handler to create agent directly (no confirmation needed)
   const handleCreateClick = () => {
     handleSetupPrimaryAction();
   };
@@ -1102,6 +1107,16 @@ export function SetupPhase(props: SetupPhaseProps) {
               )}
             </div>
           </div>
+
+          {mode === "create" && !isReturningFromBuilder && capabilities && onCapabilitiesChange && (
+            <div className="p-5 rounded-xl border border-white/40 bg-neutral-900 shadow-lg shadow-black/20">
+              <CapabilityControls
+                capabilities={capabilities}
+                onChange={onCapabilitiesChange}
+                disabled={isSetupActionLoading}
+              />
+            </div>
+          )}
 
           {/* Special Instructions Section - Only shown in advanced edit mode */}
           {showSpecialInstructions && (

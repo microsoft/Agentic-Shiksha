@@ -49,7 +49,8 @@ import functools
 import queue
 from docx import Document
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from backend.schemas.agent_capabilities import AgentCapabilities
 
 # ---------- Azure SDK ----------
 from azure.ai.projects import AIProjectClient
@@ -594,6 +595,7 @@ class AgentSetupDetails(BaseModel):
     conversationStarters: List[Any] = []  # Up to 15 starters: [{title, prompt}] or legacy [str]
     agentImageUrl: Optional[str] = None  # Blob Storage URL for agent image
     sessionUuid: Optional[str] = None  # Session UUID for KB file storage location
+    capabilities: Optional[AgentCapabilities] = None
 
 
 def _save_setup_json(agent_id: str, setup_data: dict):
@@ -5507,6 +5509,7 @@ class AsyncAgentCreateRequest(BaseModel):
     textbooks: Optional[List[Dict[str, Any]]] = None
     # Department this agent belongs to
     departmentId: Optional[str] = None
+    capabilities: AgentCapabilities = Field(default_factory=AgentCapabilities)
 
 
 async def _check_knowledge_files_exist(
@@ -5738,6 +5741,7 @@ def _background_save_metadata(
     course_code: str = "",
     prerequisites: Optional[List[str]] = None,
     course_urls: Optional[List[str]] = None,
+    capabilities: Optional[AgentCapabilities] = None,
 ):
     """
     BACKGROUND TASK: Save agent metadata to Cosmos DB and setup.json.
@@ -5745,6 +5749,7 @@ def _background_save_metadata(
     This is a lightweight task that just persists metadata.
     Index attachment now happens in the foreground during agent creation.
     """
+    capability_settings = (capabilities or AgentCapabilities()).model_dump()
     # Save metadata to Cosmos DB
     try:
         create_agent_metadata(
@@ -5763,6 +5768,7 @@ def _background_save_metadata(
             manage_code=manage_code,
             department_id=department_id,
             course_code=course_code,
+            metadata={"capabilities": capability_settings},
         )
         logger.info(f"[Background] ✓ Saved agent metadata to Cosmos DB for {agent_id}")
     except Exception as e:
@@ -5787,6 +5793,7 @@ def _background_save_metadata(
             "agentImageUrl": agent_image_url,
             "knowledgeAttached": knowledge_attached,
             "sessionUuid": session_uuid,
+            "capabilities": capability_settings,
         }
         
         # Include textbooks if provided (avoids race condition with inline save)
@@ -7202,6 +7209,7 @@ async def _path2_create_agent(
     search_index_name: Optional[str] = None,
     search_index_filter: Optional[str] = None,
     search_connection_id: Optional[str] = None,
+    capabilities: Optional[AgentCapabilities] = None,
 ) -> Dict[str, Any]:
     """
     Path 2: Create the agent in Azure AI Foundry
@@ -7302,6 +7310,7 @@ async def _path2_create_agent(
             search_index_filter=search_index_filter,  # OData filter for session
             search_connection_id=search_connection_id,  # AI Search connection ID
             memory_store_name=memory_store_name,  # Per-agent memory store
+            capabilities=capabilities,
         )
     except ValueError as e:
         msg = str(e)
@@ -7567,6 +7576,7 @@ async def create_agent_async(request: AsyncAgentCreateRequest, background_tasks:
             search_index_name=search_index_name,
             search_index_filter=search_index_filter,
             search_connection_id=search_connection_id,
+            capabilities=request.capabilities,
         )
         logger.info(f"✓ Agent created: {agent_result['agent_id']} (user can now start chatting!)")
         
@@ -7609,6 +7619,7 @@ async def create_agent_async(request: AsyncAgentCreateRequest, background_tasks:
         course_code=request.courseCode or "",
         prerequisites=request.prerequisites or [],
         course_urls=course_urls,
+        capabilities=request.capabilities,
     )
     logger.info(f"✓ Background task scheduled: metadata save")
     

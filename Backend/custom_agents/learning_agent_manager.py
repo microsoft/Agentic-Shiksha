@@ -8,6 +8,7 @@ from azure.identity.aio import AzureCliCredential
 
 # your existing helpers
 from base_agents.agent_manager import BaseAgentManager
+from backend.schemas.agent_capabilities import AgentCapabilities
 
 # 👇 adjust this import path if PdfToMarkdownPreprocessor lives somewhere else
 from utils.markdown_converter import PdfToMarkdownPreprocessor
@@ -54,6 +55,7 @@ class LearningAgentManager(BaseAgentManager):
         memory_store_name: Optional[str] = None,
         memory_scope: str = "{{$userId}}",
         memory_update_delay: int = 300,
+        capabilities: Optional[AgentCapabilities] = None,
     ) -> str:
         """
         Create a new agent with the given name + instructions.
@@ -88,6 +90,7 @@ class LearningAgentManager(BaseAgentManager):
             memory_store_name=memory_store_name,
             memory_scope=memory_scope,
             memory_update_delay=memory_update_delay,
+            capabilities=capabilities,
             # and do not try to "return existing" based on local config
             # (BaseAgentManager can ignore if_exists or you can set it
             #  to a value that forces creation; adjust to your implementation)

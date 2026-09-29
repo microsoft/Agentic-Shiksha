@@ -29,3 +29,22 @@ An `AgentObject` inlines its definition at `versions.latest.definition` (kind, m
 instructions, tools). There is no `.version` attribute. Tools come back as SDK objects,
 not dictionaries, so `tool.get("function")` silently yields nothing — read the attributes
 instead.
+
+## Optional teaching capabilities
+
+The creation flow accepts an optional `capabilities` object with boolean
+`documents`, `quizzes`, `flashcards`, `challenges`, and `images` fields. Omitted
+fields default to `true`, preserving existing clients. Unknown capability names
+and non-boolean values are rejected.
+
+The settings pass through the learning-agent manager into `AgentToolBuilder`.
+Disabled capabilities are omitted from the Foundry agent's function-tool list,
+not merely hidden in the UI. Core chat, retrieval, memory, clarification, and
+learning-progress tools are unchanged, including when all five capabilities are
+disabled. Settings are saved in the agent setup and Cosmos metadata.
+
+Run the focused regression tests from `Backend`:
+
+```powershell
+python -m unittest discover -s tests -p test_agent_capabilities.py
+```

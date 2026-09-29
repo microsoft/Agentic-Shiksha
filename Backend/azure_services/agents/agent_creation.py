@@ -28,6 +28,7 @@ from agent_tools.hosted.bing_custom_search.builder import build_bing_custom_sear
 from agent_tools.hosted.memory_search.builder import build_memory_search_tool
 from agent_tools.hosted.azure_ai_search.builder import build_azure_ai_search_tool
 from utils.log_safe import scrub
+from backend.schemas.agent_capabilities import AgentCapabilities
 
 logger = logging.getLogger(__name__)
 
@@ -147,6 +148,7 @@ class AgentToolBuilder:
         memory_store_name: Optional[str],
         memory_scope: str,
         memory_update_delay: int,
+        capabilities: Optional[AgentCapabilities] = None,
     ) -> List[Any]:
         """Return the ordered list of tools for the agent (may be empty)."""
         if include_web_search:
@@ -155,7 +157,7 @@ class AgentToolBuilder:
             self._add_bing_custom_search(custom_search_instance_name)
         self._add_memory(memory_store_name, memory_scope, memory_update_delay)
         self._add_ai_search(search_index_name, search_index_filter, search_connection_id)
-        self._add_function_tools()
+        self._add_function_tools(capabilities or AgentCapabilities())
         return self._tools
 
     def _add_bing_grounding(self) -> None:
@@ -198,10 +200,13 @@ class AgentToolBuilder:
         except Exception as e:
             logger.warning(f"Failed to add AzureAISearchTool: {e}")
 
-    def _add_function_tools(self) -> None:
+    def _add_function_tools(self, capabilities: AgentCapabilities) -> None:
+        disabled_tools = capabilities.disabled_tools
         for source in _FUNCTION_TOOL_SOURCES:
             try:
                 definition = source if isinstance(source, dict) else self._load_tool_definition(source)
+                if definition["name"] in disabled_tools:
+                    continue
                 self._tools.append(
                     FunctionTool(
                         name=definition["name"],
@@ -273,6 +278,7 @@ class AgentCreator:
         memory_scope: str = "{{$userId}}",
         memory_update_delay: int = 300,
         save_to_config: bool = True,
+        capabilities: Optional[AgentCapabilities] = None,
     ) -> Tuple[str, str]:
         """
         Create an agent using AIProjectClient.agents.create_version().
@@ -290,6 +296,7 @@ class AgentCreator:
             memory_scope: Scope for memory isolation (default: "{{$userId}}" for auto user-based)
             memory_update_delay: Seconds of inactivity before storing memories (default: 300)
             save_to_config: If True, saves agent to config file
+            capabilities: Optional output tools; omitted values preserve all tools
             
         Returns:
             Tuple of (agent_name, agent_version)
@@ -304,6 +311,7 @@ class AgentCreator:
             memory_store_name=memory_store_name,
             memory_scope=memory_scope,
             memory_update_delay=memory_update_delay,
+            capabilities=capabilities,
         )
         
         # Create agent with create_version()
@@ -521,6 +529,7 @@ async def agent_creator(
     memory_store_name: Optional[str] = None,
     memory_scope: str = "{{$userId}}",
     memory_update_delay: int = 300,
+    capabilities: Optional[AgentCapabilities] = None,
 ) -> str:
     """
     Async convenience function to create an agent (backward compatible).
@@ -549,6 +558,7 @@ async def agent_creator(
             memory_store_name=memory_store_name,
             memory_scope=memory_scope,
             memory_update_delay=memory_update_delay,
+            capabilities=capabilities,
         )
         return name
     

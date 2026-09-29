@@ -14,6 +14,8 @@ import {
 import type { View } from "@/lib/types";
 import { logger } from "@/lib/loggingService";
 import { useChatSync } from "@/lib/useChatSync";
+import { DEFAULT_AGENT_CAPABILITIES } from "@/lib/agentCapabilities";
+import type { AgentCapabilities } from "@/lib/agentCapabilities";
 
 // Cache for teaching assistants: { courseId: { id, name } }
 type CourseAgentCache = Record<string, { id: string; name: string }>;
@@ -41,6 +43,7 @@ export interface CreateFormState {
   courseDescFile: File | null;
   kbUploads: File[];
   conversationStarters: Array<{ title: string; prompt: string }>;
+  capabilities: AgentCapabilities;
 }
 
 const EMPTY_CREATE_FORM: CreateFormState = {
@@ -56,6 +59,7 @@ const EMPTY_CREATE_FORM: CreateFormState = {
   textbooks: [],
   courseDescFile: null,
   kbUploads: [],
+  capabilities: { ...DEFAULT_AGENT_CAPABILITIES },
   conversationStarters: [
     { title: FIXED_FIRST_STARTER, prompt: FIXED_FIRST_STARTER },
     { title: "How do I check if I know some of the concepts already?", prompt: "How do I check if I know some of the concepts already?" },

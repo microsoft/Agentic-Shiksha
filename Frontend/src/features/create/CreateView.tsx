@@ -30,6 +30,8 @@ import { useShallow } from "zustand/react/shallow";
 import { useAppContext } from "@/layouts/MainLayout";
 import type { CreateFormState } from "@/layouts/MainLayout";
 import { FIXED_FIRST_STARTER } from "@/lib/starters";
+import { DEFAULT_AGENT_CAPABILITIES } from "@/lib/agentCapabilities";
+import { ReviewMaterialsDialog } from "./ReviewMaterialsDialog";
 
 /* ----------------------------- Main Component ----------------------------- */
 
@@ -88,6 +90,8 @@ export function CreateView() {
   const courseUrls = createFormState.courseUrls;
   const agentImageFile = createFormState.agentImageFile;
   const agentImagePreview = createFormState.agentImagePreview;
+  const capabilities = createFormState.capabilities;
+  const [reviewOpen, setReviewOpen] = useState(false);
 
   const updateForm = <K extends keyof CreateFormState>(key: K, value: CreateFormState[K]) =>
     setCreateFormState((prev) => ({ ...prev, [key]: value }));
@@ -214,6 +218,7 @@ export function CreateView() {
   /* --------- Agent creation (creates a single teaching assistant with parallel processing) --------- */
 
   async function handleCreateAgent() {
+    if (isCreating) return;
     if (!courseName.trim()) {
       toast(
         <div className="flex items-center gap-3 min-w-0">
@@ -418,6 +423,7 @@ export function CreateView() {
         prerequisites: prerequisites.length > 0 ? prerequisites : undefined,
         createdById: userId,
         createdByName: creatorDisplayName,
+        capabilities,
         // Knowledge params - pass index name so backend attaches MCPTool
         sessionUuid: sessionUuid,
         kbScope: "course",  // For Cosmos DB metadata only
@@ -488,6 +494,7 @@ export function CreateView() {
             knowledgeUrls: courseUrls.length > 0 ? courseUrls : undefined,
             conversationStarters: nonEmptyStarters,
             sessionUuid,
+            capabilities,
           });
         } catch (e) {
           console.warn("Failed to save conversation starters:", e);
@@ -518,6 +525,7 @@ export function CreateView() {
       }
 
       // Reset form state for next creation
+      setReviewOpen(false);
       setCreateFormState({
         courseName: "",
         courseLevel: "",
@@ -531,6 +539,7 @@ export function CreateView() {
         textbooks: [],
         courseDescFile: null,
         kbUploads: [],
+        capabilities: { ...DEFAULT_AGENT_CAPABILITIES },
         conversationStarters: [
           { title: FIXED_FIRST_STARTER, prompt: FIXED_FIRST_STARTER },
           { title: "How do I check if I know some of the concepts already?", prompt: "How do I check if I know some of the concepts already?" },
@@ -576,6 +585,8 @@ export function CreateView() {
       setCourseCode={setCourseCode}
       prerequisites={prerequisites}
       setPrerequisites={setPrerequisites}
+      capabilities={capabilities}
+      onCapabilitiesChange={(next) => updateForm("capabilities", next)}
       // Course materials
       courseUrls={courseUrls}
       setCourseUrls={setCourseUrls}
@@ -601,7 +612,7 @@ export function CreateView() {
       handleDeleteKbFile={handleDeleteKbFile}
       vectorStoreId={vectorStoreId}
       isSetupActionLoading={isCreating}
-      handleSetupPrimaryAction={handleCreateAgent}
+      handleSetupPrimaryAction={() => setReviewOpen(true)}
       onSave={undefined}
       createsBothAgents={true}
       // File descriptions
@@ -614,6 +625,20 @@ export function CreateView() {
       // Conversation starters
       conversationStarters={conversationStarters}
       setConversationStarters={setConversationStarters}
+    />
+
+    <ReviewMaterialsDialog
+      open={reviewOpen}
+      onOpenChange={setReviewOpen}
+      files={[
+        ...kbUploads,
+        ...textbooks.flatMap((textbook) => textbook.file ? [textbook.file] : []),
+        ...(courseDescFile ? [courseDescFile] : []),
+      ]}
+      capabilities={capabilities}
+      onCapabilitiesChange={(next) => updateForm("capabilities", next)}
+      isCreating={isCreating}
+      onConfirm={handleCreateAgent}
     />
 
     {/* Manage Code Reveal Dialog – shown after agent creation */}

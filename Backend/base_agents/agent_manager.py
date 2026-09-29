@@ -12,6 +12,7 @@ from azure_services.agents.agent_creation import agent_creator
 from azure_services.agents.agent_chat import AgentChat
 from azure_services.agents.agent_deletion import agent_remover
 from azure_services.agents.agent_info import AgentInfoTool
+from backend.schemas.agent_capabilities import AgentCapabilities
 
 
 class BaseAgentManager(ABC):
@@ -136,6 +137,7 @@ class BaseAgentManager(ABC):
         memory_scope: str = "{{$userId}}",
         memory_update_delay: int = 300,
         if_exists: str = "error",  # "error" | "return"
+        capabilities: Optional[AgentCapabilities] = None,
     ) -> str:
         """
         Create an agent unless one already exists with the same name.
@@ -197,6 +199,7 @@ class BaseAgentManager(ABC):
             memory_scope=memory_scope,
             memory_update_delay=memory_update_delay,
             credential_factory=self.credential_factory,
+            capabilities=capabilities,
         )
         await self.after_create(agent_name=agent_name, agent_id=agent_id, model_deployment=model_deployment)
         return agent_id

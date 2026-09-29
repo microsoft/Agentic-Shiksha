@@ -92,6 +92,11 @@ VITE_API_BASE_URL=http://localhost:8000
 ### Library View
 Browse and manage all created agents with filtering by type.
 
+### Assets View
+Browse challenges, documents, presentations, quizzes, and simulations in a single
+responsive grid without category tabs.
+Search by title, description, or tag, and open a card to return to its source chat.
+
 ### Create View
 Three-phase workflow:
 1. **Choose** - Select agent type (Learning/Exam)

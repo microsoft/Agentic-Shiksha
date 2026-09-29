@@ -260,7 +260,9 @@ export type CourseChatSession = {
 export type AssetCategory = 
   | "all"
   | "document"
+  | "presentation"
   | "quiz"
+  | "simulation"
   | "flashcard"
   | "challenge"
   | "diagram"

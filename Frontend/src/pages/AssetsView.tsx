@@ -1,94 +1,84 @@
 // src/pages/AssetsView.tsx
 // Full page view for Assets/Artifacts
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Loader2,
   Search,
   X,
   ArrowRight,
+  AlertCircle,
   Library
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { cn, getCourseName } from "@/lib/utils";
+import { getCourseName } from "@/lib/utils";
 import { AssetCard } from "@/components/assets/AssetCard";
 import { chatApi } from "@/lib/chatApi";
-import type { Asset, AssetCategory } from "@/lib/types";
+import type { Asset } from "@/lib/types";
 import { useCurrentUserId } from "@/lib/userStore";
 import { useChatStore } from "@/lib/chatStore";
 import { toast } from "sonner";
 
-const categoryFilters: { key: AssetCategory; label: string }[] = [
-  { key: "all", label: "All" },
-  { key: "document", label: "Documents" },
-  { key: "quiz", label: "Quizzes" },
-  { key: "flashcard", label: "Flashcards" },
-  { key: "challenge", label: "Challenges" },
-];
-
 export function AssetsView() {
   const navigate = useNavigate();
   const userId = useCurrentUserId();
-  const [activeCategory, setActiveCategory] = useState<AssetCategory>("all");
   const [assets, setAssets] = useState<Asset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [hasAnyAssetsAtAll, setHasAnyAssetsAtAll] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [reloadCount, setReloadCount] = useState(0);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Fetch total asset count once to know if user has any assets at all
   useEffect(() => {
-    async function checkAnyAssets() {
-      if (!userId) return;
-      try {
-        const result = await chatApi.listAssets(userId, { limit: 1 });
-        setHasAnyAssetsAtAll(result.assets.length > 0);
-      } catch {
-        setHasAnyAssetsAtAll(false);
-      }
-    }
-    checkAnyAssets();
-  }, [userId]);
+    let cancelled = false;
 
-  // Fetch user's assets for the active category
-  useEffect(() => {
     async function fetchAssets() {
       if (!userId) return;
       
       setIsLoading(true);
+      setLoadError(false);
       try {
-        const result = await chatApi.listAssets(userId, {
-          category: activeCategory === "all" ? undefined : activeCategory,
-          limit: 50,
-        });
-        setAssets(result.assets);
-        // Update global flag when fetching all
-        if (activeCategory === "all") {
-          setHasAnyAssetsAtAll(result.assets.length > 0);
+        const result = await chatApi.listAssets(userId, { limit: 50 });
+        if (!cancelled) {
+          setAssets(result.assets);
         }
       } catch (error) {
-        console.error("Failed to fetch assets:", error);
-        setAssets([]);
+        if (!cancelled) {
+          console.error("Failed to fetch assets:", error);
+          setAssets([]);
+          setLoadError(true);
+        }
       } finally {
-        setIsLoading(false);
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
     }
     
     fetchAssets();
-  }, [userId, activeCategory]);
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, reloadCount]);
 
-  // Filter assets by search query
+  const query = searchQuery.trim().toLowerCase();
   const filteredAssets = assets.filter((asset) => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
+    if (!query) return true;
     return (
       asset.title.toLowerCase().includes(query) ||
       asset.description?.toLowerCase().includes(query) ||
       asset.tags?.some((t) => t.toLowerCase().includes(query))
     );
   });
+
+  const clearSearch = () => {
+    setSearchQuery("");
+    searchInputRef.current?.focus();
+  };
 
   const handleViewAsset = (asset: Asset) => {
     // If the asset has a threadId, navigate to the specific chat where it was created
@@ -141,7 +131,7 @@ export function AssetsView() {
       await chatApi.deleteAsset(asset.id, userId);
       setAssets((prev) => prev.filter((a) => a.id !== asset.id));
       toast.success("Asset deleted");
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete asset");
     }
   };
@@ -154,170 +144,143 @@ export function AssetsView() {
       });
       setAssets((prev) => prev.map((a) => (a.id === asset.id ? updated : a)));
       toast.success(updated.isPublic ? "Asset is now public" : "Asset is now private");
-    } catch (error) {
+    } catch {
       toast.error("Failed to update asset");
     }
   };
 
-  const [isScrolled, setIsScrolled] = useState(false);
-
   const hasAssets = assets.length > 0;
-
-  // Category-specific empty messages
-  const categoryEmptyMessages: Record<string, string> = {
-    quiz: "No quizzes yet",
-    flashcard: "No flashcards yet",
-    document: "No documents yet",
-    challenge: "No challenges yet",
-  };
-  const categoryEmptyDescriptions: Record<string, string> = {
-    quiz: "Generate quizzes from your chat sessions to test your knowledge.",
-    flashcard: "Create flashcards during your learning sessions for quick revision.",
-    document: "Documents generated from your conversations will appear here.",
-    challenge: "Challenges created during your learning sessions will appear here.",
-  };
 
   return (
     <div 
-      className="h-full overflow-y-auto bg-neutral-900 select-none"
+      className="h-full overflow-y-auto bg-neutral-900"
       onScroll={(e) => setIsScrolled(e.currentTarget.scrollTop > 10)}
     >
-      {/* Header */}
       <PageHeader title="Assets" showBorder={isScrolled} />
 
-      {/* Title Section - only when user has any assets at all */}
-      {hasAnyAssetsAtAll && (
-        <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 pb-4 pt-16">
-          <div className="text-center mb-2">
-            <h1 className="text-6xl font-bold text-white mb-4">
-              Your Assets
-            </h1>
-            <p className="text-neutral-400 text-lg max-w-2xl mx-auto leading-relaxed">
-              Documents, quizzes, flashcards, and code generated from your learning sessions.
-            </p>
-          </div>
+      <div className="mx-auto w-full max-w-4xl px-4 pb-10 pt-8 sm:px-6 sm:pt-10 lg:px-8">
+        <div className="mb-6">
+          <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+            Your Assets
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-neutral-400 sm:text-base">
+            Challenges, documents, presentations, quizzes, and simulations from your learning sessions.
+          </p>
         </div>
-      )}
 
-      {/* Search Bar - only when user has any assets at all */}
-      {!isLoading && hasAnyAssetsAtAll && (
-        <div className="sticky top-[56px] z-20 pt-4 pb-0.3 bg-neutral-900">
-          <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-            <div className="relative w-full">
-              <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 h-5 w-5 text-neutral-400" />
+        {!isLoading && !loadError && hasAssets && (
+          <div className="sticky top-14 z-20 -mx-1 mb-5 bg-neutral-900/95 px-1 py-3 backdrop-blur-sm">
+            <div role="search" className="relative">
+              <Search
+                aria-hidden="true"
+                className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-500"
+              />
               <Input
+                ref={searchInputRef}
                 type="text"
-                placeholder="Search assets..."
+                role="searchbox"
+                aria-label="Search assets"
+                placeholder="Search your assets..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-14 pr-5 py-7 text-[18px] bg-neutral-800/80 border border-neutral-700/60 rounded-xl text-white placeholder:text-[18px] placeholder:text-neutral-500 focus:border-neutral-600 focus:bg-neutral-800 focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none hover:border-neutral-600 transition-colors shadow-md shadow-black/20"
+                className="h-12 rounded-xl border-neutral-700/60 bg-neutral-950/40 pl-12 pr-12 text-base text-white shadow-none placeholder:text-neutral-500 hover:border-neutral-600 focus-visible:border-neutral-500 focus-visible:ring-1 focus-visible:ring-neutral-500"
               />
               {searchQuery && (
                 <button
                   type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-5 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-white"
+                  aria-label="Clear search"
+                  onClick={clearSearch}
+                  className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-neutral-800 hover:text-white focus-visible:ring-2 focus-visible:ring-neutral-400"
                 >
-                  <X className="h-4 w-4" />
+                  <X aria-hidden="true" className="h-4 w-4" />
                 </button>
               )}
             </div>
+            <p role="status" aria-atomic="true" className="mt-3 text-xs text-neutral-400">
+              {query && `${filteredAssets.length} of `}
+              {assets.length} {assets.length === 1 ? "asset" : "assets"}
+            </p>
           </div>
-        </div>
-      )}
-
-      <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 pb-8 pt-8">
-        {/* Category Filters - only when user has any assets at all */}
-        {hasAnyAssetsAtAll && (
-          <nav className="flex items-center justify-center gap-10 mb-8">
-            {categoryFilters.map(({ key, label }) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setActiveCategory(key)}
-                className={cn(
-                  "pb-3 text-sm font-medium transition-colors outline-none relative",
-                  activeCategory === key
-                    ? "text-white"
-                    : "text-neutral-500 hover:text-neutral-300"
-                )}
-              >
-                {label}
-                {activeCategory === key && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full" />
-                )}
-              </button>
-            ))}
-          </nav>
         )}
 
-        {/* Assets Grid */}
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center min-h-[60vh]">
-            <div className="w-12 h-12 rounded-full border-4 border-neutral-600/30 border-t-neutral-400 animate-spin mb-6" />
-            <p className="text-neutral-400 text-lg">Loading...</p>
-          </div>
-        ) : !hasAnyAssetsAtAll ? (
-          /* Global Empty State - no assets at all */
-          <div className="flex flex-col items-center justify-center min-h-[calc(100vh-120px)] -mt-8 text-center max-w-lg mx-auto">
-            <h1 className="text-4xl font-semibold tracking-tight text-white">
-              Your Assets
-            </h1>
-            <p className="mt-4 text-[15px] text-neutral-400 leading-relaxed">
-              Assets created from your chat sessions will appear here. Start a conversation with a teaching assistant to generate quizzes, flashcards, and more!
-            </p>
-            <div className="flex items-center justify-center gap-3 mt-8">
+        <section aria-label="Saved assets" aria-busy={isLoading}>
+          {isLoading ? (
+            <div role="status" className="flex min-h-80 flex-col items-center justify-center gap-4">
+              <Loader2 aria-hidden="true" className="h-7 w-7 animate-spin text-neutral-400" />
+              <p className="text-sm text-neutral-400">Loading your assets...</p>
+            </div>
+          ) : loadError ? (
+            <div role="alert" className="flex min-h-80 flex-col items-center justify-center rounded-2xl border border-neutral-800 bg-neutral-800/20 px-6 py-12 text-center">
+              <AlertCircle aria-hidden="true" className="mb-4 h-8 w-8 text-neutral-400" />
+              <h3 className="text-lg font-semibold text-white">Unable to load your assets</h3>
+              <p className="mt-2 max-w-md text-sm leading-relaxed text-neutral-400">
+                Something went wrong while loading your assets. Please try again.
+              </p>
               <Button
-                onClick={() => navigate("/library")}
-                className="px-5 h-10 bg-white hover:bg-neutral-200 text-neutral-900 font-medium text-sm rounded-lg transition-colors duration-200"
-              >
-                <Library className="h-4 w-4 mr-2" />
-                Explore Agents
-              </Button>
-              <Button
-                onClick={() => navigate("/learn#assets")}
+                onClick={() => setReloadCount((count) => count + 1)}
                 variant="outline"
-                className="px-5 h-10 border-neutral-700 hover:bg-neutral-800 text-neutral-300 hover:text-white font-medium text-sm rounded-lg transition-colors duration-200"
+                className="mt-6 border-neutral-700 text-neutral-200 hover:bg-neutral-800 hover:text-white"
               >
-                <ArrowRight className="h-4 w-4 mr-2" />
-                Learn More
+                Try again
               </Button>
             </div>
-          </div>
-        ) : !hasAssets && activeCategory !== "all" ? (
-          /* Category-specific empty state */
-          <div className="flex flex-col items-center justify-center py-20 px-4">
-            <h3 className="text-xl font-semibold text-white mb-2">
-              {categoryEmptyMessages[activeCategory] || "No assets yet"}
-            </h3>
-            <p className="text-neutral-400 text-center max-w-md">
-              {categoryEmptyDescriptions[activeCategory] || "Assets in this category will appear here."}
-            </p>
-          </div>
-        ) : filteredAssets.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 px-4">
-            <h3 className="text-xl font-semibold text-white mb-2">
-              No matching assets
-            </h3>
-            <p className="text-neutral-400 text-center max-w-md mb-6">
-              No assets found matching "{searchQuery}"
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {filteredAssets.map((asset) => (
-              <AssetCard
-                key={asset.id}
-                asset={asset}
-                onView={handleViewAsset}
-                onDelete={handleDeleteAsset}
-                onShare={handleShareAsset}
-                showActions={true}
-              />
-            ))}
-          </div>
-        )}
-
+          ) : !hasAssets ? (
+            <div className="flex min-h-80 flex-col items-center justify-center rounded-2xl border border-dashed border-neutral-700/60 bg-neutral-800/20 px-6 py-12 text-center">
+              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-neutral-800">
+                <Library aria-hidden="true" className="h-6 w-6 text-neutral-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-white">No assets yet</h3>
+              <p className="mt-3 max-w-md text-sm leading-relaxed text-neutral-400">
+                Create challenges, documents, presentations, quizzes, and simulations in a chat with a teaching assistant. They will be saved here.
+              </p>
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                <Button
+                  onClick={() => navigate("/library")}
+                  className="h-10 rounded-lg bg-white px-5 text-sm font-medium text-neutral-900 hover:bg-neutral-200"
+                >
+                  <Library aria-hidden="true" className="mr-2 h-4 w-4" />
+                  Explore Agents
+                </Button>
+                <Button
+                  onClick={() => navigate("/learn#assets")}
+                  variant="outline"
+                  className="h-10 rounded-lg border-neutral-700 px-5 text-sm font-medium text-neutral-300 hover:bg-neutral-800 hover:text-white"
+                >
+                  Learn More
+                  <ArrowRight aria-hidden="true" className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          ) : filteredAssets.length === 0 ? (
+            <div className="flex min-h-72 flex-col items-center justify-center rounded-2xl border border-dashed border-neutral-700/60 px-6 py-12 text-center">
+              <Search aria-hidden="true" className="mb-4 h-8 w-8 text-neutral-500" />
+              <h3 className="text-lg font-semibold text-white">No matching assets</h3>
+              <p className="mt-2 w-full max-w-md break-words text-sm leading-relaxed text-neutral-400">
+                No results for &quot;{searchQuery.trim()}&quot;. Try a different title, description, or tag.
+              </p>
+              <Button
+                onClick={clearSearch}
+                variant="outline"
+                className="mt-6 border-neutral-700 text-neutral-200 hover:bg-neutral-800 hover:text-white"
+              >
+                Clear search
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {filteredAssets.map((asset) => (
+                <AssetCard
+                  key={asset.id}
+                  asset={asset}
+                  onView={handleViewAsset}
+                  onDelete={handleDeleteAsset}
+                  onShare={handleShareAsset}
+                  showActions={true}
+                />
+              ))}
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );

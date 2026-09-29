@@ -25,7 +25,9 @@ interface AssetCardProps {
 // Category icon mapping
 const categoryIcons: Record<string, React.ElementType> = {
   document: FileText,
+  presentation: FileText,
   quiz: HelpCircle,
+  simulation: Sparkles,
   flashcard: BookOpen,
   challenge: Zap,
   diagram: GitBranch,
@@ -40,6 +42,8 @@ const categoryAccents: Record<string, { icon: string; badge: string }> = {
   quiz:          { icon: "bg-purple-500/15 text-purple-400", badge: "text-purple-400" },
   flashcard:     { icon: "bg-blue-500/15 text-blue-400",     badge: "text-blue-400" },
   document:      { icon: "bg-cyan-500/15 text-cyan-400", badge: "text-cyan-400" },
+  presentation:  { icon: "bg-cyan-500/15 text-cyan-400", badge: "text-cyan-400" },
+  simulation:    { icon: "bg-pink-500/15 text-pink-400", badge: "text-pink-400" },
   challenge:     { icon: "bg-amber-500/15 text-amber-400", badge: "text-amber-400" },
   diagram:       { icon: "bg-green-500/15 text-green-400",   badge: "text-green-400" },
   summary:       { icon: "bg-yellow-500/15 text-yellow-400", badge: "text-yellow-400" },
@@ -53,6 +57,8 @@ const categoryLabels: Record<string, string> = {
   quiz: "Quiz",
   flashcard: "Flashcards",
   document: "Document",
+  presentation: "Presentation",
+  simulation: "Simulation",
   challenge: "Challenge",
   diagram: "Diagram",
   summary: "Summary",

@@ -166,8 +166,9 @@ inspection without changing the real Course Companion.
 [Dockerfile](Dockerfile) builds the SPA and serves `dist` with Nginx.
 Pass public `VITE_` build arguments to the Docker build. In particular,
 `VITE_API_BASE_URL` determines both the compiled API endpoint and the Nginx CSP
-backend origin. Changing runtime App Service settings alone cannot rewrite a
-previously built SPA.
+backend origin. The Docker build also sets `VITE_API_URL` to that same origin
+for backend-mediated sign-in and chat/asset persistence. Changing runtime App
+Service settings alone cannot rewrite a previously built SPA.
 
 The Dockerfile defaults to a configurable npm mirror through `NPM_REGISTRY`.
 Use a trusted reachable registry and normal certificate validation; do not disable

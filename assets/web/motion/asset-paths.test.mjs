@@ -78,35 +78,31 @@ test("existing pages retain valid image, video, caption, script and ZIP paths", 
 
 test("repository READMEs resolve nested paths and provide GitHub-compatible animated demos", async () => {
   const root = resolve(here, "..", "..", "..");
-  const projectReadme = await readFile(join(root, ".github", "README.md"), "utf8");
   const rootReadme = await readFile(join(root, "README.md"), "utf8");
-  assert.match(rootReadme, /\[the project README\]\(\.github\/README\.md\)/);
   for (const section of ["The teaching approach", "Demos", "How it works", "Learner memory",
     "Getting started", "Research status", "Repository guide", "Contributing",
     "Repository automation", "Citation", "License"]) {
-    assert(projectReadme.includes(`## ${section}`), `Missing merged section: ${section}`);
+    assert(rootReadme.includes(`## ${section}`), `Missing merged section: ${section}`);
   }
-  assert(projectReadme.includes("[workflows/](workflows)"));
-  assert(projectReadme.includes("[dependabot.yml](dependabot.yml)"));
-  assert(!/<(?:video|iframe)\b/i.test(projectReadme), "GitHub README must not depend on unsupported video HTML");
-  for (const [filename, markdown] of [["README.md", rootReadme], [".github/README.md", projectReadme]]) {
-    const base = pathToFileURL(join(root, filename));
-    const targets = [
-      ...Array.from(markdown.matchAll(/\]\((?:<([^>]+)>|([^\s)]+))\)/g), match => match[1] || match[2]),
-      ...Array.from(markdown.matchAll(/\b(?:href|src|srcset)="([^"]+)"/g), match => match[1]),
-    ];
-    for (const target of targets) {
-      if (/^(?:https?:|mailto:|#)/.test(target)) continue;
-      const url = new URL(target, base);
-      url.search = "";
-      url.hash = "";
-      assert((await stat(fileURLToPath(url))).isFile() || (await stat(fileURLToPath(url))).isDirectory(),
-        `${filename} has a broken local link: ${target}`);
-    }
+  assert(rootReadme.includes("[.github/workflows/](.github/workflows/)"));
+  assert(rootReadme.includes("[.github/dependabot.yml](.github/dependabot.yml)"));
+  assert(!/<(?:video|iframe)\b/i.test(rootReadme), "GitHub README must not depend on unsupported video HTML");
+  const base = pathToFileURL(join(root, "README.md"));
+  const targets = [
+    ...Array.from(rootReadme.matchAll(/\]\((?:<([^>]+)>|([^\s)]+))\)/g), match => match[1] || match[2]),
+    ...Array.from(rootReadme.matchAll(/\b(?:href|src|srcset)="([^"]+)"/g), match => match[1]),
+  ];
+  for (const target of targets) {
+    if (/^(?:https?:|mailto:|#)/.test(target)) continue;
+    const url = new URL(target, base);
+    url.search = "";
+    url.hash = "";
+    assert((await stat(fileURLToPath(url))).isFile() || (await stat(fileURLToPath(url))).isDirectory(),
+      `README.md has a broken local link: ${target}`);
   }
   for (const name of ["shiksha-course-setup-tutorial", "shiksha-chat-tutorial"]) {
-    assert.match(projectReadme, new RegExp(`!\\[[^\\]]+\\]\\(\\.\\./assets/images/motion/${name}\\.gif\\)`));
-    assert(projectReadme.includes(`../assets/web/motion/${name}.mp4?raw=1`),
+    assert.match(rootReadme, new RegExp(`!\\[[^\\]]+\\]\\(assets/images/motion/${name}\\.gif\\)`));
+    assert(rootReadme.includes(`assets/web/motion/${name}.mp4?raw=1`),
       "MP4 links must serve the file rather than GitHub's unsupported binary preview");
     const gif = await readFile(assetPath(`${name}.gif`));
     assert.equal(gif.subarray(0, 6).toString("ascii"), "GIF89a");

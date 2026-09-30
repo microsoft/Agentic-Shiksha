@@ -100,8 +100,8 @@ function assertAtlasImageContent(svg, icons) {
   }
 }
 
-test("GitHub README navigation uses five accessible Shields.io static badges", async () => {
-  const readmePath = join(repositoryRoot, ".github", "README.md");
+test("GitHub README navigation uses five accessible compact two-tone Shields.io badges", async () => {
+  const readmePath = join(repositoryRoot, "README.md");
   const readme = await readFile(readmePath, "utf8");
   assert.match(readme, /^# Welcome to Agentic Shiksha!\r?$/m);
   const navigation = readme.match(/<p>([\s\S]*?)<\/p>/)?.[1];
@@ -115,21 +115,23 @@ test("GitHub README navigation uses five accessible Shields.io static badges", a
       height: attributes.match(/\bheight="([^"]+)"/)?.[1],
     }));
   const expected = [
-    ["Get Started", "#getting-started", "get-started"],
-    ["Demos", "#demos", "demos"],
-    ["Documentation", "../docs/README.md", "documentation"],
-    ["Architecture", "../docs/architecture.md", "architecture"],
-    ["EKALAIVA", "../docs/pedagogy/ekalaiva.md", "ekalaiva"],
+    ["Get Started", "#getting-started", "github", "033CF2"],
+    ["Demos", "#demos", "youtube", "0078B8"],
+    ["Documentation", "docs/README.md", "readthedocs", "007F8B"],
+    ["Architecture", "docs/architecture.md", "diagramsdotnet", "2451C6"],
+    ["EKALAIVA", "docs/pedagogy/ekalaiva.md", "googlescholar", "147A78"],
   ];
   assert.deepEqual(badges.map(({ alt, href, height }) => ({ alt, href, height })),
-    expected.map(([alt, href]) => ({ alt, href, height: "28" })));
-  for (const badge of badges) {
+    expected.map(([alt, href]) => ({ alt, href, height: "20" })));
+  for (const [index, badge] of badges.entries()) {
+    const [label, , logo, color] = expected[index];
     const url = new URL(badge.src.replaceAll("&amp;", "&"));
     assert.equal(url.origin, "https://img.shields.io");
-    assert.match(url.pathname, /^\/badge\//);
-    assert.equal(url.searchParams.get("style"), "for-the-badge");
-    assert.equal(url.searchParams.get("logoColor"), "white");
-    assert(url.searchParams.get("logo"), `${badge.alt}: icon required`);
+    assert.equal(url.pathname, `/badge/-${label.replaceAll(" ", "_")}-${color}`);
+    assert.equal(url.searchParams.get("style"), "plastic");
+    assert.equal(url.searchParams.get("labelColor"), "07183A");
+    assert.equal(url.searchParams.get("logoColor"), "22F1EC");
+    assert.equal(url.searchParams.get("logo"), logo);
   }
   assert.match(readme, /^## Getting started\r?$/m);
   assert.match(readme, /^## Demos\r?$/m);

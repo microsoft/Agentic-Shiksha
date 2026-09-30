@@ -4,7 +4,7 @@
 
 Original, self-contained figures with synthetic examples. These diagrams describe
 the **custom learner-memory structure**, not the hosted Memory Store. The overview
-is embedded in the [project README](../../../.github/README.md#learner-memory) and
+is embedded in the [project README](../../../README.md#learner-memory) and
 [memory README](../../../docs/memory/README.md#part-2-custom-learner-memory-structure).
 
 <picture>

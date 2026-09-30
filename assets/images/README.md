@@ -43,11 +43,16 @@ screenshot or a claim of measured learning. Edit the banner in
 
 ### GitHub README navigation
 
-The [main GitHub README](../../.github/README.md) uses five
+The [main README](../../README.md) uses five
 [Shields.io static badges](https://shields.io/badges) for Get Started, Demos,
-Documentation, Architecture, and EKALAIVA. The `for-the-badge` style combines
-white icons with coordinated indigo, purple, blue, and teal backgrounds.
-These 28 px linked images preserve the navigation targets and accessible labels
+Documentation, Architecture, and EKALAIVA. The compact `plastic` style uses
+rounded corners, a subtle gloss, and cyan (`#22F1EC`) icons in deep-navy
+(`#07183A`) leading segments. The label colors follow the Agentic Shiksha
+banner: royal blue (`#033CF2`), azure (`#0078B8`), teal (`#007F8B`), blue
+(`#2451C6`), and turquoise (`#147A78`), in navigation order. The brighter logo
+hues are darkened to keep the small white text readable. Labels retain their
+original letter case rather than being forced to uppercase.
+These 20 px linked images preserve the navigation targets and accessible labels
 without custom README CSS or scripts. Badge rendering requires access to
 `img.shields.io`; they are navigation links, not live build or quality claims.
 The earlier local SVG designs remain available in [branding/](branding/).

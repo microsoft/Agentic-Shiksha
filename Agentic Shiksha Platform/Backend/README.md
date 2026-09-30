@@ -339,3 +339,17 @@ PowerShell command above.
   be resumed after a restart and need worker affinity.
 - [.dockerignore](.dockerignore) excludes live environment files and local runtime
   data from the image. Supply deployed configuration at runtime, never in the image.
+
+## Assistant configuration
+
+Backend-scoped AI assistant instructions are maintained in
+[.github/copilot-instructions.md](.github/copilot-instructions.md). The directory
+contains configuration only; repository CI workflows are maintained separately in
+[.github/workflows/](../../.github/workflows/).
+
+The instructions cover the Python 3.13.5 runtime with Python 3.11
+compatibility, FastAPI, Foundry agents, Cosmos DB, Blob Storage, and AI Search.
+When a rule must be broken, flag it rather than working around it silently. If an
+instruction conflicts with this README or [the contribution guide](../../CONTRIBUTING.md),
+those repository documents take precedence; update the instruction to prevent
+future drift.

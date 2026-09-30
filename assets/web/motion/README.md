@@ -7,7 +7,7 @@ instructions.
 
 ## Playback in GitHub READMEs
 
-The canonical [project README](../../../.github/README.md#demos) embeds the existing
+The canonical [project README](../../../README.md#demos) embeds the existing
 animated GIF versions of the two introductory walkthroughs. GitHub does not
 render repository-relative MP4 links or repository HTML galleries as inline video
 players. MP4 links therefore use `?raw=1` and are labelled as downloads, with still

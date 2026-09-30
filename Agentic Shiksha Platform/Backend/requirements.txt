@@ -359,9 +359,9 @@ dulwich==1.2.12 \
     --hash=sha256:cc081b45790e95909339f44cfc6942f1f350727130c159efc8a5b51b62f361d8 \
     --hash=sha256:dfde0fba1eb1f208fc1f0c764e3bb213b31d986f37f7548b994b91e244a10570
     # via agentic-shiksha-backend
-fastapi==0.120.0 \
-    --hash=sha256:6ce2c1cfb7000ac14ffd8ddb2bc12e62d023a36c20ec3710d09d8e36fab177a0 \
-    --hash=sha256:84009182e530c47648da2f07eb380b44b69889a4acfd9e9035ee4605c5cfc469
+fastapi==0.141.1 \
+    --hash=sha256:bfb91aa2d334c61cb35ba9a116fc123b3d3df31640b801cf57a7a78ec3f603b3 \
+    --hash=sha256:e8822fc40db1e1858054d7a949a888695bc9bdce70139178e33bd2871a453ca1
     # via agentic-shiksha-backend
 fastuuid==0.14.0 \
     --hash=sha256:05a8dde1f395e0c9b4be515b7a521403d1e8349443e7641761af07c7ad1624b1 \

@@ -103,9 +103,9 @@ function assertAtlasImageContent(svg, icons) {
 test("GitHub README navigation uses five accessible compact two-tone Shields.io badges", async () => {
   const readmePath = join(repositoryRoot, "README.md");
   const readme = await readFile(readmePath, "utf8");
-  assert.match(readme, /^# Welcome to Agentic Shiksha!\r?$/m);
-  const navigation = readme.match(/<p>([\s\S]*?)<\/p>/)?.[1];
-  assert(navigation, "The welcome heading must be followed by the navigation row");
+  assert.match(readme, /^<h1 align="center">Welcome to Agentic Shiksha!<\/h1>\r?$/m);
+  const navigation = readme.match(/<p align="center">([\s\S]*?)<\/p>/)?.[1];
+  assert(navigation, "The welcome heading must be followed by the centered navigation row");
   assert.doesNotMatch(navigation, /<kbd\b|<style\b|<script\b|\sstyle=/i);
   const badges = [...navigation.matchAll(/<a href="([^"]+)">\s*<img\b([^>]+)>\s*<\/a>/g)]
     .map(([, href, attributes]) => ({

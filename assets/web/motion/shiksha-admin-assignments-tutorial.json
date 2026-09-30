@@ -1,0 +1,120 @@
+{
+  "name": "shiksha-admin-assignments-tutorial",
+  "title": "Manage student course access",
+  "duration": 38.666666666666664,
+  "frames": 464,
+  "width": 1360,
+  "height": 928,
+  "gifFrames": 387,
+  "gifBytes": 2056102,
+  "chapters": [
+    {
+      "start": 0,
+      "end": 6.166666666666667,
+      "caption": "01  Find Demo Learner in the isolated, synthetic directory."
+    },
+    {
+      "start": 6.166666666666667,
+      "end": 10.666666666666666,
+      "caption": "02  Open Assign Students and choose Electricity Basics."
+    },
+    {
+      "start": 10.666666666666666,
+      "end": 18.833333333333332,
+      "caption": "03  Filter the roster; filters alone do not change assignments."
+    },
+    {
+      "start": 18.833333333333332,
+      "end": 23,
+      "caption": "04  Select this learner and review the unsaved, course-specific change."
+    },
+    {
+      "start": 23,
+      "end": 29.333333333333332,
+      "caption": "05  Confirm with Save assignments and read the saved result."
+    },
+    {
+      "start": 29.333333333333332,
+      "end": 38.666666666666664,
+      "caption": "06  Verify the directory result, then reopen the persisted roster."
+    }
+  ],
+  "headerStyle": {
+    "background": "#EDE9FE",
+    "text": "#30264D",
+    "badge": false
+  },
+  "layout": "single-screen",
+  "presentation": {
+    "configuredCourseStarters": 0,
+    "starterRuleApplicable": false,
+    "verifiedWelcomeScreens": 0,
+    "assetChecks": []
+  },
+  "projectName": "Agentic Shiksha",
+  "demoId": "admin-assignments",
+  "description": "Use the actual User Directory and Assign Students dialog to find a synthetic learner, review a course-specific selection, explicitly save it, and verify the directory and reopened roster. Other course assignments are preserved; no production access is changed.",
+  "verification": {
+    "source": "Admin-Dashboard/frontend",
+    "nativeUI": true,
+    "syntheticData": true,
+    "liveSignIn": false,
+    "productionSecurity": "Not assessed; authentication and APIs are local browser-test fixtures.",
+    "courseChatStarters": {
+      "applicable": false,
+      "reason": "The native admin dashboard does not have course-chat starters."
+    },
+    "navigationCollapsedBeforeDialogs": true,
+    "durationSeconds": 38.666666666666664,
+    "courseId": "tutorial-admin-electricity",
+    "courseName": "Electricity Basics",
+    "learnerId": "tutorial-admin-learner",
+    "learnerName": "Demo Learner",
+    "roster": {
+      "student_ids": [
+        "tutorial-admin-classmate",
+        "tutorial-admin-partner",
+        "tutorial-admin-learner"
+      ],
+      "revision": "tutorial-v2"
+    },
+    "writes": [
+      {
+        "agentId": "tutorial-admin-electricity",
+        "before": [
+          "tutorial-admin-classmate",
+          "tutorial-admin-partner"
+        ],
+        "after": [
+          "tutorial-admin-classmate",
+          "tutorial-admin-partner",
+          "tutorial-admin-learner"
+        ],
+        "submittedRevision": "tutorial-v1",
+        "savedRevision": "tutorial-v2",
+        "syntheticSession": true
+      }
+    ],
+    "confirmation": [
+      {
+        "courseId": "tutorial-admin-electricity",
+        "learnerId": "tutorial-admin-learner"
+      }
+    ],
+    "confirmationControl": "Save assignments",
+    "directoryMembershipVisible": true,
+    "reopenedRosterVerified": true,
+    "preservedExistingStudents": [
+      "tutorial-admin-classmate",
+      "tutorial-admin-partner"
+    ],
+    "otherCoursesUnchanged": true,
+    "syntheticWrites": 1,
+    "realWrites": 0
+  },
+  "capture": "Actual unchanged React frontend; scripted interactions, synthetic course data and in-memory API responses.",
+  "timing": "Captured frames are paced for readability, not a performance benchmark.",
+  "isolation": "Fresh browser context. External services blocked; all API calls simulated. No remote course creation.",
+  "source": "Admin-Dashboard/frontend",
+  "recordedOn": "2026-09-30"
+}

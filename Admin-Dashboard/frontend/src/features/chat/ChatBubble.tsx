@@ -1,5 +1,5 @@
 // ChatBubble.tsx — Stripped version for Dashboard.
-// Normal messages only. No quiz/flashcard/challenge/document/chemistry content blocks.
+// Normal messages only; structured teaching blocks are not rendered.
 // All CSS classes match the main Frontend ChatBubble exactly.
 
 import React from "react";

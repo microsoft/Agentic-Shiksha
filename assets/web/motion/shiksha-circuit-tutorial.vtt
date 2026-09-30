@@ -1,0 +1,25 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:07.500
+1. Request a hypothetical 6 V circuit; no physical wiring.
+
+2
+00:00:07.500 --> 00:00:11.833
+2. Open Circuit Lab. These readings are mocked locally.
+
+3
+00:00:11.833 --> 00:00:15.833
+3. Inspect the 6 V supply and the 1,000 ohm resistor.
+
+4
+00:00:15.833 --> 00:00:19.667
+4. Mock baseline: 6 V / 1,000 ohms = 6 mA.
+
+5
+00:00:19.667 --> 00:00:25.000
+5. Double R1 to 2,000 ohms, then run the local mock again.
+
+6
+00:00:25.000 --> 00:00:29.500
+6. Mock result: 6 V / 2,000 ohms = 3 mA, half the current.

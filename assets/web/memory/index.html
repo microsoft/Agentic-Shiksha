@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Agentic Shiksha - Memory Graph Images</title>
+<style>
+*{box-sizing:border-box}body{--bg:#F0F4FA;--surface:#FFFFFF;--soft:#F5F8FE;--ink:#132440;--muted:#536580;--line:#D6E1F0;--blue:#2454C6;--tint:#EDF3FF;--accent:#2454C6;margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Arial,Helvetica,sans-serif;color-scheme:light}
+body[data-theme=dark]{--bg:#091221;--surface:#0B1426;--soft:#101D32;--ink:#E5EDF9;--muted:#A5B6CC;--line:#354A67;--blue:#A7C1FF;--tint:#1C3154;color-scheme:dark}
+main{max-width:1680px;margin:auto;padding:40px 32px}a{color:var(--blue);text-underline-offset:4px}button,a,summary{touch-action:manipulation}
+button:focus-visible,a:focus-visible,summary:focus-visible,textarea:focus-visible,.canvas:focus-visible{outline:3px solid var(--blue);outline-offset:4px}button{font:inherit;cursor:pointer}button:disabled{cursor:wait;opacity:.65}
+header{display:flex;justify-content:space-between;gap:32px;align-items:end;margin-bottom:32px}header p{margin:10px 0 0;color:var(--muted);max-width:720px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:2px;color:var(--blue)}h1{font-size:clamp(30px,3.3vw,46px);letter-spacing:-1.5px;margin:10px 0;line-height:1.12}.header-links{display:flex;gap:18px;font-size:14px;flex-wrap:wrap;padding-bottom:5px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px}[role=tablist]{display:flex;gap:6px;flex-wrap:wrap}
+[role=tab]{border:1px solid transparent;background:transparent;color:var(--muted);padding:12px 16px;border-radius:10px;font-size:14px;font-weight:600;min-height:44px}[role=tab] span{margin-right:10px;font-size:12px}
+[role=tab][aria-selected=true]{color:var(--ink);background:var(--surface);border-color:var(--line);box-shadow:0 2px 6px #07183A08}[role=tab][aria-selected=true] span{color:var(--blue)}
+.view-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.appearance{display:flex;gap:3px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.appearance button{border:0;background:transparent;color:var(--muted);border-radius:7px;padding:8px 13px;min-height:36px;font-size:13px}.appearance button[aria-pressed=true]{background:var(--tint);color:var(--blue);font-weight:700}
+.zoom,.copy{border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink);padding:10px 14px;font-size:13px;min-height:44px;white-space:nowrap}
+section{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 10px 36px #07183A05}[hidden]{display:none!important}
+.figure-heading{display:flex;justify-content:space-between;gap:24px;align-items:center;padding:24px 28px;border-bottom:1px solid var(--line)}.badge{display:inline-block;padding:4px 9px;border-radius:6px;background:var(--tint);color:var(--blue);font-size:11px;font-weight:700;letter-spacing:.3px;margin-bottom:10px}.badge.detail{background:var(--soft);color:var(--muted)}
+h2{font-size:22px;letter-spacing:-.4px;margin:0 0 5px}p{margin:0}.figure-heading p{color:var(--muted);font-size:14px}.downloads{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.downloads a{border:1px solid var(--line);border-radius:9px;padding:11px 14px;text-decoration:none;font-size:13px;font-weight:600;white-space:nowrap}.downloads a span{font-weight:400;margin-left:5px}.downloads .primary{background:var(--accent);color:#FFFFFF;border-color:var(--accent)}
+.canvas{overflow:auto}.canvas img{display:block;width:100%;height:auto}.canvas.actual img{width:1600px;max-width:none}.caption{display:flex;gap:20px;justify-content:space-between;padding:16px 28px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}.caption>span{flex-shrink:0}
+.reuse{border-top:1px solid var(--line);background:var(--soft)}.reuse summary{padding:17px 28px;font-size:14px;font-weight:700;cursor:pointer}.reuse-content{padding:0 28px 22px}.reuse-content>p{font-size:13px;color:var(--muted);margin-bottom:14px}.reuse label{display:block;font-size:12px;font-weight:700;margin-bottom:7px}
+textarea{display:block;width:100%;resize:vertical;min-height:100px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:12px/1.6 Consolas,monospace;padding:12px}.copy-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px}.copy-row p{flex:1;min-width:160px;font-size:13px;color:var(--muted)}.copy-row a{font-size:12px}.image-error{padding:18px 28px;color:var(--ink)}
+footer{margin:24px 0 0;color:var(--muted);font-size:13px;max-width:1120px}footer strong{color:var(--ink)}
+@media(max-width:1000px){header,.figure-heading{display:block}.header-links{margin-top:18px}.downloads{margin-top:16px}.caption{flex-direction:column;gap:6px}}
+@media(max-width:600px){main{padding:24px 14px}h1{letter-spacing:-1px}.toolbar{align-items:stretch}[role=tablist]{display:grid;grid-template-columns:1fr;width:100%}[role=tab]{text-align:left;padding:10px 13px}.view-controls{justify-content:space-between;width:100%;gap:8px}.figure-heading{padding:20px}.caption{padding:14px 20px}.reuse summary{padding:16px 20px}.reuse-content{padding:0 20px 20px}.copy-row{gap:10px}.downloads a{padding:10px 12px}}
+</style></head><body data-theme="light"><main>
+<header><div><p class="eyebrow">AGENTIC SHIKSHA / DIAGRAM LIBRARY</p><h1>Learner memory, connected.</h1><p>Shared knowledge, personal understanding, traceable evidence. Three original figures, ready for your README, paper, or presentation.</p></div><nav class="header-links" aria-label="Related documentation"><a href="../architecture/index.html">Architecture Atlas</a><a href="../../../docs/memory/overview.md">Memory model</a></nav></header>
+<div class="toolbar"><div role="tablist" aria-label="Memory graph views"><button type="button" role="tab" id="tab-0" aria-label="Two connected graphs" aria-controls="01-connected-memory-graphs" aria-selected="true" tabindex="0" data-index="0"><span>01</span>Two connected graphs</button><button type="button" role="tab" id="tab-1" aria-label="Shared misconceptions" aria-controls="02-curriculum-many-to-many" aria-selected="false" tabindex="-1" data-index="1"><span>02</span>Shared misconceptions</button><button type="button" role="tab" id="tab-2" aria-label="Evidence and insights" aria-controls="03-evidence-and-longitudinal-insights" aria-selected="false" tabindex="-1" data-index="2"><span>03</span>Evidence and insights</button></div><div class="view-controls"><div class="appearance" role="group" aria-label="Figure appearance"><button type="button" data-theme-choice="light" aria-pressed="true">Light</button><button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button></div><button type="button" class="zoom" aria-pressed="false" aria-controls="canvas-0">Zoom to actual size</button></div></div>
+<section role="tabpanel" aria-labelledby="tab-0" id="01-connected-memory-graphs">
+<div class="figure-heading"><div><span class="badge">Recommended for READMEs</span><h2>Shared knowledge. Personal memory.</h2><p>One reviewed curriculum. Separate learner states. Evidence behind every interpretation.</p></div><div class="downloads"><a class="primary" data-export="png" href="../../images/memory/01-connected-memory-graphs.png" download>Download PNG <span>2&times;</span></a><a data-export="svg" href="../../images/memory/01-connected-memory-graphs.svg" download>Download SVG</a></div></div>
+<div class="canvas" id="canvas-0" tabindex="0" aria-label="Two connected graphs image; scroll when zoomed"><a data-export="svg" href="../../images/memory/01-connected-memory-graphs.svg" target="_blank" rel="noopener noreferrer" aria-label="Open full-size two connected graphs"><img src="../../images/memory/01-connected-memory-graphs.svg" width="1600" height="1100" alt="Two connected graphs: shared threshold concepts TC1 and TC2 link to one common misconception MC3. Learner L1 has separate concept and misconception states, sessions, and evidence E12 and E19. Stable IDs connect states to definitions; evidence informs observations and state policy, not automatic mastery."/></a></div>
+<p class="image-error" role="alert" hidden>The image could not be loaded. Regenerate the memory artwork or check that the image files are present.</p>
+<div class="caption"><p>Conceptual view. State labels are illustrative; evidence and interpretation remain separate.</p><span>PNG 3200 &times; 2200 &nbsp; / &nbsp; Editable SVG</span></div>
+<details class="reuse"><summary>Use this image in a README</summary><div class="reuse-content"><p>This snippet is relative to the repository root. Adjust the path for another folder. <a href="../../images/memory/README.md#use-in-a-readme">Examples and automatic dark mode</a></p><label for="embed-0">Markdown image link</label><textarea id="embed-0" rows="3" readonly spellcheck="false">[![Two connected graphs: shared threshold concepts TC1 and TC2 link to one common misconception MC3. Learner L1 has separate concept and misconception states, sessions, and evidence E12 and E19. Stable IDs connect states to definitions; evidence informs observations and state policy, not automatic mastery.](assets/images/memory/01-connected-memory-graphs.svg)](docs/memory/overview.md)</textarea><div class="copy-row"><button type="button" class="copy">Copy Markdown</button><p role="status" aria-live="polite" class="copy-status"></p><a href="01-connected-memory-graphs.mmd">Mermaid source</a></div></div></details>
+</section>
+<section role="tabpanel" aria-labelledby="tab-1" id="02-curriculum-many-to-many" hidden>
+<div class="figure-heading"><div><span class="badge detail">Detail view 02</span><h2>One misconception. Multiple concepts.</h2><p>A many-to-many curriculum map preserves the shared idea instead of duplicating it.</p></div><div class="downloads"><a class="primary" data-export="png" href="../../images/memory/02-curriculum-many-to-many.png" download>Download PNG <span>2&times;</span></a><a data-export="svg" href="../../images/memory/02-curriculum-many-to-many.svg" download>Download SVG</a></div></div>
+<div class="canvas" id="canvas-1" tabindex="0" aria-label="Shared misconceptions image; scroll when zoomed"><a data-export="svg" href="../../images/memory/02-curriculum-many-to-many.svg" target="_blank" rel="noopener noreferrer" aria-label="Open full-size shared misconceptions"><img src="../../images/memory/02-curriculum-many-to-many.svg" width="1600" height="1040" alt="TC1, complete circuits, is a prerequisite of TC2, current conservation. Each concept has its own misconception and both connect to MC3, the mistaken idea that current is used up. MC3 is one shared definition, not two copies."/></a></div>
+<p class="image-error" role="alert" hidden>The image could not be loaded. Regenerate the memory artwork or check that the image files are present.</p>
+<div class="caption"><p>Shared curriculum definitions are not claims about an individual learner.</p><span>PNG 3200 &times; 2080 &nbsp; / &nbsp; Editable SVG</span></div>
+<details class="reuse"><summary>Use this image in a README</summary><div class="reuse-content"><p>This snippet is relative to the repository root. Adjust the path for another folder. <a href="../../images/memory/README.md#use-in-a-readme">Examples and automatic dark mode</a></p><label for="embed-1">Markdown image link</label><textarea id="embed-1" rows="3" readonly spellcheck="false">[![TC1, complete circuits, is a prerequisite of TC2, current conservation. Each concept has its own misconception and both connect to MC3, the mistaken idea that current is used up. MC3 is one shared definition, not two copies.](assets/images/memory/02-curriculum-many-to-many.svg)](docs/memory/overview.md)</textarea><div class="copy-row"><button type="button" class="copy">Copy Markdown</button><p role="status" aria-live="polite" class="copy-status"></p><a href="02-curriculum-many-to-many.mmd">Mermaid source</a></div></div></details>
+</section>
+<section role="tabpanel" aria-labelledby="tab-2" id="03-evidence-and-longitudinal-insights" hidden>
+<div class="figure-heading"><div><span class="badge detail">Detail view 03</span><h2>Evidence is not an interpretation.</h2><p>Keep the response, the inferred meaning, and policy-derived learner state distinct.</p></div><div class="downloads"><a class="primary" data-export="png" href="../../images/memory/03-evidence-and-longitudinal-insights.png" download>Download PNG <span>2&times;</span></a><a data-export="svg" href="../../images/memory/03-evidence-and-longitudinal-insights.svg" download>Download SVG</a></div></div>
+<div class="canvas" id="canvas-2" tabindex="0" aria-label="Evidence and insights image; scroll when zoomed"><a data-export="svg" href="../../images/memory/03-evidence-and-longitudinal-insights.svg" target="_blank" rel="noopener noreferrer" aria-label="Open full-size evidence and insights"><img src="../../images/memory/03-evidence-and-longitudinal-insights.svg" width="1600" height="1220" alt="Three synthetic sessions retain evidence E12, E19 and E26 separately from interpretations O12, O19 and O26. Supporting and contradicting observations inform misconception and concept states. A proposed read-only Insights Agent cites the evidence in a revisable hypothesis, not a mastery verdict."/></a></div>
+<p class="image-error" role="alert" hidden>The image could not be loaded. Regenerate the memory artwork or check that the image files are present.</p>
+<div class="caption"><p>Interpretations can change. Evidence stays traceable. The proposed agent cannot assign mastery.</p><span>PNG 3200 &times; 2440 &nbsp; / &nbsp; Editable SVG</span></div>
+<details class="reuse"><summary>Use this image in a README</summary><div class="reuse-content"><p>This snippet is relative to the repository root. Adjust the path for another folder. <a href="../../images/memory/README.md#use-in-a-readme">Examples and automatic dark mode</a></p><label for="embed-2">Markdown image link</label><textarea id="embed-2" rows="3" readonly spellcheck="false">[![Three synthetic sessions retain evidence E12, E19 and E26 separately from interpretations O12, O19 and O26. Supporting and contradicting observations inform misconception and concept states. A proposed read-only Insights Agent cites the evidence in a revisable hypothesis, not a mastery verdict.](assets/images/memory/03-evidence-and-longitudinal-insights.svg)](docs/memory/overview.md)</textarea><div class="copy-row"><button type="button" class="copy">Copy Markdown</button><p role="status" aria-live="polite" class="copy-status"></p><a href="03-evidence-and-longitudinal-insights.mmd">Mermaid source</a></div></div></details>
+</section>
+<footer><strong>Conceptual diagrams, synthetic examples.</strong> Not live learner records or evidence of learning outcomes. Graph memory is optional and off by default. The Insights Agent in view 03 is proposed and read-only. State-to-state associations visualize shared curriculum mappings; they are not new stored relationship types. <a href="../../images/memory/README.md">Image guide and reproduction</a></footer>
+</main><script>
+const tabs = [...document.querySelectorAll('[role="tab"]')];
+const panels = [...document.querySelectorAll('[role="tabpanel"]')];
+const zoom = document.querySelector('.zoom');
+const appearance = [...document.querySelectorAll('[data-theme-choice]')];
+const localFiles = location.protocol === 'file:';
+function select(index, focus) {
+  tabs.forEach((tab, position) => { const active = position === index; tab.setAttribute('aria-selected', String(active)); tab.tabIndex = active ? 0 : -1; panels[position].hidden = !active; });
+  zoom.setAttribute('aria-controls', panels[index].querySelector('.canvas').id);
+  if (focus) tabs[index].focus();
+  history.replaceState(null, '', '#' + panels[index].id);
+}
+function setAppearance(theme) {
+  document.body.dataset.theme = theme;
+  appearance.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.themeChoice === theme)));
+  panels.forEach(panel => {
+    const name = panel.id + (theme === 'dark' ? '-dark' : '');
+    const image = panel.querySelector('img');
+    image.src = '../../images/memory/' + name + '.svg';
+    panel.querySelectorAll('[data-export]').forEach(link => { link.href = '../../images/memory/' + name + '.' + link.dataset.export; });
+    panel.querySelector('textarea').value = '[![' + image.alt + '](assets/images/memory/' + name + '.svg)](docs/memory/overview.md)';
+    panel.querySelector('.copy-status').textContent = '';
+  });
+}
+tabs.forEach((tab, index) => { tab.addEventListener('click', () => select(index, false)); tab.addEventListener('keydown', event => {
+  const next = event.key === 'ArrowRight' ? (index + 1) % tabs.length : event.key === 'ArrowLeft' ? (index + tabs.length - 1) % tabs.length : event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : null;
+  if (next !== null) { event.preventDefault(); select(next, true); }
+}); });
+appearance.forEach(button => button.addEventListener('click', () => setAppearance(button.dataset.themeChoice)));
+zoom.addEventListener('click', () => { const active = zoom.getAttribute('aria-pressed') !== 'true'; zoom.setAttribute('aria-pressed', String(active)); zoom.textContent = active ? 'Fit to window' : 'Zoom to actual size'; document.querySelectorAll('.canvas').forEach(canvas => canvas.classList.toggle('actual', active)); });
+panels.forEach(panel => {
+  panel.querySelectorAll('.downloads [data-export]').forEach(link => {
+    if (localFiles) {
+      link.removeAttribute('download');
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    }
+    link.textContent = (localFiles ? 'Open ' : 'Download ') + link.dataset.export.toUpperCase();
+    if (link.dataset.export === 'png') {
+      const scale = document.createElement('span');
+      scale.textContent = ' 2x';
+      link.append(scale);
+    }
+  });
+  const image = panel.querySelector('img');
+  image.addEventListener('error', () => { panel.querySelector('.image-error').hidden = false; });
+  image.addEventListener('load', () => { panel.querySelector('.image-error').hidden = true; });
+  panel.querySelector('.copy').addEventListener('click', async event => {
+    const button = event.currentTarget;
+    const text = panel.querySelector('textarea');
+    const status = panel.querySelector('.copy-status');
+    button.disabled = true;
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+      await navigator.clipboard.writeText(text.value);
+      status.textContent = 'Markdown copied.';
+    } catch {
+      text.focus();
+      text.select();
+      status.textContent = 'Clipboard unavailable. Markdown selected; press Ctrl+C or Command+C to copy.';
+    } finally { button.disabled = false; }
+  });
+});
+function restoreHash() {
+  const index = panels.findIndex(panel => '#' + panel.id === location.hash);
+  if (index >= 0) select(index, false);
+}
+setAppearance(matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+restoreHash();
+window.addEventListener('hashchange', restoreHash);
+</script></body></html>

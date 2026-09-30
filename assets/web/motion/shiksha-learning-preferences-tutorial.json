@@ -1,0 +1,57 @@
+{
+  "name": "shiksha-learning-preferences-tutorial",
+  "title": "Personalize your learning preferences",
+  "duration": 29.666666666666668,
+  "frames": 356,
+  "width": 1360,
+  "height": 928,
+  "gifFrames": 297,
+  "gifBytes": 2098858,
+  "chapters": [
+    {
+      "start": 0,
+      "end": 8.416666666666666,
+      "caption": "01  Open Learner profile from the course's TA actions menu."
+    },
+    {
+      "start": 8.416666666666666,
+      "end": 13.916666666666666,
+      "caption": "02  Tell the tutor how you prefer explanations and practice to be presented."
+    },
+    {
+      "start": 13.916666666666666,
+      "end": 17,
+      "caption": "03  Save the instructions and return to your course conversation."
+    },
+    {
+      "start": 17,
+      "end": 24.666666666666668,
+      "caption": "04  Your next teaching turn carries the saved instructions."
+    },
+    {
+      "start": 24.666666666666668,
+      "end": 29.666666666666668,
+      "caption": "05  Reopen the profile to confirm the preference is saved, not just typed."
+    }
+  ],
+  "headerStyle": {
+    "background": "#EDE9FE",
+    "text": "#30264D",
+    "badge": false
+  },
+  "layout": "single-screen",
+  "presentation": {
+    "configuredCourseStarters": 4,
+    "starterRuleApplicable": true,
+    "verifiedWelcomeScreens": 1,
+    "assetChecks": []
+  },
+  "projectName": "Agentic Shiksha",
+  "demoId": "preferences",
+  "description": "Save custom learner instructions, verify they reach the next chat turn, and reopen the saved preference.",
+  "capture": "Actual unchanged React frontend; scripted interactions, synthetic course data and in-memory API responses.",
+  "timing": "Captured frames are paced for readability, not a performance benchmark.",
+  "isolation": "Fresh browser context. External services blocked; all API calls simulated. No remote course creation.",
+  "source": "Agentic Shiksha Platform/Frontend",
+  "recordedOn": "2026-09-30"
+}

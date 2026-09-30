@@ -1,0 +1,254 @@
+{
+  "project": "Agentic Shiksha",
+  "snapshot": "2026-09-30",
+  "provenance": "Original source-derived diagram layout with unmodified official Microsoft Azure service icons; not a live inventory or performance benchmark.",
+  "iconSource": "https://learn.microsoft.com/en-us/azure/architecture/icons/",
+  "gifs": [
+    {
+      "id": "context",
+      "name": "System context",
+      "file": "../../images/motion/shiksha-level-1-context.gif",
+      "width": 1280,
+      "height": 720,
+      "frames": 200,
+      "duration": 20,
+      "loop": 0,
+      "fps": 10,
+      "bytes": 214343,
+      "distinctFrames": 200,
+      "sha256": "c336b78f86c3973bb1851dc7f2aecb0452fc49881539992f9812dc8c8b9e5b57",
+      "phases": [
+        {
+          "start": 0,
+          "title": "Teacher shapes the course",
+          "caption": "01 / A teacher sets the course intent and reviews its materials and learning design."
+        },
+        {
+          "start": 5,
+          "title": "Learner takes a turn",
+          "caption": "02 / A learner asks, practises, or explains through the course-grounded teaching experience."
+        },
+        {
+          "start": 10,
+          "title": "Services support the interaction",
+          "caption": "03 / The platform uses managed agents, course search, and application storage."
+        },
+        {
+          "start": 15,
+          "title": "People inspect the result",
+          "caption": "04 / Learning artifacts and scoped insights return to people; outputs are not proof of mastery."
+        }
+      ],
+      "sources": [
+        [
+          "Architecture and roles",
+          "../../../docs/architecture.md"
+        ],
+        [
+          "Application boundaries",
+          "../../../docs/deployment.md"
+        ]
+      ]
+    },
+    {
+      "id": "services",
+      "name": "Service boundaries",
+      "file": "../../images/motion/shiksha-level-2-services.gif",
+      "width": 1280,
+      "height": 720,
+      "frames": 200,
+      "duration": 20,
+      "loop": 0,
+      "fps": 10,
+      "bytes": 232866,
+      "distinctFrames": 200,
+      "sha256": "a077cb69d95560ed49aa017c57fe183b7afbb4c05d3384a38aa32fcb29cfa227",
+      "phases": [
+        {
+          "start": 0,
+          "title": "Main web experience",
+          "caption": "01 / The main web bundle hosts learner chat, course creation, artifacts, and teacher views."
+        },
+        {
+          "start": 5,
+          "title": "Main application API",
+          "caption": "02 / The main API owns course access, teaching turns, materials, and in-process workers."
+        },
+        {
+          "start": 10,
+          "title": "Separate administration",
+          "caption": "03 / Admin analytics uses its own API through a required external access boundary."
+        },
+        {
+          "start": 15,
+          "title": "API-owned integrations",
+          "caption": "04 / The APIs call managed services directly; the admin API is not a proxy for the main API."
+        }
+      ],
+      "sources": [
+        [
+          "Deployment units and required boundaries",
+          "../../../docs/deployment.md"
+        ],
+        [
+          "Admin API routing",
+          "../../../Admin-Dashboard/frontend/src/lib/config.ts"
+        ],
+        [
+          "Main application assembly",
+          "../../../Agentic Shiksha Platform/Backend/backend/app.py"
+        ]
+      ]
+    },
+    {
+      "id": "runtime",
+      "name": "Teaching runtime",
+      "file": "../../images/motion/shiksha-level-3-runtime.gif",
+      "width": 1280,
+      "height": 720,
+      "frames": 200,
+      "duration": 20,
+      "loop": 0,
+      "fps": 10,
+      "bytes": 190151,
+      "distinctFrames": 200,
+      "sha256": "b2415f3d6967563e6168536e7757c7bc40fb48b7e0607fb8e22e76a721bd4b31",
+      "phases": [
+        {
+          "start": 0,
+          "title": "Authorize the request",
+          "caption": "01 / Typed chat routes verify an active user and course access before the teaching turn."
+        },
+        {
+          "start": 5,
+          "title": "Contextualise",
+          "caption": "02 / Build scoped context. Show Contextualising while profile and grounding are prepared."
+        },
+        {
+          "start": 10,
+          "title": "Coordinate agent and tools",
+          "caption": "03 / The harness calls the named Foundry TA and dispatches local tool calls and results."
+        },
+        {
+          "start": 15,
+          "title": "Stream and reconcile",
+          "caption": "04 / Adapters deliver text and artifacts; the chat hook handles state, stop, errors, and persistence."
+        }
+      ],
+      "sources": [
+        [
+          "Typed chat entry points",
+          "../../../Agentic Shiksha Platform/Backend/backend/routers/chat.py"
+        ],
+        [
+          "Harness and context phases",
+          "../../../Agentic Shiksha Platform/Backend/harness/README.md"
+        ],
+        [
+          "Chat state and presentation",
+          "../../../Agentic Shiksha Platform/Frontend/src/features/chat/README.md"
+        ]
+      ]
+    },
+    {
+      "id": "grounding",
+      "name": "Course grounding",
+      "file": "../../images/motion/shiksha-course-grounding.gif",
+      "width": 1280,
+      "height": 720,
+      "frames": 200,
+      "duration": 20,
+      "loop": 0,
+      "fps": 10,
+      "bytes": 177608,
+      "distinctFrames": 200,
+      "sha256": "5fdb5def4fbb13a5962eacfd40a849a8a39fa239a41b847b63ed9351e1d3601e",
+      "phases": [
+        {
+          "start": 0,
+          "title": "Store course materials",
+          "caption": "01 / Teacher materials enter Blob Storage and persisted material-processing jobs."
+        },
+        {
+          "start": 5,
+          "title": "Extract and embed",
+          "caption": "02 / Document Intelligence structures the material; embeddings make chunks retrievable."
+        },
+        {
+          "start": 10,
+          "title": "Retrieve within course scope",
+          "caption": "03 / Azure AI Search holds the shared index; course/session filters constrain retrieval."
+        },
+        {
+          "start": 15,
+          "title": "Return grounded passages",
+          "caption": "04 / The teaching turn receives selected passages and source metadata for cited responses."
+        }
+      ],
+      "sources": [
+        [
+          "Material processing and dataflow",
+          "../../../docs/agent-dataflow.md"
+        ],
+        [
+          "Common indexing pipeline",
+          "../../../Agentic Shiksha Platform/Backend/azure_services/tools/search/course_index_manager.py"
+        ],
+        [
+          "Scoped passage retrieval",
+          "../../../Agentic Shiksha Platform/Backend/utils/course_materials.py"
+        ]
+      ]
+    },
+    {
+      "id": "memory",
+      "name": "Learner-memory flow",
+      "file": "../../images/motion/shiksha-learner-memory-flow.gif",
+      "width": 1280,
+      "height": 720,
+      "frames": 200,
+      "duration": 20,
+      "loop": 0,
+      "fps": 10,
+      "bytes": 177504,
+      "distinctFrames": 200,
+      "sha256": "29e1b2f67e6cbeb283ec702c52093994021610325cab6cef97747616360da78d",
+      "phases": [
+        {
+          "start": 0,
+          "title": "Capture durable evidence",
+          "caption": "01 / Accept a scoped learner event with a durable receipt; processing happens asynchronously."
+        },
+        {
+          "start": 5,
+          "title": "Validate the interpretation",
+          "caption": "02 / Model observations need source evidence and validation; confidence does not write state."
+        },
+        {
+          "start": 10,
+          "title": "Apply deterministic policy",
+          "caption": "03 / Reviewed curriculum and accepted evidence constrain deterministic state transitions."
+        },
+        {
+          "start": 15,
+          "title": "Publish and inform the next turn",
+          "caption": "04 / Publish snapshot and history atomically; derive bounded context, gaps, and next probes."
+        }
+      ],
+      "sources": [
+        [
+          "Learner-memory contracts and modes",
+          "../../../docs/memory/overview.md"
+        ],
+        [
+          "Feature and worker defaults",
+          "../../../Agentic Shiksha Platform/Backend/learner_memory/settings.py"
+        ],
+        [
+          "Validated reduction and atomic publication",
+          "../../../Agentic Shiksha Platform/Backend/learner_memory/processor.py"
+        ]
+      ]
+    }
+  ]
+}

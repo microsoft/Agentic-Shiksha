@@ -1,0 +1,77 @@
+{
+  "type": "function",
+  "name": "add_slides",
+  "description": "Create an editable PowerPoint and in-app presentation for this course; use for slide decks, lectures and PowerPoint requests, not add_document. Ground all content in approved course resources and cite real sources; never invent references, statistics or quotes. Supply structured deck data, not HTML, Markdown fences, Python or paths. Use 1-20 concise slides and split dense content. Author narration ONCE during generation: speaker_notes introduces the topic/slide, and component_notes explains EVERY substantive bullet, process step, timeline event, column bullet, quote or statistic with its matching target ID. Write useful, concrete, plain speakable explanations, not repeated bullets or bracketed stage directions. Stored scripts are used for TTS; never request a second model pass for narration. Follow each layout's bounds. Call only when add_slides is available; refreshing an existing agent requires explicit owner/admin confirmation.",
+  "parameters": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "title": {"type": "string", "minLength": 1, "maxLength": 120},
+      "subtitle": {"type": "string", "maxLength": 180},
+      "theme": {"type": "string", "enum": ["academic", "midnight", "warm"], "default": "academic"},
+      "slides": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "layout": {"type": "string", "enum": ["title", "section", "content", "two_column", "question", "summary", "process", "timeline", "quote", "key_stat"], "description": "title/section: no bullets or columns. content/question/summary: 1-5 bullets. two_column: exactly two columns, no top-level bullets. process/timeline: 2-5 ordered step/event captions in bullets. quote: exactly one sourced quotation in bullets, with attribution in subtitle. key_stat: exactly one sourced statistic of at most 40 Unicode characters in bullets, with its context/caption in subtitle. Other layouts must not contain columns."},
+            "title": {"type": "string", "minLength": 1, "maxLength": 120},
+            "subtitle": {"type": "string", "maxLength": 180},
+            "bullets": {"type": "array", "maxItems": 5, "items": {"type": "string", "minLength": 1, "maxLength": 160}},
+            "columns": {
+              "type": "array",
+              "maxItems": 2,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "heading": {"type": "string", "minLength": 1, "maxLength": 60},
+                  "bullets": {"type": "array", "minItems": 1, "maxItems": 4, "items": {"type": "string", "minLength": 1, "maxLength": 140}}
+                },
+                "required": ["heading", "bullets"]
+              }
+            },
+            "speaker_notes": {"type": "string", "maxLength": 4000, "description": "Useful, plain speakable topic/slide introduction authored once with the deck, not a repetition of all bullets. Keep detailed per-component explanations in component_notes. No bracketed directives. speaker_notes plus all component note text must total at most 8000 Unicode characters per slide."},
+            "component_notes": {
+              "type": "array",
+              "maxItems": 12,
+              "default": [],
+              "description": "Author a concrete explanation for EVERY substantive bullet, process step, timeline event, column bullet, quotation and statistic. Optional in legacy/manual decks, but expected for new generated content. Each target may occur only once and must exist on this slide. Do not duplicate the introduction or just repeat the visible text. At most 12 notes; together with speaker_notes, text must total at most 8000 Unicode characters.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "target": {
+                    "type": "string",
+                    "enum": ["title", "subtitle", "bullet-1", "bullet-2", "bullet-3", "bullet-4", "bullet-5", "column-1", "column-2", "column-1-bullet-1", "column-1-bullet-2", "column-1-bullet-3", "column-1-bullet-4", "column-2-bullet-1", "column-2-bullet-2", "column-2-bullet-3", "column-2-bullet-4"],
+                    "description": "Exact 1-based component ID. title always exists; subtitle requires a nonblank subtitle (also quote attribution or statistic caption). bullet-N maps to actual top-level bullets, process steps or timeline events; quote/key_stat use bullet-1 for featured content. Only two_column uses column-1/column-2 for headings/sections and column-C-bullet-N for each actual column bullet. Never target a missing component."
+                  },
+                  "text": {"type": "string", "minLength": 1, "maxLength": 1200, "description": "Nonblank XML-safe plain speakable script, preserved verbatim for TTS and PowerPoint notes. Explain this component's meaning or a grounded example, without bracketed directives, repeated bullets, invented statistics or invented quotes."}
+                },
+                "required": ["target", "text"]
+              }
+            },
+            "sources": {
+              "type": "array",
+              "maxItems": 3,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "title": {"type": "string", "minLength": 1, "maxLength": 120},
+                  "url": {"type": ["string", "null"], "maxLength": 2048, "description": "Optional HTTP(S) reference URL; do not invent links or include credentials."}
+                },
+                "required": ["title"]
+              }
+            }
+          },
+          "required": ["layout", "title"]
+        }
+      }
+    },
+    "required": ["title", "slides"]
+  }
+}

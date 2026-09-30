@@ -1,0 +1,103 @@
+.circuit-workbench {
+  container: circuit / size;
+}
+
+.circuit-workbench details:not([open]) > :not(summary) {
+  display: none;
+}
+
+.circuit-workspace {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  grid-template-rows: minmax(0, 1fr) 17rem;
+  overflow: hidden;
+}
+
+.circuit-workspace[data-focused="true"] {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.circuit-canvas {
+  background-color: #101010;
+  background-image: radial-gradient(#303030 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.circuit-dock {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  border-top: 1px solid #404040;
+}
+
+.circuit-inspector {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0.75rem;
+  overflow: hidden;
+}
+
+@container circuit (max-width: 450px) {
+  .circuit-tab-icon {
+    display: none;
+  }
+
+  .circuit-dock [role="tab"] {
+    font-size: 10px;
+  }
+}
+
+@container circuit (max-width: 700px) {
+  .circuit-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+
+@container circuit (max-height: 590px) and (max-width: 619px) {
+  .circuit-workspace:not([data-focused="true"]) {
+    grid-template-rows: minmax(0, 1fr) 15.5rem;
+  }
+
+  .circuit-inspector {
+    padding: 0.5rem;
+  }
+
+  .circuit-inspector form {
+    gap: 0.375rem;
+  }
+}
+
+@container circuit (max-height: 590px) and (min-width: 620px) {
+  .circuit-workspace:not([data-focused="true"]) {
+    grid-template-columns: minmax(0, 1fr) 19rem;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .circuit-dock {
+    border-top: 0;
+    border-left: 1px solid #404040;
+  }
+
+  .circuit-tab-icon {
+    display: none;
+  }
+}
+
+@media (max-height: 540px) and (min-width: 768px) {
+  .circuit-pane {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 50 !important;
+    width: 100% !important;
+  }
+}

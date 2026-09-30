@@ -1,0 +1,112 @@
+{
+  "type": "function",
+  "name": "add_circuit",
+  "description": "Build and simulate educational electrical circuits with real ngspice, editable wiring, virtual meters and saved waveforms. Supply a title, components and analysis. Format 1 preserves small low-voltage circuits (24 parts, 17 nodes); format 2 enables named multi-terminal industrial devices, events and faults (48 parts, 64 nodes). Ground node 0 is numerical reference; N and PE roles never connect nodes implicitly. Ordinary voltage_source is limited to +/-48 V; the explicit three_phase_source uses a configurable 1-1000 V RMS line voltage. Dynamic industrial devices require transient analysis. Includes contacts, timers, transformers, rectifiers, linear induction motors, simplified protection, sampled PLC and lossless averaged DC-fed VFD. All models are educational, not manufacturer-calibrated or hardware safety certification. Meters use full ngspice samples with finite input resistance and actual branch currents. Lux requires explicit lamp efficacy; RPM requires the motor model. Never invent readings, raw SPICE or external model text. Use a bulb or indicator_lamp for a lamp, never infer it from a resistor label. See component terminal descriptions and use matching node names for connections.",
+  "parameters": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "title": { "type": "string", "minLength": 1, "maxLength": 120 },
+      "format_version": { "type": "integer", "enum": [1, 2], "description": "Default 1. Set 2 for industrial devices, events or faults." },
+      "node_roles": { "type": "object", "maxProperties": 64, "additionalProperties": { "type": "string", "enum": ["L1", "L2", "L3", "N", "PE", "DC+", "DC-"] }, "description": "Role labels for existing nodes; does not bond neutral, earth or reference." },
+      "grounds": { "type": "array", "maxItems": 16, "uniqueItems": true, "items": { "type": "string" }, "description": "Optional existing node names explicitly connected to the common 0 V reference. Ground is a one-terminal node reference, not a two-terminal component. Do not ground both terminals of a connected part." },
+      "components": {
+        "type": "array", "minItems": 2, "maxItems": 48,
+        "items": {
+          "type": "object", "additionalProperties": false,
+          "properties": {
+            "id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]{0,15}$" },
+            "kind": { "type": "string", "enum": ["resistor", "bulb", "capacitor", "inductor", "voltage_source", "diode", "switch", "wire", "ammeter", "pushbutton_no", "pushbutton_nc", "emergency_stop", "contactor_coil", "contact_no", "contact_nc", "contactor", "timer_relay", "selector_switch", "indicator_lamp", "three_phase_source", "transformer", "three_phase_transformer", "bridge_rectifier", "induction_motor", "fuse", "mcb", "rccb", "overload_relay", "vfd", "plc", "limit_switch", "proximity_switch", "analog_input", "hmi"] },
+            "positive": { "type": "string", "pattern": "^(0|[A-Za-z][A-Za-z0-9_]{0,15})$" },
+            "negative": { "type": "string", "pattern": "^(0|[A-Za-z][A-Za-z0-9_]{0,15})$" },
+            "value": { "type": "number", "description": "SI: resistor/bulb/indicator_lamp 0.1-1e8 ohm; coil/timer 0.1-1e7 ohm; wire 1e-6-1e6 ohm; capacitor 1e-12-1 F; inductor 1e-9-100 H; voltage source -48 to 48 V; analog_input 0-24 V; transformer turns ratio Np/Ns 0.01-100. Other devices use 1." },
+            "terminals": { "type": "object", "maxProperties": 8, "additionalProperties": { "type": "string", "pattern": "^(0|[A-Za-z][A-Za-z0-9_]{0,15})$" }, "description": "Exact named pins required by kind: three_phase_source positive=L1 negative=N extras L2,L3; contactor/overload_relay positive=L1_IN negative=L1_OUT extras L2_IN,L2_OUT,L3_IN,L3_OUT; transformer extras S1,S2; three_phase_transformer positive=L1 negative=N extras L2,L3,S1,S2,S3,SN; bridge_rectifier positive=AC1 negative=AC2 extras DC_P,DC_N; induction_motor positive=U1 negative=U2 extras V1,V2,W1,W2,PE; rccb positive=L_IN negative=L_OUT extras N_IN,N_OUT; vfd positive=DC+ negative=DC- extras U,V,W,N; plc positive=24V negative=COM extras IN1,IN2,IN3,IN4,OUT1,OUT2,OUT3,OUT4; selector_switch positive=COM negative=A extra B. Other kinds use no extras." },
+            "link": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]{0,15}$", "description": "Required controller component ID for contact_no, contact_nc, contactor. Controller must be coil, timer or protection device." },
+            "interlock": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]{0,15}$", "description": "Different controller whose energized state prevents this contact from closing." },
+            "parameters": { "type": "object", "additionalProperties": false, "properties": {
+              "line_voltage_rms": { "type": "number", "minimum": 1, "maximum": 1000 },
+              "phase_sequence": { "type": "string", "enum": ["abc", "acb"] },
+              "phase_a_scale": { "type": "number", "minimum": 0, "maximum": 1.5 },
+              "phase_b_scale": { "type": "number", "minimum": 0, "maximum": 1.5 },
+              "phase_c_scale": { "type": "number", "minimum": 0, "maximum": 1.5 },
+              "phase_degrees": { "type": "number", "minimum": -360, "maximum": 360 },
+              "primary_connection": { "type": "string", "enum": ["star", "delta"] },
+              "secondary_connection": { "type": "string", "enum": ["star", "delta"] },
+              "primary_inductance_h": { "type": "number", "minimum": 0.001, "maximum": 100 },
+              "coupling": { "type": "number", "minimum": 0.5, "maximum": 0.999999 },
+              "winding_resistance_ohm": { "type": "number", "minimum": 0.001, "maximum": 100 },
+              "coil_voltage": { "type": "number", "minimum": 1, "maximum": 240 },
+              "delay_seconds": { "type": "number", "minimum": 0.001, "maximum": 10 },
+              "timer_mode": { "type": "string", "enum": ["on_delay", "off_delay"] },
+              "selector_position": { "type": "string", "enum": ["off", "a", "b"] },
+              "rated_current_a": { "type": "number", "minimum": 0.01, "maximum": 1000 },
+              "magnetic_multiple": { "type": "number", "minimum": 3, "maximum": 20 },
+              "thermal_time_seconds": { "type": "number", "minimum": 0.01, "maximum": 3600 },
+              "i2t_limit": { "type": "number", "minimum": 0.001, "maximum": 100000000 },
+              "residual_current_a": { "type": "number", "minimum": 0.001, "maximum": 1 },
+              "trip_delay_seconds": { "type": "number", "minimum": 0.001, "maximum": 1 },
+              "stator_resistance_ohm": { "type": "number", "minimum": 0.01, "maximum": 100 },
+              "rotor_resistance_ohm": { "type": "number", "minimum": 0.01, "maximum": 100 },
+              "stator_leakage_h": { "type": "number", "minimum": 0.0001, "maximum": 1 },
+              "rotor_leakage_h": { "type": "number", "minimum": 0.0001, "maximum": 1 },
+              "magnetizing_h": { "type": "number", "minimum": 0.001, "maximum": 10 },
+              "winding_capacitance_nf": { "type": "number", "minimum": 0.1, "maximum": 1000 },
+              "pole_pairs": { "type": "integer", "minimum": 1, "maximum": 8 },
+              "inertia_kg_m2": { "type": "number", "minimum": 0.001, "maximum": 100 },
+              "friction_nm_s": { "type": "number", "minimum": 0, "maximum": 10 },
+              "load_torque_nm": { "type": "number", "minimum": 0, "maximum": 1000 },
+              "thermal_capacity_j_k": { "type": "number", "minimum": 1, "maximum": 1000000 },
+              "thermal_resistance_k_w": { "type": "number", "minimum": 0.001, "maximum": 100 },
+              "ambient_temperature_c": { "type": "number", "minimum": -20, "maximum": 60 },
+              "luminous_efficacy_lm_w": { "type": "number", "minimum": 0, "maximum": 300 },
+              "scan_seconds": { "type": "number", "minimum": 0.001, "maximum": 0.1 },
+              "analog_threshold_v": { "type": "number", "minimum": 0, "maximum": 24 },
+              "drive_frequency_hz": { "type": "number", "minimum": 1, "maximum": 100 },
+              "drive_ramp_seconds": { "type": "number", "minimum": 0.001, "maximum": 10 }
+            } },
+            "rungs": { "type": "array", "maxItems": 8, "items": { "type": "object", "additionalProperties": false, "properties": {
+              "output": { "type": "string", "enum": ["OUT1", "OUT2", "OUT3", "OUT4"] },
+              "operation": { "type": "string", "enum": ["and", "or", "set", "reset", "ton", "ctu"] },
+              "preset": { "type": "number", "minimum": 0.001, "maximum": 1000 },
+              "inputs": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "type": "object", "additionalProperties": false, "properties": { "terminal": { "type": "string", "enum": ["IN1", "IN2", "IN3", "IN4", "OUT1", "OUT2", "OUT3", "OUT4"] }, "normally_closed": { "type": "boolean" } }, "required": ["terminal"] } }
+            }, "required": ["output", "inputs"] } },
+            "rated_voltage": { "type": "number", "minimum": 0.1, "maximum": 48, "description": "Bulb rated voltage in volts, default 12. Glow is illustrative, relative to rated power V^2/R; resistance stays fixed. Ignored for other kinds." },
+            "connected": { "type": "boolean", "description": "Default true. False keeps the part in the drawing but disconnects both terminals and excludes it from the solve." },
+            "position": { "type": "number", "minimum": 0, "maximum": 1, "description": "Visual placement along the branch from positive to negative, default 0.5. Does not change electrical connectivity." },
+            "waveform": { "type": "string", "enum": ["dc", "step", "sine"], "description": "Only voltage sources support step/sine. Other parts use dc." },
+            "frequency_hz": { "type": "number", "minimum": 0.1, "maximum": 100000 },
+            "closed": { "type": "boolean", "description": "Initial switch state, sensor active state, drive enabled state, or button PRESSED state. For normally-closed buttons use false initially. Format 2 events can change operated devices. SPST resistance is 0.01 ohm closed / 1e12 ohm open." }
+          },
+          "required": ["id", "kind", "positive", "negative", "value"]
+        }
+      },
+      "analysis": {
+        "type": "object", "additionalProperties": false,
+        "properties": {
+          "mode": { "type": "string", "enum": ["dc", "transient"] },
+          "duration_seconds": { "type": "number", "minimum": 0.000001, "maximum": 10, "description": "Transient duration, at most 50 sine periods." },
+          "probes": { "type": "array", "maxItems": 8, "uniqueItems": true, "items": { "type": "string" }, "description": "Non-ground nodes to plot. Empty selects up to eight nodes. Signed currents for all components are included automatically." }
+        },
+        "required": ["mode", "probes"]
+      },
+      "instruments": { "type": "array", "maxItems": 8, "items": { "type": "object", "additionalProperties": false, "properties": {
+        "id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]{0,15}$" },
+        "kind": { "type": "string", "enum": ["voltmeter", "clamp_meter", "wattmeter", "energy_meter", "pf_meter", "frequency_meter", "oscilloscope", "rpm_meter", "lux_meter"] },
+        "positive": { "type": "string" }, "negative": { "type": "string" }, "reference_positive": { "type": "string" }, "reference_negative": { "type": "string" },
+        "mode": { "type": "string", "enum": ["dc", "ac", "ac_dc"] }, "target": { "type": "string" },
+        "input_resistance_ohm": { "type": "number", "minimum": 1000, "maximum": 1000000000000 },
+        "window_start_seconds": { "type": "number", "minimum": 0, "maximum": 10 },
+        "distance_m": { "type": "number", "minimum": 0.05, "maximum": 100 },
+        "angle_degrees": { "type": "number", "minimum": 0, "maximum": 90 },
+        "ambient_lux": { "type": "number", "minimum": 0, "maximum": 100000 },
+        "conductors": { "type": "array", "maxItems": 4, "items": { "type": "object", "additionalProperties": false, "properties": { "component_id": { "type": "string" }, "terminal": { "type": "string", "description": "positive, negative or one named device terminal" }, "direction": { "type": "integer", "enum": [-1, 1] } }, "required": ["component_id"] } }
+      }, "required": ["id", "kind"] } },
+      "events": { "type": "array", "maxItems": 64, "items": { "type": "object", "additionalProperties": false, "properties": { "component_id": { "type": "string" }, "time_seconds": { "type": "number", "minimum": 0, "maximum": 10 }, "action": { "type": "string", "enum": ["press", "release", "close", "open", "reset", "select_a", "select_b", "off", "analog"] }, "value": { "type": "number", "minimum": 0, "maximum": 24 } }, "required": ["component_id", "time_seconds", "action"] } },
+      "faults": { "type": "array", "maxItems": 16, "items": { "type": "object", "additionalProperties": false, "properties": {
+        "component_id": { "type": "string" }, "kind": { "type": "string", "enum": ["open_wire", "open_neutral", "loose_neutral", "burnt_contact", "stuck_contactor", "weak_capacitor", "phase_loss", "phase_reversal", "load_imbalance", "insulation_leakage", "earth_fault", "open_winding", "intermittent_contact", "overload", "bearing_load", "stalled_rotor"] },
+        "terminal": { "type": "string" }, "severity": { "type": "number", "minimum": 0, "maximum": 1 }, "resistance_ohm": { "type": "number", "minimum": 0.001, "maximum": 1000000000000 }, "start_seconds": { "type": "number", "minimum": 0, "maximum": 10 }, "end_seconds": { "type": "number", "minimum": 0, "maximum": 10 }
+      }, "required": ["component_id", "kind"] } }
+    },
+    "required": ["title", "components", "analysis"]
+  }
+}

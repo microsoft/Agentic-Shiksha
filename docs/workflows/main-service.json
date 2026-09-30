@@ -1,0 +1,1007 @@
+{
+  "service": "main",
+  "scope": "production route-bearing modules outside backend/routers",
+  "workflows": [
+    {
+      "id": "main-system-lifecycle",
+      "title": "Service assembly, public probes, and preflight",
+      "doc": "main-service.md#main-system-lifecycle",
+      "actors": ["ASGI process", "Browser and API explorer", "Health-check and CORS clients"],
+      "agent_tools": ["None for HTTP handlers; A2UI catalog builder and Cosmos connection probe", "Optional learner-memory lifespan worker, startup token-usage reconciliation daemon, research executor"],
+      "permissions": ["No caller authentication on root, docs, catalog, health, or explicit OPTIONS", "Configured credentialed CORS is not authorization; OPTIONS performs no domain mutation"],
+      "state_changes": ["HTTP handlers have no intentional domain writes; process-local clients, caches, directories and executor configuration may initialize", "Startup reconciliation writes Cosmos usage events and watermark; optional memory worker persists its own state", "Shutdown signals workers, cancels queued research, closes async credentials; registered shutdown callback closes file processor"],
+      "success": ["GET / redirects to configured frontend; GET /docs serves Swagger; GET /api/a2ui/catalog.json serves widgets", "GET /api/chat/health checks Cosmos; GET /api/teacher-dashboard/health returns static status; OPTIONS /api/teacher-dashboard/logging-agent/chat/stream returns an empty object", "create_app includes the completed registry and lifecycle"],
+      "failure_retry": ["Missing required settings can prevent startup; Cosmos probe failure is 503", "Memory shutdown waits up to 30 seconds; executor shutdown does not guarantee in-flight remote cancellation", "General Azure/exception handlers can expose exception text as 400/500; no health retry contract", "Startup reconciliation is one daemon run, not a periodic job or distributed lock"],
+      "classification": "current",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/routers/identity.py::create_identity_router.<locals>.root",
+        "Agentic Shiksha Platform/Backend/backend/main.py::a2ui_catalog",
+        "Agentic Shiksha Platform/Backend/backend/main.py::chat_health",
+        "Agentic Shiksha Platform/Backend/backend/app.py::custom_swagger_ui_html",
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::health",
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::logging_agent_chat_options"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/app.py", "symbol": "create_app"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/routers/identity.py", "symbol": "create_identity_router"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "lifespan"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "shutdown_async_processor"},
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/token_stats.py", "symbol": "sync_foundry_usage_to_cosmos"}
+      ],
+      "doc_refs": ["Agentic Shiksha Platform/Backend/backend/README.md", "docs/deployment.md"]
+    },
+    {
+      "id": "main-entra-sign-in",
+      "title": "Microsoft sign-in and invite promotion",
+      "doc": "main-service.md#main-entra-sign-in",
+      "actors": ["Invited or existing directory user", "Microsoft identity provider"],
+      "agent_tools": ["None; MSAL EntraAuth PKCE, IdentityService admission, and HS256 application-session helpers"],
+      "permissions": ["Matching pending OAuth state, provider completion, user identifier and email-matched profile/invite", "Reject conflicting provider; existing profile is not explicitly checked for active status"],
+      "state_changes": ["Process-local pending flow is consumed", "Promotion writes users_v1 with invited status and marks invited_users_v1 promoted; student names are pseudonymized", "Secure HttpOnly SameSite=None browser session cookie is issued"],
+      "success": ["GET /auth/login redirects to Microsoft; GET /auth/callback establishes application session and redirects to frontend callback", "Promotion is separate from onboarding completion"],
+      "failure_retry": ["Provider, directory and callback failures redirect to auth errors, sometimes including exception descriptions", "Lost/consumed process-local state requires restarting login; no cross-worker flow store", "Promotion writes are not transactional; no idempotency-key or cancellation contract"],
+      "classification": "current",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/routers/identity.py::create_identity_router.<locals>.auth_login",
+        "Agentic Shiksha Platform/Backend/backend/routers/identity.py::create_identity_router.<locals>.auth_callback"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/routers/identity.py", "symbol": "create_identity_router"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/services/identity.py", "symbol": "IdentityService"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/core/identity.py", "symbol": "create_identity_service"},
+        {"path": "Agentic Shiksha Platform/Backend/auth.py", "symbol": "EntraAuth"},
+        {"path": "Agentic Shiksha Platform/Backend/auth.py", "symbol": "create_session_token"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "promote_invited_user"}
+      ],
+      "doc_refs": ["Agentic Shiksha Platform/Backend/README.md", "docs/architecture.md"]
+    },
+    {
+      "id": "main-google-sign-in",
+      "title": "Google sign-in and availability reporting",
+      "doc": "main-service.md#main-google-sign-in",
+      "actors": ["Allowlisted Google user", "Google identity provider"],
+      "agent_tools": ["None; GoogleAuth authorization-code PKCE, token exchange/userinfo, IdentityService admission and application JWT"],
+      "permissions": ["Matching local state, code exchange, email/profile-or-invite presence, provider-conflict checks", "No explicit active-profile or route-level email_verified check; status endpoint is public"],
+      "state_changes": ["Pending verifier/state is process-local and consumed", "Invite promotion persists profile/invite records; browser receives shared session cookie", "Current ApplicationSettings requires Google client ID/secret even though handlers retain a not-configured branch"],
+      "success": ["GET /auth/google/login and /auth/google/callback perform sign-in; GET /auth/google/status reports whether GoogleAuth exists", "Successful callback redirects to frontend without a JWT in the URL"],
+      "failure_retry": ["Errors redirect to frontend auth; token/userinfo requests have 30/15-second timeouts", "No exchange retry loop; state is consumed before exchange and restart loses it", "Restart login rather than replaying a callback; no transactional promotion rollback"],
+      "classification": "mixed",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/routers/identity.py::create_identity_router.<locals>.auth_google_login",
+        "Agentic Shiksha Platform/Backend/backend/routers/identity.py::create_identity_router.<locals>.auth_google_callback",
+        "Agentic Shiksha Platform/Backend/backend/routers/identity.py::create_identity_router.<locals>.auth_google_status"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/routers/identity.py", "symbol": "create_identity_router"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/services/identity.py", "symbol": "IdentityService"},
+        {"path": "Agentic Shiksha Platform/Backend/google_auth.py", "symbol": "GoogleAuth"},
+        {"path": "Agentic Shiksha Platform/Backend/deployment_settings.py", "symbol": "ApplicationSettings"}
+      ],
+      "doc_refs": ["Agentic Shiksha Platform/Backend/README.md", "docs/architecture.md"]
+    },
+    {
+      "id": "main-session",
+      "title": "Session display and logout",
+      "doc": "main-service.md#main-session",
+      "actors": ["Signed-in browser", "Compatibility bearer client"],
+      "agent_tools": ["None; IdentityService session_profile, JWT verification and session transport; service_errors maps domain errors to HTTP status"],
+      "permissions": ["GET /auth/me verifies cookie-preferred JWT with bearer fallback, but does not reload profile/status", "POST /auth/logout has no caller-auth requirement"],
+      "state_changes": ["Identity read changes no domain state", "Logout deletes browser cookie, not issued JWTs or provider sessions", "Cookie lifetime is fixed at seven days while JWT expiry is configurable"],
+      "success": ["auth_me returns token identity claims; auth_logout returns status ok"],
+      "failure_retry": ["Missing, invalid or expired token returns 401", "Repeated logout is harmless cookie deletion; no token revocation/refresh/retry/cancellation contract"],
+      "classification": "current",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/routers/identity.py::create_identity_router.<locals>.auth_me",
+        "Agentic Shiksha Platform/Backend/backend/routers/identity.py::create_identity_router.<locals>.auth_logout"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/routers/identity.py", "symbol": "create_identity_router"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/services/identity.py", "symbol": "IdentityService"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/dependencies/session.py", "symbol": "get_session_token"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/dependencies/service_errors.py", "symbol": "service_errors"},
+        {"path": "Agentic Shiksha Platform/Backend/auth.py", "symbol": "verify_session_token"}
+      ],
+      "doc_refs": ["Agentic Shiksha Platform/Backend/README.md", "docs/architecture.md"]
+    },
+    {
+      "id": "main-directory",
+      "title": "Directory listing, invitations, editing, and removal",
+      "doc": "main-service.md#main-directory",
+      "actors": ["Signed-in directory viewer", "Administrator", "Configured super-admin"],
+      "agent_tools": ["None; IdentityService checks, DirectoryService policy and CosmosDirectoryRepository adapter to existing persistence helpers; no invitation-email worker"],
+      "permissions": ["Listing verifies JWT and pseudonymizes non-admin other users except super-admin view; IDs and organization data remain", "Writes require email-resolved admin or configured super-admin; no active-user dependency", "PATCH restricts granting admin but not all revocation; POST role is not restricted by the same super-admin grant check", "DELETE protects configured super-admin and limits removal of other admins to super-admin"],
+      "state_changes": ["Creates invites or appends affiliation in invited_users_v1/users_v1; PATCH writes target invite/profile", "Removal deletes profile or invite, not all chats/assets/JWTs", "Pseudonym shuffle is response-local and seeded by caller email"],
+      "success": ["GET/POST /api/directory list/invite; PATCH/DELETE /api/directory/{user_id} edit/remove", "Invite reports new/existing/affiliation-added with 201/200"],
+      "failure_retry": ["401/403/404 where checked; partial query failures can produce partial directory results", "Invite deduplication is read-then-write, not race-safe; many blank fields cannot clear existing values", "No multi-record transaction, durable retry, idempotency key or cancellation"],
+      "classification": "current",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/routers/directory.py::create_directory_router.<locals>.api_list_directory",
+        "Agentic Shiksha Platform/Backend/backend/routers/directory.py::create_directory_router.<locals>.api_invite_user",
+        "Agentic Shiksha Platform/Backend/backend/routers/directory.py::create_directory_router.<locals>.api_update_directory_user",
+        "Agentic Shiksha Platform/Backend/backend/routers/directory.py::create_directory_router.<locals>.api_remove_directory_user"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/routers/directory.py", "symbol": "create_directory_router"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/services/identity.py", "symbol": "IdentityService"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/services/directory.py", "symbol": "DirectoryService"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/integrations/directory.py", "symbol": "CosmosDirectoryRepository"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "invite_user"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "list_directory_users"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "remove_directory_user"}
+      ],
+      "doc_refs": ["docs/architecture.md", "Agentic Shiksha Platform/Backend/README.md"]
+    },
+    {
+      "id": "main-affiliations-hierarchy",
+      "title": "Active affiliation and organization-label maintenance",
+      "doc": "main-service.md#main-affiliations-hierarchy",
+      "actors": ["User selecting saved affiliation", "Configured super-admin"],
+      "agent_tools": ["None; IdentityService checks, DirectoryService workflow and Cosmos adapter/profile/label/onboarding helpers"],
+      "permissions": ["Switch requires JWT plus email-resolved self identity or configured super-admin", "Bulk label operations and onboarding counts require configured super-admin email in JWT", "No active-profile check"],
+      "state_changes": ["Switch persists activeAffiliation and top-level institute/department/role/college", "Bulk operations update top-level C1/C2 label fields, not nested affiliations or department entities", "Onboarding-progress read changes no domain state"],
+      "success": ["POST /api/directory/{user_id}/switch-affiliation returns selected affiliation", "POST /api/directory/institutes/{rename,delete} and /departments/{rename,delete} return counts", "GET /api/directory/onboarding-progress compares non-promoted invites and active profiles, excluding the promoted-but-invited gap"],
+      "failure_retry": ["401/403 or 400 for invalid index/blank required labels", "Bulk operations can partially complete; stale affiliation arrays can later restore old labels", "Count failures yield zeros/done false; no transaction, retry or cancellation contract"],
+      "classification": "current",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/routers/directory.py::create_directory_router.<locals>.api_switch_affiliation",
+        "Agentic Shiksha Platform/Backend/backend/routers/directory.py::create_directory_router.<locals>.api_rename_institute",
+        "Agentic Shiksha Platform/Backend/backend/routers/directory.py::create_directory_router.<locals>.api_delete_institute",
+        "Agentic Shiksha Platform/Backend/backend/routers/directory.py::create_directory_router.<locals>.api_rename_department",
+        "Agentic Shiksha Platform/Backend/backend/routers/directory.py::create_directory_router.<locals>.api_delete_department",
+        "Agentic Shiksha Platform/Backend/backend/routers/directory.py::create_directory_router.<locals>.api_onboarding_progress"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/routers/directory.py", "symbol": "create_directory_router"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/services/identity.py", "symbol": "IdentityService"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/services/directory.py", "symbol": "DirectoryService"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "switch_active_affiliation"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "rename_institute"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "get_department_onboarding_progress"}
+      ],
+      "doc_refs": ["docs/architecture.md", "Agentic Shiksha Platform/Backend/README.md"]
+    },
+    {
+      "id": "main-profile-legacy",
+      "title": "Legacy profile and onboarding persistence",
+      "doc": "main-service.md#main-profile-legacy",
+      "actors": ["Profile/onboarding UI", "Legacy API caller"],
+      "agent_tools": ["None; Cosmos profile helpers offloaded to threads"],
+      "permissions": ["No caller/ownership check on GET, PUT or DELETE /api/user/{user_id}", "Path user_id selects the profile; separate learner-profile authorization does not apply"],
+      "state_changes": ["Persists profile with student names normalized to student_name; empty fields usually preserve existing values", "Onboarding completion promotes invited to active; false does not reset completion", "Affiliations are preserved but arbitrary extra profile fields are not; agent-list cache invalidates", "Deletion removes profile only; no browser-local or related-data cleanup"],
+      "success": ["GET returns profile or successful null; PUT upserts and returns profile; DELETE returns boolean"],
+      "failure_retry": ["Storage errors may be 500 or helper-level null", "PUT is an upsert with timestamp changes, not an explicit-clearing or concurrent-update protocol", "No idempotency key, retry, rollback or cancellation contract"],
+      "classification": "mixed",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_user",
+        "Agentic Shiksha Platform/Backend/backend/main.py::update_user",
+        "Agentic Shiksha Platform/Backend/backend/main.py::delete_user"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "UserProfileModel"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "update_user"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "upsert_user_profile"}
+      ],
+      "doc_refs": ["docs/architecture.md", "docs/memory/overview.md"]
+    },
+    {
+      "id": "main-departments-legacy",
+      "title": "Department entities and membership lists",
+      "doc": "main-service.md#main-departments-legacy",
+      "actors": ["Administration-style API client"],
+      "agent_tools": ["None; Cosmos department and profile helpers"],
+      "permissions": ["No caller/admin check despite admin-only comments", "Existence/request-model checks are not ownership or role authorization"],
+      "state_changes": ["Department documents persist; deletion marks inactive", "Membership mutates a profile departments array, independently of directory affiliation strings", "No browser-local state changes"],
+      "success": ["POST/GET /api/departments and GET/PUT/DELETE /api/departments/{dept_id} manage entities", "GET/POST department members, DELETE a member, and GET /api/users/{user_id}/departments manage/read associations", "Repeated add/remove recognizes already-present/absent membership; lists show active departments"],
+      "failure_retry": ["409 for checked existing creation ID; 404 where missing entity/user is checked", "Create check/write is not atomic; inactive departments can retain membership references", "No transaction, application retry or cancellation contract"],
+      "classification": "compatibility",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::create_department_endpoint",
+        "Agentic Shiksha Platform/Backend/backend/main.py::list_departments_endpoint",
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_department_endpoint",
+        "Agentic Shiksha Platform/Backend/backend/main.py::update_department_endpoint",
+        "Agentic Shiksha Platform/Backend/backend/main.py::delete_department_endpoint",
+        "Agentic Shiksha Platform/Backend/backend/main.py::list_department_members_endpoint",
+        "Agentic Shiksha Platform/Backend/backend/main.py::add_department_member_endpoint",
+        "Agentic Shiksha Platform/Backend/backend/main.py::remove_department_member_endpoint",
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_user_departments_endpoint"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "create_department_endpoint"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "create_department"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "delete_department"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "add_user_to_department"}
+      ],
+      "doc_refs": ["docs/architecture.md", "Agentic Shiksha Platform/Backend/README.md"]
+    },
+    {
+      "id": "main-builder-conversations",
+      "title": "Compatibility builder and specification conversations",
+      "doc": "main-service.md#main-builder-conversations",
+      "actors": ["Builder/edit API client"],
+      "agent_tools": ["course-conversational-agent and course-agent-creation-agent defaults, both caller-overridable", "AIProjectClient conversations/responses; referenced remote definition selects model"],
+      "permissions": ["No caller, teacher-role, course-access or conversation-ownership checks"],
+      "state_changes": ["Start creates remote Foundry conversation; step appends turn", "No durable local job/course write; session is unused and CCA vector-store value is only returned"],
+      "success": ["POST /api/cca/start and /step return builder reply with final JSON fence removed", "POST /api/caca/start and /step return full specification-agent reply", "Compatibility thread_id is the new conversation ID, not a provisioned course"],
+      "failure_retry": ["400 for missing opening/thread/reply; clients close in finally", "Repeated starts or steps can duplicate conversations/turns", "No request retry, idempotency key, rollback or cancellation contract"],
+      "classification": "compatibility",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::cca_start",
+        "Agentic Shiksha Platform/Backend/backend/main.py::cca_step",
+        "Agentic Shiksha Platform/Backend/backend/main.py::caca_start",
+        "Agentic Shiksha Platform/Backend/backend/main.py::caca_step"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "cca_start"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "caca_start"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "strip_final_json_block"}
+      ],
+      "doc_refs": ["docs/agents/README.md", "docs/agents/course-creation.md"]
+    },
+    {
+      "id": "main-agent-inspection",
+      "title": "Name checks, definitions, tools, and platform diagnostics",
+      "doc": "main-service.md#main-agent-inspection",
+      "actors": ["Builder/library client", "Authorized TA user", "Diagnostic caller"],
+      "agent_tools": ["None for inference; AgentCreator.list_agents and AgentsClientAdapter inspect definitions"],
+      "permissions": ["check_agent_name and list_platform_agents have no caller check", "Both get_agent_tools declarations and get_agent_details require active TA access"],
+      "state_changes": ["No intentional remote writes; client/credential state is process-local"],
+      "success": ["GET /api/agents/check-name checks case-insensitive existence; tools/details inspect current definitions", "check_agent_name has two registered callables; get_agent_tools has two matching-shape paths with different parameter/response names", "First registered matching route wins; Python name rebinding does not remove older registrations"],
+      "failure_retry": ["404 for missing details; adapter/SDK errors can become 400/500", "GET /api/platform/agents omits required AgentCreator model_deployment and also assumes a mapping where list_agents returns a list", "No retry/cancellation contract; diagnostics are not a verified live inventory"],
+      "classification": "mixed",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::check_agent_name",
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_agent_tools",
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_agent_details",
+        "Agentic Shiksha Platform/Backend/backend/main.py::list_platform_agents"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "check_agent_name"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "get_agent_tools"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "list_platform_agents"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/agents/agent_creation.py", "symbol": "AgentCreator"}
+      ],
+      "doc_refs": ["docs/agents/README.md", "Agentic Shiksha Platform/Backend/backend/README.md"]
+    },
+    {
+      "id": "main-agent-update",
+      "title": "Instruction, tool, and version maintenance",
+      "doc": "main-service.md#main-agent-update",
+      "actors": ["TA editor"],
+      "agent_tools": ["AgentCreator/AgentsClientAdapter version updates", "course-agent-creation-agent via call_meta_agent_for_prompt; unify_agent_prompts for regeneration"],
+      "permissions": ["TA editor required on clear, both update routes, and regenerate", "These update routes do not repeat the direct-create model allowlist"],
+      "state_changes": ["Persists remote versions/tools/instructions", "Regeneration best-effort updates Cosmos description/context, setup Blob/local backup and caches", "PUT rebuilds tools from request/default flags rather than preserving every previous capability"],
+      "success": ["POST /api/agents/{agent_id}/tools/clear attempts optional Bing-type preservation", "POST /api/agents/{agent_id}/update accepts model/instructions or no-ops; PUT /api/agents/{agent_name} reports new version", "POST regenerate-prompt calls one specification agent and preserves prior starters when none generated", "Both update_agent declarations remain registered at distinct methods/paths"],
+      "failure_retry": ["Malformed meta-agent JSON can fall back to raw instructions; post-update metadata/setup errors are non-fatal", "400/404/500 vary by route; repeated writes create versions", "No transactional rollback, idempotency key, automatic retry or cancellation contract"],
+      "classification": "mixed",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::clear_agent_tools",
+        "Agentic Shiksha Platform/Backend/backend/main.py::update_agent",
+        "Agentic Shiksha Platform/Backend/backend/main.py::regenerate_agent_prompt"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "update_agent"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "regenerate_agent_prompt"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "call_meta_agent_for_prompt"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/agents/agent_creation.py", "symbol": "AgentToolBuilder"}
+      ],
+      "doc_refs": ["docs/agents/course-creation.md", "docs/agents/course-ta.md"]
+    },
+    {
+      "id": "main-agent-create-compatibility",
+      "title": "Alternate direct and simple course creation",
+      "doc": "main-service.md#main-agent-create-compatibility",
+      "actors": ["Legacy builder/integration caller"],
+      "agent_tools": ["course-agent-creation-agent for direct specification, prompt unifier, AgentCreator", "Shared Search, optional hosted memory and flag-selected web tools; configured AZURE_AI_AGENT_MODEL_DEPLOYMENT"],
+      "permissions": ["No caller/teacher/creator identity check", "Direct validates name/kind and model allowlist; simple course creation does not apply the same allowlist"],
+      "state_changes": ["Foundry versions, optional memory, Search resources and local agent config may persist", "Direct metadata save attempts caller-supplied creator fields but references undefined additional_context in a caught block", "Simple course creation does not persist course-directory metadata or setup", "Learner-memory enablement suppresses hosted-memory attachment in AgentToolBuilder"],
+      "success": ["POST /api/agents/create-direct generates specification then named version; optional Search/memory errors may be tolerated", "POST /api/agents/create-course ensures shared Search and creates a session-filtered named agent"],
+      "failure_retry": ["Direct conflict 409/creation error 400; simple pipeline failure 500", "Success can lack metadata/optional capabilities; these are not durable creation jobs", "Repeated same-name calls can create versions; no multi-service rollback, idempotency key or cancellation"],
+      "classification": "compatibility",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::create_agent_direct",
+        "Agentic Shiksha Platform/Backend/backend/main.py::create_course_agent"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "create_agent_direct"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "create_course_agent"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/agents/agent_creation.py", "symbol": "AgentCreator"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/agents/agent_creation.py", "symbol": "AgentToolBuilder"}
+      ],
+      "doc_refs": ["docs/agents/course-creation.md", "docs/providers.md"]
+    },
+    {
+      "id": "main-agent-setup",
+      "title": "Setup metadata and local compatibility backup",
+      "doc": "main-service.md#main-agent-setup",
+      "actors": ["Builder/editor/library client"],
+      "agent_tools": ["None; setup Blob, Cosmos and local filesystem helpers"],
+      "permissions": ["POST setup/save has no caller check; GET setup requires active TA access; DELETE setup requires TA editor"],
+      "state_changes": ["Save persists canonical Blob plus best-effort local backup and optional Cosmos avatar metadata", "GET can migrate local setup or reconstruct Cosmos metadata and write canonical Blob", "DELETE removes only local setup directory; process-local agent-list cache invalidates after save"],
+      "success": ["POST /api/agents/setup/save returns ok; GET /api/agents/setup/{agent_id} returns overlaid setup", "DELETE same setup path returns ok even if no local cache existed"],
+      "failure_retry": ["Missing metadata/setup is 404; canonical Blob-save failure raises; local backup errors are ignored", "safe_rmtree retries PermissionError three times and may fail while endpoint returns ok", "No multi-store rollback, durable-erasure guarantee, idempotency key or cancellation"],
+      "classification": "mixed",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::save_agent_setup_endpoint",
+        "Agentic Shiksha Platform/Backend/backend/main.py::fetch_agent_setup",
+        "Agentic Shiksha Platform/Backend/backend/main.py::delete_agent_setup"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "_save_setup_json"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "_load_setup_json"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "safe_rmtree"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "save_agent_setup"}
+      ],
+      "doc_refs": ["docs/agents/course-creation.md", "docs/architecture.md"]
+    },
+    {
+      "id": "main-agent-images",
+      "title": "Course image upload, proxy, and deletion",
+      "doc": "main-service.md#main-agent-images",
+      "actors": ["Course image editor", "Library reader"],
+      "agent_tools": ["None; Pillow progressive-JPEG conversion, Blob and Cosmos"],
+      "permissions": ["Upload has no caller check; GET requires active TA access; DELETE requires TA editor", "Upload enforces 5 MiB, declared media type and sniffed format"],
+      "state_changes": ["Upload overwrites profile JPEG, attempts public Blob policy, best-effort updates Cosmos URL", "Delete removes agent image prefix and tries to clear URL; GET serves caching/ETag response", "No browser-local mutation is performed by the backend"],
+      "success": ["POST /api/agents/image/upload returns cache-busted proxy URL", "GET/DELETE /api/agents/image/{agent_id} return first image/deleted count"],
+      "failure_retry": ["400 for invalid files; upload may succeed despite metadata failure; GET errors become 404", "Delete catches errors and can return ok with zero deleted", "No atomic Blob/metadata update, application retry, rollback or cancellation"],
+      "classification": "mixed",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::upload_agent_image",
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_agent_image",
+        "Agentic Shiksha Platform/Backend/backend/main.py::delete_agent_image"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "upload_agent_image"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "delete_agent_image"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/dependencies/agent_access.py", "symbol": "require_agent_editor"}
+      ],
+      "doc_refs": ["docs/agents/course-creation.md", "Agentic Shiksha Platform/Backend/README.md"]
+    },
+    {
+      "id": "main-chat-titles-starters",
+      "title": "Conversation titles and personalized starter suggestions",
+      "doc": "main-service.md#main-chat-titles-starters",
+      "actors": ["Chat UI", "Learner course-library client"],
+      "agent_tools": ["Title uses GeneralAgent.generate_title for a direct Responses call with configured AZURE_OPENAI_CHAT_MODEL, no agent reference/conversation/tools", "Starters use selected course TA in new named-agent conversation; no inference for title fallback"],
+      "permissions": ["Title requires active identity and TA access if agent_name supplied", "Starters require TA access, but optional query user_id is not bound to caller; path-only self check does not cover it"],
+      "state_changes": ["Starters create remote conversations but title calls do not; no title/starter Cosmos write", "Starter profile/course information is read; client must apply returned title/starters to local state"],
+      "success": ["POST /api/chat/generate-title cleans direct-model output, caps it at 50 characters, or uses first-five-word fallback", "GET /api/agents/{agent_id}/conversation-starters parses up to ten entries or returns generic course questions"],
+      "failure_retry": ["Missing message 400; missing course metadata 404; title exceptions fall back", "Starters retry credential-authentication failures up to three times with 1/2-second waits, potentially creating conversations", "No idempotency key or remote cancellation contract"],
+      "classification": "current",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::generate_chat_title",
+        "Agentic Shiksha Platform/Backend/backend/main.py::generate_conversation_starters"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "generate_chat_title"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "generate_conversation_starters"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/dependencies/agent_access.py", "symbol": "require_body_agent_access"},
+        {"path": "Agentic Shiksha Platform/Backend/harness/runtime.py", "symbol": "GeneralAgent"}
+      ],
+      "doc_refs": ["docs/agents/course-ta.md", "docs/agents/README.md"]
+    },
+    {
+      "id": "main-manage-codes",
+      "title": "Compatibility manage-code checks",
+      "doc": "main-service.md#main-manage-codes",
+      "actors": ["Already-authorized TA editor"],
+      "agent_tools": ["None; Cosmos manage-code lookup/generation"],
+      "permissions": ["Both routes require TA editor first; a code does not enroll learners or grant initial course access", "GET checks supplied requester_id for creator/admin but does not bind it to authenticated actor"],
+      "state_changes": ["Verification writes none; GET can generate and persist a missing code and timestamp"],
+      "success": ["POST /api/agents/{agent_id}/verify-code returns verified; GET /api/agents/{agent_id}/manage-code returns code"],
+      "failure_retry": ["400 missing code, 403 mismatch/requester restriction, 404 missing metadata", "Read-then-upsert creation has no concurrency/idempotency guarantee; no retry or cancellation contract"],
+      "classification": "compatibility",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::verify_manage_code",
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_manage_code"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "get_manage_code"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "verify_agent_manage_code"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/dependencies/agent_access.py", "symbol": "require_agent_editor"}
+      ],
+      "doc_refs": ["docs/agents/course-creation.md", "docs/architecture.md"]
+    },
+    {
+      "id": "main-agent-delete",
+      "title": "Best-effort Teaching Assistant teardown",
+      "doc": "main-service.md#main-agent-delete",
+      "actors": ["TA editor"],
+      "agent_tools": ["None for inference; AgentCreator, hosted memory, Cosmos, Blob, indexer and local deletion helpers"],
+      "permissions": ["TA editor dependency must load metadata and authorize before deletion"],
+      "state_changes": ["Attempts chats/messages, agent metadata, hosted memory, legacy learning states, Foundry agent/local config, local setup and session material deletion", "May run indexer after Blob deletion; canonical setup Blob and graph-memory erasure are not explicitly completed"],
+      "success": ["DELETE /api/azure/agents/{agent_id} returns ok after best-effort stages, not proof of complete cleanup"],
+      "failure_retry": ["Many failures are logged and ignored; AgentCreator.delete_agent false is not inspected", "Local permission errors have bounded retries; no durable teardown ledger or rollback", "Metadata deletion can make a later retry fail access lookup before remaining cleanup; no reliable idempotent retry/cancellation contract"],
+      "classification": "current",
+      "handlers": ["Agentic Shiksha Platform/Backend/backend/main.py::azure_agents_delete"],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "azure_agents_delete"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/agents/agent_creation.py", "symbol": "AgentCreator"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "delete_agent_chats"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/tools/memory/memory_store_manager.py", "symbol": "delete_memory_store_for_agent"}
+      ],
+      "doc_refs": ["docs/agents/course-creation.md", "docs/memory/memory-store.md"]
+    },
+    {
+      "id": "main-knowledge-files",
+      "title": "Legacy knowledge-file and extracted-image browsing",
+      "doc": "main-service.md#main-knowledge-files",
+      "actors": ["Knowledge-management client", "Image renderer"],
+      "agent_tools": ["None; local files and configured material/image Blob containers"],
+      "permissions": ["No caller/course ownership checks", "Local session/scope/filename validation and containment differ from Blob basename organization; image path rejects traversal"],
+      "state_changes": ["Local file deletion removes raw and same-stem derived files only, not Blob/Search", "Reads check local first then Blob on empty local listing; image listing can span shared container", "No browser-local mutation"],
+      "success": ["GET knowledge/list, blob/{session}/{filename}, download/{session}/{filename}, images and images/{image_path:path} return metadata or bytes", "DELETE /api/knowledge/files/{session}/{filename} returns ok; vector_store_id is echoed rather than attached"],
+      "failure_retry": ["400 local validation; 404 missing downloads/images; Blob-list failure can appear empty", "Derived-file errors log and continue; repeated missing local deletion remains ok", "No reindex guarantee, cross-store rollback, retry or cancellation"],
+      "classification": "compatibility",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::knowledge_list_files",
+        "Agentic Shiksha Platform/Backend/backend/main.py::knowledge_download_blob_file",
+        "Agentic Shiksha Platform/Backend/backend/main.py::knowledge_download_file",
+        "Agentic Shiksha Platform/Backend/backend/main.py::knowledge_delete_file",
+        "Agentic Shiksha Platform/Backend/backend/main.py::list_extracted_images",
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_extracted_image"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "knowledge_list_files"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "_kb_base"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "_kb_file"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/tools/search/course_index_manager.py", "symbol": "get_common_image_container"}
+      ],
+      "doc_refs": ["docs/agents/course-creation.md", "docs/providers.md"]
+    },
+    {
+      "id": "main-knowledge-attachment",
+      "title": "Compatibility Search attachment to an existing agent",
+      "doc": "main-service.md#main-knowledge-attachment",
+      "actors": ["Knowledge-attachment API client"],
+      "agent_tools": ["None for inference; Azure AI Search tool builder and retry-wrapped agent adapter"],
+      "permissions": ["No caller or TA-editor check; caller supplies index_name and agent_id", "Required Search index replaces rejected vector-store attachment, but is not an authorization boundary"],
+      "state_changes": ["Remote agent tools become preserved non-Search tools plus new Search tool without session filter", "No Cosmos ownership/setup update"],
+      "success": ["POST /api/knowledge/attach reports Search mode/index/query type/tool count"],
+      "failure_retry": ["400 missing index, 500 attachment error", "Retry wrapper handles selected credential-cache/file-lock failures, not exactly-once writes", "Version-creating updates are not idempotent; no rollback/cancellation contract"],
+      "classification": "compatibility",
+      "handlers": ["Agentic Shiksha Platform/Backend/backend/main.py::knowledge_attach"],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "knowledge_attach"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "agents_client_with_retry"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "AgentsClientAdapter"}
+      ],
+      "doc_refs": ["docs/providers.md", "docs/agents/course-creation.md"]
+    },
+    {
+      "id": "main-session-search-compatibility",
+      "title": "Per-session Search indexes and knowledge bases",
+      "doc": "main-service.md#main-session-search-compatibility",
+      "actors": ["Older provisioning/retrieval API client"],
+      "agent_tools": ["None as an application agent; Search REST datasource/index/skillset/indexer and knowledge-base retrieval", "Configured embedding/retrieval resources; optional web knowledge source"],
+      "permissions": ["No caller or session-owner check", "Scoped KB create checks index existence; teacher_urls JSON parsing is not access control"],
+      "state_changes": ["Persistent session/scope-specific indexes, sources, skillsets, indexers and knowledge bases are created/deleted", "Retrieval returns chunks/answer; no local durable job or browser state"],
+      "success": ["Create/delete per-scope or unified indexes, create/delete per-scope or unified KBs, and retrieve through knowledge endpoints", "Sequential pipeline create then indexer request; optional web-source failure can be tolerated", "Unified helper may attempt web source without teacher URLs; created does not mean indexing complete"],
+      "failure_retry": ["400 malformed URL JSON/missing scoped index; create 500; deletes/retrieval may return ok false", "Indexer start failure can coexist with pipeline success; partial resources remain", "PUT replacement/delete-404 handling give limited repeatability, not transactions; no automatic retry/cancellation"],
+      "classification": "compatibility",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::create_course_index",
+        "Agentic Shiksha Platform/Backend/backend/main.py::delete_course_index",
+        "Agentic Shiksha Platform/Backend/backend/main.py::create_unified_index_endpoint",
+        "Agentic Shiksha Platform/Backend/backend/main.py::delete_unified_index_endpoint",
+        "Agentic Shiksha Platform/Backend/backend/main.py::create_unified_knowledge_base",
+        "Agentic Shiksha Platform/Backend/backend/main.py::delete_unified_knowledge_base",
+        "Agentic Shiksha Platform/Backend/backend/main.py::retrieve_from_unified_kb",
+        "Agentic Shiksha Platform/Backend/backend/main.py::create_knowledge_base",
+        "Agentic Shiksha Platform/Backend/backend/main.py::delete_knowledge_base",
+        "Agentic Shiksha Platform/Backend/backend/main.py::retrieve_from_kb"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "create_course_index"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/tools/search/course_index_manager.py", "symbol": "create_course_index_pipeline"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/tools/search/course_index_manager.py", "symbol": "create_unified_knowledge_pipeline"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/tools/search/course_index_manager.py", "symbol": "create_full_knowledge_pipeline"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/tools/search/course_index_manager.py", "symbol": "retrieve_from_knowledge_base"}
+      ],
+      "doc_refs": ["docs/providers.md", "docs/architecture.md"]
+    },
+    {
+      "id": "main-shared-search-pipeline",
+      "title": "Shared-index maintenance behind MCP-era names",
+      "doc": "main-service.md#main-shared-search-pipeline",
+      "actors": ["Material/index administration API client"],
+      "agent_tools": ["None for inference; ensure/run common Search pipeline, session document deletion"],
+      "permissions": ["No caller/admin/course ownership check; MCP-era names do not imply authorization"],
+      "state_changes": ["Shared Search resources/indexing and session document/extracted-image deletion", "Source material Blobs are not removed by session-index deletion", "Process-local _pipeline_ensured cache; recreate deletes shared indexer/datasource first"],
+      "success": ["Create/delete MCP-pipeline paths operate on shared Search rather than provisioning an MCP server", "GET indexer-status, POST run-indexer/recreate-pipeline return helper-derived status/index information", "teacher_urls input is unused on create; deletion searches one capped batch then chunks keys"],
+      "failure_retry": ["Create/recreate ignore some false helper tuples; status can hide error fields", "Recreate does not reset ensured cache; cached ensure can skip rebuilding deleted resources", "Multi-status deletion does not prove all items deleted; no exhaustive cleanup, atomicity, durable retry or cancellation"],
+      "classification": "mixed",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::create_mcp_pipeline_endpoint",
+        "Agentic Shiksha Platform/Backend/backend/main.py::delete_mcp_pipeline_endpoint",
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_indexer_status",
+        "Agentic Shiksha Platform/Backend/backend/main.py::run_indexer",
+        "Agentic Shiksha Platform/Backend/backend/main.py::recreate_pipeline"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "recreate_pipeline"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/tools/search/course_index_manager.py", "symbol": "ensure_common_index_pipeline"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/tools/search/course_index_manager.py", "symbol": "run_common_indexer"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/tools/search/course_index_manager.py", "symbol": "delete_session_documents"}
+      ],
+      "doc_refs": ["docs/providers.md", "docs/agents/course-creation.md"]
+    },
+    {
+      "id": "main-indexer-callbacks",
+      "title": "Indexing webhook, health probe, and section skills",
+      "doc": "main-service.md#main-indexer-callbacks",
+      "actors": ["Event Grid", "Search custom-skill client", "Operator"],
+      "agent_tools": ["None; pattern matching for both section endpoints, including the di-named endpoint", "FastAPI BackgroundTasks and debounced shared indexer invocation"],
+      "permissions": ["No webhook-signature/session/role check", "Blob selection uses course-material substring rather than verified resource identity"],
+      "state_changes": ["Webhook can trigger remote indexing and update process-local debounce timestamp", "Section skill and webhook health responses cause no domain mutation"],
+      "success": ["POST /api/knowledge/eventgrid-webhook echoes subscription validation or acknowledges/queues relevant blob events; GET reports health/debounce", "POST /api/skills/detect-sections and /detect-sections-di return record section/null envelopes; di path does not call Document Intelligence"],
+      "failure_retry": ["Invalid webhook JSON 400; unexpected event shapes can fail", "30-second per-process debounce is not distributed deduplication; failures log without retries and queued work is not durable", "Skill exceptions return an error envelope rather than failed HTTP status; no cancellation/replay ledger"],
+      "classification": "optional",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::eventgrid_webhook",
+        "Agentic Shiksha Platform/Backend/backend/main.py::eventgrid_webhook_health",
+        "Agentic Shiksha Platform/Backend/backend/main.py::detect_sections_skill",
+        "Agentic Shiksha Platform/Backend/backend/main.py::detect_sections_with_di_skill"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "eventgrid_webhook"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "_debounced_run_indexer"},
+        {"path": "Agentic Shiksha Platform/Backend/utils/section_detector.py", "symbol": "get_logical_section"}
+      ],
+      "doc_refs": ["docs/providers.md", "Agentic Shiksha Platform/Backend/README.md"]
+    },
+    {
+      "id": "main-blob-legacy",
+      "title": "General Blob upload, listing, deletion, and proxy",
+      "doc": "main-service.md#main-blob-legacy",
+      "actors": ["File-upload client", "Image/rendering client"],
+      "agent_tools": ["None; lazy configured BlobServiceClient"],
+      "permissions": ["No caller check; supplied container, IDs and filenames choose storage names", "Proxy restricts HTTPS configured-account hostname and traversal, not per-user Blob access"],
+      "state_changes": ["Uploads overwrite Blob content/metadata; single upload attempts container creation", "DELETE removes requested Blob; GETs are read-only and proxy has public cache headers", "Service client is process-local; no browser-local save contract"],
+      "success": ["POST /api/blob/upload and /upload-multiple return Blob references and partial batch results", "GET /api/blob/list applies optional organization prefix; GET /api/blob/proxy streams media; DELETE /api/blob/{blob_name:path} reports deletion"],
+      "failure_retry": ["Single upload can return success false with HTTP success; batch retains successful uploads", "Bad proxy URL 400; list/delete/proxy storage errors 500", "No size bound in these upload handlers, conditional overwrite, retry/idempotency key, rollback or cancellation"],
+      "classification": "compatibility",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::upload_file_to_blob",
+        "Agentic Shiksha Platform/Backend/backend/main.py::upload_multiple_files_to_blob",
+        "Agentic Shiksha Platform/Backend/backend/main.py::list_blobs",
+        "Agentic Shiksha Platform/Backend/backend/main.py::delete_blob",
+        "Agentic Shiksha Platform/Backend/backend/main.py::proxy_blob_image"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "upload_file_to_blob"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "proxy_blob_image"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "get_blob_service_client"}
+      ],
+      "doc_refs": ["docs/providers.md", "Agentic Shiksha Platform/Backend/README.md"]
+    },
+    {
+      "id": "main-document-extraction",
+      "title": "PDF OCR and course-description text extraction",
+      "doc": "main-service.md#main-document-extraction",
+      "actors": ["Course-description upload UI", "Document extraction client"],
+      "agent_tools": ["None as conversational agent; Document Intelligence prebuilt-layout for PDF", "python-docx, optional python-pptx and direct decoding for other formats"],
+      "permissions": ["No caller check; document branch chosen by extension", "Accepting legacy doc/ppt names is not proof the modern parsers support binary legacy formats"],
+      "state_changes": ["Request-local extraction result; optional PDF original/extracted text Blob writes", "No course draft submit or agent update; client applies text to unsaved form"],
+      "success": ["POST /api/pdf/extract returns text/Markdown and optional Blob references", "POST /api/document/extract-text returns decoded/parsed text and filename"],
+      "failure_retry": ["Parse/OCR errors generally produce success false in HTTP-success response", "Missing PPTX support returns unavailable, no installation; optional Blob writes can partially complete", "Overwrite by name is not multi-write atomicity; no durable job, retry or cancellation"],
+      "classification": "mixed",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::extract_text_from_pdf",
+        "Agentic Shiksha Platform/Backend/backend/main.py::extract_text_from_document"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "extract_text_from_pdf"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "extract_text_from_document"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "_result_to_markdown"}
+      ],
+      "doc_refs": ["docs/agents/course-creation.md", "docs/providers.md"]
+    },
+    {
+      "id": "main-async-file-compatibility",
+      "title": "Awaited file batches and legacy vector-store creation",
+      "doc": "main-service.md#main-async-file-compatibility",
+      "actors": ["Alternate upload/integration client"],
+      "agent_tools": ["AsyncFileProcessor with semaphore/thread pool, Document Intelligence for PDFs/images and Blob", "Legacy AgentsClient vector-store polling/agent creation; no durable worker"],
+      "permissions": ["No caller/owner check; supplied IDs and Blob URIs forwarded", "Local staging joins supplied filename; knowledge-file containment must not be assumed here"],
+      "state_changes": ["Runtime staging files cleaned in finally; processed Blobs/vector stores/agents persist", "Singleton fixes Markdown output; endpoint output_format is not forwarded", "Non-OCR files including DOCX upload unchanged; no browser state mutation"],
+      "success": ["POST /api/async/process-files and /process-single-file await work; batch success can coexist with failed files", "POST /api/async/create-agent-with-files creates vector store then agent without retrieval tools because route supplies no Search configuration", "POST /api/async/create-vector-store uses processed Blob URIs"],
+      "failure_retry": ["Partial resources persist; single binary preview can fail after upload", "POST /api/blob/create-vector-store references undefined async_agents_client and catches error as success false", "No durable status/resume, idempotency key, automatic retry, rollback or cancellation API"],
+      "classification": "compatibility",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::async_process_files",
+        "Agentic Shiksha Platform/Backend/backend/main.py::async_process_single_file",
+        "Agentic Shiksha Platform/Backend/backend/main.py::async_create_agent_with_files",
+        "Agentic Shiksha Platform/Backend/backend/main.py::async_create_vector_store_from_blobs",
+        "Agentic Shiksha Platform/Backend/backend/main.py::create_vector_store_from_blobs"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "get_async_file_processor"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "create_vector_store_from_blobs"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/storage/blob_storage_manager.py", "symbol": "AsyncFileProcessor"}
+      ],
+      "doc_refs": ["docs/providers.md", "docs/agents/course-creation.md"]
+    },
+    {
+      "id": "main-hosted-memory-legacy",
+      "title": "Hosted Foundry memory-store compatibility APIs",
+      "doc": "main-service.md#main-hosted-memory-legacy",
+      "actors": ["Hosted-memory integration caller"],
+      "agent_tools": ["MemoryStoreManager and Foundry preview memory APIs", "Configured MEMORY_CHAT_MODEL and MEMORY_EMBEDDING_MODEL on create; not deterministic learner-memory worker"],
+      "permissions": ["No caller/course/user-ownership checks", "Deterministic store names and caller scope user_id do not authenticate isolation"],
+      "state_changes": ["Remote named memory stores/user-scoped memories persist or delete", "List/get/search are reads; manager/client singleton is process-local"],
+      "success": ["GET /api/memory/stores lists; GET/POST/DELETE /api/memory/stores/{agent_id} inspect/create/delete", "GET memories uses contextual query or static memory; DELETE user/{user_id} removes supplied scope", "Create first returns an existing store when lookup succeeds"],
+      "failure_retry": ["Some manager errors degrade to empty/None/false; absence and failure can be indistinguishable", "Existing-store check is not atomic and can follow failed lookup; missing configured models fail creation", "Delete uses 404/500 paths; no durable retry, rollback, idempotency key or cancellation"],
+      "classification": "compatibility",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::list_memory_stores",
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_agent_memory_store",
+        "Agentic Shiksha Platform/Backend/backend/main.py::create_agent_memory_store",
+        "Agentic Shiksha Platform/Backend/backend/main.py::delete_agent_memory_store_endpoint",
+        "Agentic Shiksha Platform/Backend/backend/main.py::search_agent_memories",
+        "Agentic Shiksha Platform/Backend/backend/main.py::delete_user_memories_endpoint"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "create_agent_memory_store"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/tools/memory/memory_store_manager.py", "symbol": "MemoryStoreManager"},
+        {"path": "Agentic Shiksha Platform/Backend/deployment_settings.py", "symbol": "ToolSettings"}
+      ],
+      "doc_refs": ["docs/memory/memory-store.md", "docs/memory/overview.md"]
+    },
+    {
+      "id": "main-course-chat-local",
+      "title": "Process-local course-chat sessions",
+      "doc": "main-service.md#main-course-chat-local",
+      "actors": ["Legacy course-chat client"],
+      "agent_tools": ["Selected course TA through GeneralAgent.start_chat/continue_chat"],
+      "permissions": ["No caller/course/session ownership check; kind/text validation is not authentication", "Delegated non-streaming runtime validates a missing memory context and rejects graph-enabled courses"],
+      "state_changes": ["COURSE_CHAT_SESSIONS and COURSE_CHAT_MESSAGES are per-process dictionaries", "Remote conversation can persist; local user message is appended before inference", "No Cosmos persistence or cross-worker/restart sharing"],
+      "success": ["POST/GET /api/course-chats/sessions create/list; GET /{chat_id} reads; POST /{chat_id}/messages appends user/assistant turn for permitted graph-off runtime", "Non-streaming helper returns output_text, not the primary streaming local tool/evidence loop"],
+      "failure_retry": ["400 invalid kind/text, 404 unknown local session", "Graph-context rejection or inference failure leaves unmatched user turn; replay can duplicate turns", "No durable recovery, idempotency key, deletion or cancellation API"],
+      "classification": "compatibility",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::create_course_chat_session",
+        "Agentic Shiksha Platform/Backend/backend/main.py::list_course_chat_sessions",
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_course_chat_session",
+        "Agentic Shiksha Platform/Backend/backend/main.py::send_course_chat_message"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "CourseChatSession"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "send_course_chat_message"},
+        {"path": "Agentic Shiksha Platform/Backend/harness/runtime.py", "symbol": "GeneralAgent"},
+        {"path": "Agentic Shiksha Platform/Backend/learner_memory/integration.py", "symbol": "validate_tool_context"}
+      ],
+      "doc_refs": ["docs/agents/course-ta.md", "docs/architecture.md"]
+    },
+    {
+      "id": "main-chat-persistence",
+      "title": "Legacy thread/message storage, hydration, and batch sync",
+      "doc": "main-service.md#main-chat-persistence",
+      "actors": ["Browser synchronization/history client"],
+      "agent_tools": ["None; offloaded Cosmos helpers and generated-image SAS signing"],
+      "permissions": ["No caller check; supplied user IDs select partitions", "Message deletion ignores its thread_id argument; storage naming is not authorization"],
+      "state_changes": ["Persists threads/messages, grouping/retry/latest metadata; sync preserves stored share boundary", "Thread deletion cascades messages/non-immutable assets; delete-all is not universal account erasure", "Read responses re-sign generated images without writing URLs back; browser hydration is caller-owned"],
+      "success": ["Thread list/get/create/title-update/delete and message page/create/delete routes manage history", "POST /api/chat/sync returns upsert counts/completeness; GET /api/chat/load/{user_id} returns threads and capped recent history", "No TA/evaluator invocation occurs in these persistence handlers"],
+      "failure_retry": ["404/false/500 vary; batch sync reports partial rows and asks caller to retry", "Same-ID upsert can avoid duplicate rows, but creates can conflict and no batch transaction or concurrency guard exists", "Cascades can partially fail; no backend cancellation or guaranteed retry schedule"],
+      "classification": "mixed",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_user_threads",
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_single_thread",
+        "Agentic Shiksha Platform/Backend/backend/main.py::create_new_thread",
+        "Agentic Shiksha Platform/Backend/backend/main.py::update_existing_thread",
+        "Agentic Shiksha Platform/Backend/backend/main.py::delete_chat_thread",
+        "Agentic Shiksha Platform/Backend/backend/main.py::delete_all_user_chat_data",
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_thread_messages",
+        "Agentic Shiksha Platform/Backend/backend/main.py::create_new_message",
+        "Agentic Shiksha Platform/Backend/backend/main.py::delete_chat_message",
+        "Agentic Shiksha Platform/Backend/backend/main.py::sync_chat_data",
+        "Agentic Shiksha Platform/Backend/backend/main.py::load_all_chat_data"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "sync_chat_data"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "_sign_generated_images"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "sync_threads_batch"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "sync_messages_batch"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "delete_thread"}
+      ],
+      "doc_refs": ["docs/architecture.md", "docs/agents/course-ta.md"]
+    },
+    {
+      "id": "main-conversation-compatibility",
+      "title": "Remote conversation diagnostic and deletion",
+      "doc": "main-service.md#main-conversation-compatibility",
+      "actors": ["Course-authorized integration caller"],
+      "agent_tools": ["GeneralAgent/OpenAI conversation client; no inference requested"],
+      "permissions": ["Active TA access to supplied agent_name query", "No binding of conversation_id to that TA or caller"],
+      "state_changes": ["GET obtains runtime wrapper but returns placeholder rather than history", "DELETE removes remote conversation, not corresponding local/Cosmos thread"],
+      "success": ["GET/DELETE /api/conversations/{conversation_id} return limited-history message or deletion success"],
+      "failure_retry": ["Exceptions become 500; remote not-found behavior is not normalized", "No rollback, idempotency key, retry or stream/run cancellation contract"],
+      "classification": "compatibility",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_conversation",
+        "Agentic Shiksha Platform/Backend/backend/main.py::delete_conversation"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "delete_conversation"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/dependencies/agent_access.py", "symbol": "require_agent_access"},
+        {"path": "Agentic Shiksha Platform/Backend/harness/runtime.py", "symbol": "GeneralAgent"}
+      ],
+      "doc_refs": ["docs/agents/course-ta.md", "docs/architecture.md"]
+    },
+    {
+      "id": "main-public-chat-share",
+      "title": "Public read-only chat shares",
+      "doc": "main-service.md#main-public-chat-share",
+      "actors": ["Public holder of share token"],
+      "agent_tools": ["None; Cosmos capability lookup and message-boundary helpers, image signing"],
+      "permissions": ["Intentionally public matching shareToken; no separate expiry timestamp check", "Explicit saved message IDs or valid timezone-aware legacy sharedAt bound returned messages"],
+      "state_changes": ["No domain write; response-local generated-image URLs may be re-signed"],
+      "success": ["GET /api/shared/{share_token} returns reduced thread fields and bounded messages", "Message metadata remains in response; this is not universal content redaction"],
+      "failure_retry": ["404 absent token, generic 500 unexpected failure", "Invalid/missing boundary returns no messages rather than all history", "Read-only repeated fetch may change SAS URLs; no retry/cancellation contract"],
+      "classification": "current",
+      "handlers": ["Agentic Shiksha Platform/Backend/backend/main.py::get_shared_chat"],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "get_shared_chat"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "get_thread_by_share_token"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "get_messages_for_shared_thread"}
+      ],
+      "doc_refs": ["docs/architecture.md", "docs/agents/course-ta.md"]
+    },
+    {
+      "id": "main-assets-legacy",
+      "title": "Saved artifacts and public asset browsing",
+      "doc": "main-service.md#main-assets-legacy",
+      "actors": ["Learner artifact client", "Public asset viewer"],
+      "agent_tools": ["None; Cosmos asset CRUD/public helpers"],
+      "permissions": ["No caller check; supplied user_id enables private partition lookup", "Without user_id, GET only finds public assets; public listing filters isPublic", "Immutable assessment assets reject update/delete; retired-flashcard validation is not caller authorization"],
+      "state_changes": ["Persists UUID-created content/tags/type/course-thread-message associations/visibility", "Updates selected fields only; no browser-local persistence guarantee", "Retired flashcard rejection does not delete existing records"],
+      "success": ["POST/GET /api/assets and GET /api/assets/public create/list", "GET/PUT/DELETE /api/assets/{asset_id} read/update/delete or public-read when appropriate"],
+      "failure_retry": ["422 retired/invalid typed content; missing or immutable mutation surfaces as 404", "Some read failures look absent; other errors 500", "Repeated create duplicates assets; no idempotency key, retry, transaction or cancellation"],
+      "classification": "mixed",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::create_asset_endpoint",
+        "Agentic Shiksha Platform/Backend/backend/main.py::list_assets",
+        "Agentic Shiksha Platform/Backend/backend/main.py::list_public_assets",
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_asset_endpoint",
+        "Agentic Shiksha Platform/Backend/backend/main.py::update_asset_endpoint",
+        "Agentic Shiksha Platform/Backend/backend/main.py::delete_asset_endpoint"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "AssetCreateRequest"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "AssetUpdateRequest"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "create_asset"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "update_asset"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "delete_asset"}
+      ],
+      "doc_refs": ["docs/agents/course-ta.md", "docs/architecture.md"]
+    },
+    {
+      "id": "main-feedback",
+      "title": "General feedback and attachments",
+      "doc": "main-service.md#main-feedback",
+      "actors": ["Feedback UI", "Feedback API caller"],
+      "agent_tools": ["None; Blob attachment and Cosmos feedback storage"],
+      "permissions": ["No caller check; supplied user/name/email/URLs are data, not authenticated identity", "GET without user filter is not admin-only; attachment upload checks 5 MiB but not image format/ownership"],
+      "state_changes": ["Independent UUID feedback and attachment Blob records persist", "Upload does not submit feedback; abandoned/failed submission can leave attachments"],
+      "success": ["POST /api/feedback/upload-image returns URL; POST /api/feedback returns record ID; GET /api/feedback returns optional user-filtered records"],
+      "failure_retry": ["400 oversized attachment, 500 storage errors", "Retry can duplicate uploads/submissions; no linking transaction, idempotency key, cleanup or cancellation endpoint"],
+      "classification": "current",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::upload_feedback_file",
+        "Agentic Shiksha Platform/Backend/backend/main.py::post_feedback",
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_feedback"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "FeedbackModel"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "upload_feedback_file"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "submit_feedback"}
+      ],
+      "doc_refs": ["docs/architecture.md", "docs/evaluation.md"]
+    },
+    {
+      "id": "main-curriculum-history",
+      "title": "Curriculum history, comparison, and semantic deduplication",
+      "doc": "main-service.md#main-curriculum-history",
+      "actors": ["Authorized course reader", "TA editor"],
+      "agent_tools": ["Blob-backed curriculum Git history", "Configured THRESHOLD_CONCEPT_RESEARCH_AGENT_NAME for semantic deduplication; no learner-mastery decision"],
+      "permissions": ["History and diff require active TA access; dedup requires TA editor", "Reader-authorized version list can seed a version"],
+      "state_changes": ["History seed writes Blob-backed Git snapshot via local staging", "Dedup overwrites curriculum Blob, best-effort metadata reference and process cache", "Dedup does not explicitly version or remap all learner evidence"],
+      "success": ["GET course-curriculum versions/snapshot/diff returns history or curricula for client-side comparison; snapshot supports legacy version Blobs", "POST dedup-threshold-concepts skips under two concepts or merges parsed groups and reports counts"],
+      "failure_retry": ["404 missing curriculum/version, 500 missing groups or failed save", "30-minute dedup timeout, no durable job; group parsing does not prove complete/exact original concept coverage", "Repeated LLM results can differ and history seed is check-then-write; no atomicity, retry/idempotency key or cancellation"],
+      "classification": "mixed",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::list_curriculum_versions",
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_curriculum_version",
+        "Agentic Shiksha Platform/Backend/backend/main.py::diff_curriculum_versions",
+        "Agentic Shiksha Platform/Backend/backend/main.py::dedup_threshold_concepts"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "dedup_threshold_concepts"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "list_curriculum_versions"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "save_course_curriculum"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/curriculum_git.py", "symbol": "save_course_curriculum_version"}
+      ],
+      "doc_refs": ["docs/agents/curriculum-research.md", "docs/memory/evidence-model.md"]
+    },
+    {
+      "id": "main-course-records",
+      "title": "Compatibility course-record reads",
+      "doc": "main-service.md#main-course-records",
+      "actors": ["Course/integration API caller"],
+      "agent_tools": ["None; Cosmos course container"],
+      "permissions": ["No caller or course-owner check; excluding job_type documents is a kind filter only"],
+      "state_changes": ["None; read-only route without browser-state mutation"],
+      "success": ["GET /api/courses/{course_id} returns non-job record; GET /api/courses returns sorted non-job query results", "limit is Cosmos page sizing, not a guaranteed total result cap"],
+      "failure_retry": ["404 missing/job-kind single record; storage errors 500", "No cursor, retry or cancellation contract; repeat reads are read-only"],
+      "classification": "compatibility",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::get_course",
+        "Agentic Shiksha Platform/Backend/backend/main.py::list_courses"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "get_course"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "list_courses"},
+        {"path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py", "symbol": "get_courses_container"}
+      ],
+      "doc_refs": ["docs/agents/course-creation.md", "docs/architecture.md"]
+    },
+    {
+      "id": "main-deep-research",
+      "title": "Auxiliary deep-research request and SSE conversation",
+      "doc": "main-service.md#main-deep-research",
+      "actors": ["Research API client"],
+      "agent_tools": ["Configured DEEP_RESEARCH_AGENT_ID", "AIProjectClient conversations/responses for non-streaming; legacy AgentsClient threads/runs in daemon thread for streaming"],
+      "permissions": ["No caller or supplied-thread ownership checks", "Current ApplicationSettings requires deep-research endpoint/agent/Bing connection settings; auxiliary route does not imply optional startup values"],
+      "state_changes": ["Remote conversations or threads/runs persist; queue/worker thread is process-local", "Clarification retains thread; final research attempts deletion; no durable local research-job record"],
+      "success": ["POST /api/deep-research returns text/citations; request agent_name/instructions do not select remote reference", "POST /api/deep-research/stream emits status/thread/thinking and heuristic clarification or complete events"],
+      "failure_retry": ["Non-streaming can return status error in HTTP-success response", "Streaming polls every two seconds up to 30 minutes; timeout/disconnect does not explicitly cancel remote run", "Repeated requests can duplicate work; no durable restart/resume, retry/idempotency key or cancellation"],
+      "classification": "optional",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/backend/main.py::deep_research",
+        "Agentic Shiksha Platform/Backend/backend/main.py::stream_deep_research"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "deep_research"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "stream_deep_research"},
+        {"path": "Agentic Shiksha Platform/Backend/deployment_settings.py", "symbol": "ApplicationSettings"}
+      ],
+      "doc_refs": ["docs/agents/README.md", "docs/agents/curriculum-research.md"]
+    },
+    {
+      "id": "main-teacher-roster",
+      "title": "Teacher identity, courses, roster, and progress views",
+      "doc": "main-service.md#main-teacher-roster",
+      "actors": ["Teacher/co-teacher", "Dashboard admin"],
+      "agent_tools": ["None; teacher-scope, Cosmos analytics and curriculum projection helpers"],
+      "permissions": ["Dashboard teacher resolves JWT/profile role teacher or admin, not active status; explicit dev-auth fallback is off by default", "Teachers own/co-teach; admins see all courses; course-specific routes check scope", "Student detail reads course state/profile without separate current explicit enrollment test"],
+      "state_changes": ["Route-level reads; 15-second teacher-course and 30-second active-user process caches", "No persistent browser selection/roster state or learner-progress write"],
+      "success": ["GET teacher-dashboard me/agents/summary/overview/courses and course overview/curriculum/student detail build scoped views", "Roster combines state, assignment and active-chat users; live curriculum projection retains off-plan topics and labels duplicate/blank names", "Authoritative graph course overview returns progress_available false rather than treating legacy progress as authoritative"],
+      "failure_retry": ["401/403/404 identity/course/state boundaries; errors can become 500 or empty/cached data", "Counts represent stored observations, not educational outcomes", "No mutation retry/cancellation contract; reload is subject to caches/data availability"],
+      "classification": "current",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::whoami",
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::my_courses",
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::summary",
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::courses_overview",
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::agent_overview",
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::agent_curriculum",
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::student_detail"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py", "symbol": "agent_overview"},
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py", "symbol": "_attach_concept_details"},
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/teacher_auth.py", "symbol": "get_current_teacher"},
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/teacher_scope.py", "symbol": "get_teacher_agents"},
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/cosmos_queries.py", "symbol": "agent_overview"}
+      ],
+      "doc_refs": ["docs/architecture.md", "docs/memory/overview.md"]
+    },
+    {
+      "id": "main-teacher-assets",
+      "title": "Teacher inspection of student artifacts",
+      "doc": "main-service.md#main-teacher-assets",
+      "actors": ["Teacher inspecting roster student", "Dashboard admin"],
+      "agent_tools": ["None; Cosmos user/course asset helpers"],
+      "permissions": ["Dashboard teacher plus course ownership/co-teaching or admin scope", "List filters user/course; detail verifies stored agentId", "No separate current explicit student enrollment test"],
+      "state_changes": ["None at domain level; client-only artifact preview selection"],
+      "success": ["GET teacher-dashboard course/student assets returns metadata; GET /assets/{asset_id} returns course-matched body", "The detail handler sends content despite older comments claiming dashboard never receives bodies"],
+      "failure_retry": ["List helper can hide failure as empty; missing/wrong-course/read-failed detail becomes 404; others 500", "Read-only repetition; no retry/cancellation contract or outcome guarantee"],
+      "classification": "current",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::student_assets",
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::student_asset"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py", "symbol": "student_asset"},
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/cosmos_queries.py", "symbol": "student_assets"},
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/cosmos_queries.py", "symbol": "student_asset"}
+      ],
+      "doc_refs": ["docs/agents/course-ta.md", "docs/architecture.md"]
+    },
+    {
+      "id": "main-teacher-usage",
+      "title": "Teacher usage and activity analytics",
+      "doc": "main-service.md#main-teacher-usage",
+      "actors": ["Dashboard teacher/co-teacher", "Dashboard admin"],
+      "agent_tools": ["None; Cosmos message, persisted token-event and activity aggregation", "Startup Foundry reconciliation daemon is separate from GET request processing"],
+      "permissions": ["Dashboard teacher and optional requested-course access; otherwise allowed-course set", "Per-student route exposes identities/usage; time series is aggregate; admins retain all-course scope"],
+      "state_changes": ["GETs do not persist usage; browser date/granularity selection is not server state", "Startup daemon writes response-derived events/watermark; process-local reconciliation lock", "Stream usage writes happen elsewhere before forwarding SSE"],
+      "success": ["GET overview/tokens, overview/tokens/per-student, usage/analytics and activity/analytics under teacher-dashboard", "Date series uses day/week/month and default last 30 dates, merging message/persisted-event sources", "Activity counts threshold crossings or assets, excluding staff; authoritative graph courses supply no legacy state scans"],
+      "failure_retry": ["400 reversed date range or span at least 1095 days; validation 422; storage 500", "Reconciliation capped at 50 pages, watermark only after complete traversal; event IDs support dedup but not global exactly-once", "No per-request Foundry fetch, retry or cancellation contract"],
+      "classification": "current",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::token_usage_overview",
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::token_usage_per_student",
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::token_usage_analytics",
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::learning_activity_analytics"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py", "symbol": "token_usage_analytics"},
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/cosmos_queries.py", "symbol": "learning_activity_analytics"},
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/cosmos_queries.py", "symbol": "merge_token_usage_sources"},
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/token_stats.py", "symbol": "sync_foundry_usage_to_cosmos"},
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/token_stats.py", "symbol": "get_token_stats"}
+      ],
+      "doc_refs": ["docs/evaluation.md", "docs/architecture.md"]
+    },
+    {
+      "id": "main-teacher-feedback-evaluation",
+      "title": "Teacher feedback attachments and saved evaluation results",
+      "doc": "main-service.md#main-teacher-feedback-evaluation",
+      "actors": ["Dashboard teacher/co-teacher", "Dashboard admin"],
+      "agent_tools": ["None; saved feedback/evaluation reads and Blob proxy, not evaluator execution"],
+      "permissions": ["Dashboard teacher; feedback filtered by course-state/active-chat student union", "Proxy checks configured HTTPS account, feedback-container prefix and traversal but not scoped feedback-record ownership", "Evaluations scoped by accessible course session IDs; admins see all courses"],
+      "state_changes": ["None at domain level; proxy returns public cache headers", "No evaluation recomputation/write, annotation or browser persistence"],
+      "success": ["GET teacher-dashboard feedback, blob/proxy, evaluation/groundedness/agent/{agent_id}, evaluation/groundedness return records/bytes/averages", "Feedback is filtered newest-first then sliced to requested limit; helper limit 1000 is Cosmos page size, not total query cap", "No session means empty evaluations; shared course sessions can repeat evaluation rows"],
+      "failure_retry": ["400 bad proxy URL/path; storage errors 500 or query-helper empty result", "Student-based feedback scope does not separately bind feedback to its submitted course", "No retries, recomputation trigger or cancellation; scores do not establish educational outcomes"],
+      "classification": "current",
+      "handlers": [
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::get_feedback",
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::proxy_blob",
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::agent_groundedness",
+        "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::all_groundedness"
+      ],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py", "symbol": "proxy_blob"},
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py", "symbol": "_eval_summary"},
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/teacher_scope.py", "symbol": "get_teacher_student_ids"},
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/cosmos_queries.py", "symbol": "get_groundedness_evaluations_for_session"}
+      ],
+      "doc_refs": ["docs/evaluation.md", "docs/architecture.md"]
+    },
+    {
+      "id": "main-teacher-insights",
+      "title": "Scoped Insights conversation and evidence citations",
+      "doc": "main-service.md#main-teacher-insights",
+      "actors": ["Teacher/admin asking Insights for a course or selected learners"],
+      "agent_tools": ["Configured TEACHER_ANALYTICS_AGENT_NAME; current typed default is None and required on first use", "add_message, get_learning_evidence, list_agents, list_all_students, get_student_progress, get_agent_overview", "Graph-authoritative mode uses authorized memory accesses and rechecks membership for tool execution"],
+      "permissions": ["Both dashboard-teacher and active-user dependencies; requested/inferred course must be authorized", "Legacy selected students must belong to assigned/active/state-derived course union excluding staff; empty selection means class", "Authoritative graph mode uses explicit roster; scoped tools reject unrelated courses/students and selected-mode class overview", "Legacy conversation fingerprint is scope-based, not a durable per-teacher owner record; graph fingerprint also includes actor/memory scope"],
+      "state_changes": ["Remote Foundry conversations persist; clients/fingerprints are process-local", "Changed/unknown scope starts a new conversation; no learner-progress or Insights-history Cosmos write", "Evidence citation mapping is response-local for client navigation"],
+      "success": ["POST /api/teacher-dashboard/logging-agent/chat/stream supplies bounded evidence and emits conversation ID, message blocks/deltas, evidence citations and done", "Prompt rules separate observation/inference but do not guarantee accuracy or outcomes"],
+      "failure_retry": ["400 missing text/ambiguous course, 403 out-of-scope selection; identity errors before SSE", "Upstream stream errors are generic; tool/follow-up failures can leave incomplete answer", "No general tool-round ceiling, durable retry ledger, idempotency key or explicit disconnect-to-remote cancellation", "Restart loses fingerprints and starts fresh history; remote model/definition availability remains unverified"],
+      "classification": "current",
+      "handlers": ["Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py::logging_agent_chat_stream"],
+      "source_refs": [
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py", "symbol": "logging_agent_chat_stream"},
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/logging_agent_chat.py", "symbol": "chat_stream"},
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/logging_agent_tools.py", "symbol": "execute_scoped_tool"},
+        {"path": "Agentic Shiksha Platform/Backend/teacher_dashboard/logging_agent_tools.py", "symbol": "_execute_graph_tool"},
+        {"path": "Agentic Shiksha Platform/Backend/deployment_settings.py", "symbol": "ToolSettings"}
+      ],
+      "doc_refs": ["docs/agents/README.md", "docs/memory/evidence-model.md"]
+    }
+  ],
+  "exclusions": [
+    {
+      "handler_id": "Agentic Shiksha Platform/Backend/backend/main.py::shutdown_async_processor",
+      "reason": "Registered shutdown event, not an HTTP handler; lifecycle behavior is documented in main-system-lifecycle without counting it as a route."
+    },
+    {
+      "handler_id": "Agentic Shiksha Platform/Backend/backend/main.py::agent_chat_start",
+      "reason": "Undecorated implementation delegate, not a directly registered main.py handler; its HTTP wrapper is owned by the extracted backend/routers chat audit."
+    },
+    {
+      "handler_id": "Agentic Shiksha Platform/Backend/backend/main.py::_legacy_knowledge_build",
+      "reason": "Retained undecorated compatibility helper; not directly mounted as an HTTP handler in the inspected registry. Current material route ownership belongs to backend/routers."
+    }
+  ]
+}

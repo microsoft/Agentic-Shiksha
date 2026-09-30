@@ -1,0 +1,30 @@
+%% Semantic companion to the composed SVG illustration; not its visual layout.
+flowchart TB
+  S1["S1 / initial explanation"]
+  E12["E12 / recorded response<br/>The bulb uses up<br/>the current."]
+  O12["O12 / interpretation<br/>Supports presence<br/>of MC3"]
+  S2["S2 / independent probe"]
+  E19["E19 / recorded response<br/>Current is conserved<br/>around a closed loop."]
+  O19["O19 / interpretation<br/>Contradicts presence<br/>of MC3"]
+  S3["S3 / transfer task"]
+  E26["E26 / recorded response<br/>Applies conservation<br/>in a different circuit."]
+  O26["O26 / interpretation<br/>Demonstrates<br/>a transfer condition"]
+  MS3["MC3 / misconception state<br/>Resolving / improving"]
+  CS1["TC1 / concept state<br/>Progressing / not crossed"]
+  IA["Insights Agent<br/>PROPOSED / READ-ONLY"]
+  I1["Longitudinal insight / hypothesis<br/>Improvement is emerging across contexts.<br/>Probe again before claiming clearance.<br/>References: E12, E19, E26"]
+  E12 -->|OBSERVED_IN| S1
+  O12 -->|DERIVED_FROM| E12
+  E19 -->|OBSERVED_IN| S2
+  O19 -->|DERIVED_FROM| E19
+  E26 -->|OBSERVED_IN| S3
+  O26 -->|DERIVED_FROM| E26
+  O12 -->|SUPPORTS| MS3
+  O19 -->|CONTRADICTS| MS3
+  O26 -->|SUPPORTS_CONCEPT_DEMONSTRATION| CS1
+  I1 -->|DERIVED_FROM| E12
+  I1 -->|DERIVED_FROM| E19
+  I1 -->|DERIVED_FROM| E26
+  IA -->|READS| MS3
+  IA -->|READS| CS1
+  IA -->|GENERATED_INSIGHT| I1

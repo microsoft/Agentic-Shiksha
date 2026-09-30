@@ -3,6 +3,7 @@
 // needed by the Dashboard.
 
 import { DASHBOARD_API_URL } from "./config";
+import { clearDashboardRequests } from "./dashboardRequestCache";
 
 /* ------------------------------ Base + helpers ------------------------------ */
 
@@ -23,8 +24,12 @@ function buildDashboardUrl(path: string): string {
  * always sent. The backend authorises directory access from that cookie — it
  * cannot tell an admin from an anonymous visitor without it.
  */
-function dashFetch(url: string, init?: RequestInit): Promise<Response> {
-  return fetch(url, { ...init, credentials: "include" });
+async function dashFetch(url: string, init?: RequestInit): Promise<Response> {
+  try {
+    return await fetch(url, { ...init, credentials: "include" });
+  } finally {
+    if (init?.method && init.method.toUpperCase() !== "GET") clearDashboardRequests();
+  }
 }
 
 // ===================== User Directory API =====================
@@ -54,13 +59,14 @@ export interface DirectoryUser {
 export async function fetchDirectoryUsers(
   role?: string,
   status?: string,
+  signal?: AbortSignal,
 ): Promise<DirectoryUser[]> {
   const params = new URLSearchParams();
   if (role) params.set("role", role);
   if (status) params.set("status", status);
   const qs = params.toString();
   const url = buildUrl(`directory${qs ? `?${qs}` : ""}`);
-  const res = await dashFetch(url);
+  const res = await dashFetch(url, { signal });
   if (!res.ok) throw new Error(`Failed to fetch directory: ${res.status}`);
   return res.json();
 }

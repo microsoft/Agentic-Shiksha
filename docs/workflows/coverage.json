@@ -1,0 +1,2633 @@
+{
+  "snapshot": "2026-09-30",
+  "basis": "Static source coverage, not live deployment/OpenAPI or a runtime test",
+  "api_routes": 285,
+  "api_handlers": 279,
+  "framework_operations": 12,
+  "workflows": 128,
+  "main_ui_routes": 24,
+  "admin_ui_routes": 5,
+  "ui_action_families": 66,
+  "mapped_api_handlers": 279,
+  "unmapped_api_handlers": 0,
+  "unmapped_main_ui_routes": 0,
+  "unmapped_admin_ui_routes": 0,
+  "unresolved_inventory": 0,
+  "services": [
+    {
+      "service": "admin",
+      "registrations": 43,
+      "unique_method_paths": 43,
+      "handlers": 43,
+      "by_registration": {
+        "mounted": 42,
+        "conditional": 0,
+        "shadowed": 1
+      }
+    },
+    {
+      "service": "main",
+      "registrations": 242,
+      "unique_method_paths": 241,
+      "handlers": 236,
+      "by_registration": {
+        "mounted": 240,
+        "conditional": 0,
+        "shadowed": 2
+      }
+    }
+  ],
+  "source_files": [
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/app.py",
+      "sha256": "488bdfbc78446273082df9fa2a375abcf4629969ceb017b583707997795e415d"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/core/dashboard_cache.py",
+      "sha256": "7d66ffe49432d135a6d1b183c5b8fe25d6875489c40d8f7ced301eca0f5185f2"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/core/log_safe.py",
+      "sha256": "5791415cc7e6065b7c06a72015fb9701ca1640cbbb4ed8ed4c7600072612e797"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/core/settings.py",
+      "sha256": "ebd786f75ec376af396403c84bc41b841ed447755b9fe52768f41bd0c8e87674"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/dependencies.py",
+      "sha256": "05121d73a09dc66fbd8f05977df1eb26032b471bb24b3cb16ad7441aaadf8567"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/integrations/attachments.py",
+      "sha256": "0671974da6ab5aa41c018bca60e59bb1142b11018e30aee3964d749b2a9236a2"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py",
+      "sha256": "b0882d990b2996323e7e853d8791d67472d7d9ebddea6ecd2105a899c648c69b"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/integrations/groundedness_evaluator.py",
+      "sha256": "2deb6d6b88d15f97ee0b75d988ad5afe9a6045258b70e8e769998b1766c19e3f"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/integrations/logging_agent_chat.py",
+      "sha256": "41288b7ed7f459ea1635fc6c5b65b462b48f07f2a25c127df4d74c81fbb4ff12"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/integrations/logging_agent_tools.py",
+      "sha256": "72c14cedd99c4b80dd00e12da66e053e22d1857e97bba37a5e4e71a0f893d655"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/integrations/research_agent.py",
+      "sha256": "94e7fd8c03eaa6aa69807a1ac17e3486cb46e03ce677b0f5149af49657e46176"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/integrations/research_storage.py",
+      "sha256": "d7ad35dad1069ba7cdae75da98dfe31fad90f825d174288ce68b8b60f5131ca7"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/integrations/token_stats.py",
+      "sha256": "60c04c0b6d36c237cb0992d8aa7dfd1633c6e2c94a87554c2dc3f1bb8c43e870"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/routers/agents.py",
+      "sha256": "0bcc9b9f1a3750b0d03e594be3fbd6f974cc0998fbcd5a9192d22d832efa6176"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/routers/chat.py",
+      "sha256": "5bb3e6a5af5fca176018fa4925c4ce7d90c91657d963efc31bcf858d7a26f1ef"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/routers/directory.py",
+      "sha256": "60317c17c15e6b35cc46512c7a5d05e481bc25d045245ea5bfb89b03677606fb"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/routers/evaluation.py",
+      "sha256": "4c32e52e8f5ad6c2ae4d8f37de367956e82fb775e64d9ccca0b60501038f3f31"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/routers/feedback.py",
+      "sha256": "3325d94ea409730ca213ce649e9b4e58700fc2bddf894866334e1a80668e5f81"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/routers/health.py",
+      "sha256": "aa4b48fc2e7e8fcaa87b1b8d588ae52ab3b1e845076a7d102fb5d954977d2f49"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/routers/overview.py",
+      "sha256": "96cdb8746919a13dc20014a8fffb1fa17bd524c8b7f11636fd0ffb0cb0244960"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/routers/progress.py",
+      "sha256": "526358ddd554fea2709911de7269ac5a193053e77a9b19eaf8a83a5799ffcadb"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/routers/quota.py",
+      "sha256": "589cfb596484457852d0aecc7a1cc29fe55fc98d250c24fb1aa68652b8252efd"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/routers/research.py",
+      "sha256": "dd967a042d6e6b893f40e8aaee681b48346cc4a99b769e7e1de78cbad07d4e38"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/schemas/quota.py",
+      "sha256": "f665ba114886bf7254ddeec7aa5784a6e8770aec4233e28c182327977f7c47f4"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/services/agents.py",
+      "sha256": "aa33cd49f046c39567b8bdf5168379fa46deb01b79db4ca6f3d9615133a25663"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/services/attachments.py",
+      "sha256": "637929bed06b5a4d2619ca81e6d8e43e20351eedaf16c122c59f085a9a705894"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/services/container.py",
+      "sha256": "57bfa3c9f16df5061026833e74bcc3eb22a64f0f6a4f36bfa5c2f80ecfca9e17"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/services/directory.py",
+      "sha256": "8b96be5cad481d3aaabc5773561be7f0574f6f880606c0e521f72f39bcbbd964"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/services/evaluation.py",
+      "sha256": "3c0eda8e8c7348f0a19c5f361767b5b5f9bf8f653d357dbab37042853a826199"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/services/quota.py",
+      "sha256": "f64811a57494f136d6b6c33c8c69a6c0ed2f15e6fa9fa327e42f3554b1c40d55"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/services/research.py",
+      "sha256": "9ef725f7a3d5891072f55b9e9076db8c17f0350b6815cf8f6a6d4ad96477cf3b"
+    },
+    {
+      "path": "Admin-Dashboard/backend/admin_backend/services/research_json.py",
+      "sha256": "d5c9d443fa94e82a63d12499d04e3e6a9cfc34136a519b5ec6873492b482ea34"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/App.tsx",
+      "sha256": "e512fa27d570532204cd55948f8be87f03c50b367d63303250805aeb0a9ffe62"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/components/CoursePlacementDialog.tsx",
+      "sha256": "4a66d63727ed3079a7e36e715c5599c6fb93b3d90444a0bf470cdabf30cf1daf"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/components/ImageQuotaCard.tsx",
+      "sha256": "46c03cb6780c8f9fa7bc5d3316061113990bd857b4f005b2b77038a9d49f1f26"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/components/StudentAssignmentsDialog.tsx",
+      "sha256": "cf9f38a5f61285b765d550d3c51083f15276a6fb34271d101f91e3f2b646092b"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/components/chat/UnifiedChatContainer.tsx",
+      "sha256": "7f58cbccb4f774b93c77beb1f87e43ce237060410c35675c48bf20ff17df0b2d"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/components/common/Markdown.tsx",
+      "sha256": "21ccc0558340268e5581c6546cc9b5e3801d6094825cc19767daf30731c14f2b"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/features/chat/ChatBubble.tsx",
+      "sha256": "1ddddedb26a9bdb36cac43c8151545dd952dbb5eb90f8678c00fea91820c9c8e"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/features/chat/ChatPane.tsx",
+      "sha256": "4d9b39ba46fcb4d499131eb3382833158db76cf017bcef4851a40138fbbd46af"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/lib/api.ts",
+      "sha256": "2be0cb466d2e545c2f76bdfafe2e120217334c812d805abe4a33ecbea1201157"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/lib/chatApi.ts",
+      "sha256": "1466cdd07475394328a9e050e3420e32c0c9525943ba58b034dbefcad6536048"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/lib/dashboardApi.ts",
+      "sha256": "f4633f3530523aa92948410a817914ef87375481d8cb9df5ba135ee67960c358"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/lib/dashboardRequestCache.ts",
+      "sha256": "429d88f7a500a083a1b8e5dc5a983a789c8517f2f0ef81ea3c35d3abd9f5d481"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/lib/nameGuard.ts",
+      "sha256": "2decb0c2943e38b522d7cdac1f4249be46068f86c39187268c94feeac7706785"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/lib/roles.ts",
+      "sha256": "7e885aa4df48cca1675ee236dfadd9ce6b1689c1da0488fdd27aa33a1132ce20"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/lib/studentAssignmentsApi.ts",
+      "sha256": "2f1bf4495eb01f549adc1d250f79e204d272c82c7f4d9a67a72fd9367cd5c8d3"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/lib/useAuth.ts",
+      "sha256": "1640def7a2c0a467fab756b01b197deb94df91521c1e93c1e7cd9eb2a96d2af0"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/lib/useStudentAssignmentAccess.ts",
+      "sha256": "68626ffaf54a81c4186d9e170c08a35cd909eeca6c276a14a6e95ee54a3b6eab"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/lib/userDirectory.ts",
+      "sha256": "c68f0cd0bd050790229f2e7e96149c768fa7baf6234e2f5926030a0dabd33153"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/lib/userStore.ts",
+      "sha256": "74b860cd408c6d6d16a8dfea5e5f1d337fd0e633658b3bf81ac0ac4021a7a568"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "sha256": "8d8e24798dfc38e68ca9776674d1e4c009f94f6395e6105b6701ec262bc3430d"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/pages/OverviewPage.tsx",
+      "sha256": "be17691e2047cae8ff4e5ad8dbbd4721fc5d5edeaa02ba5895cbb408fa2a872f"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/agent_tools/custom/add_challenge/__init__.py",
+      "sha256": "c2f1b5575d2b6daf83dd78508d50be9d0102c75861e7db8f470690c8e903aa69"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/agent_tools/custom/add_circuit/__init__.py",
+      "sha256": "152c4ac20f9d4dd509bea938238c44bf2addb8895c4db7b638a35aab09566911"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/agent_tools/custom/add_document/__init__.py",
+      "sha256": "9c98800d6bd53a5815690008833c3eb6475dbaf88141cb198d908b726d5da794"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/agent_tools/custom/add_message/__init__.py",
+      "sha256": "151a4f0aca6d148cabd17db53385aada37cf3e107c632930646b1c804d86f777"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/agent_tools/custom/add_quiz/__init__.py",
+      "sha256": "50e5a61f6db98c40898487da147dfc1ef3fe878cc9b80106fe1a8cb1211a898d"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/agent_tools/custom/add_slides/handler.py",
+      "sha256": "e68c719f45e468ca266e8fb3afa2a3707292ea44573b82980678159daf5b844e"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/agent_tools/custom/add_tikz_diagram/__init__.py",
+      "sha256": "1028a6d67bc5e1eb3439ccbb4547ea8ccc86c5f49e1f26fc70bebb6de43d1e5c"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/agent_tools/custom/declare_plan/__init__.py",
+      "sha256": "d34f5c7636fe22393046365ffd9a5405ab3db7239aed2b011af0f569bf4180a8"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/agent_tools/custom/generate_image/__init__.py",
+      "sha256": "42a5f6bb97a6f83fa6f0179f5be838b3f644ec4bdede166411cb6ad9ea05841d"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/agent_tools/custom/get_threshold_concepts/__init__.py",
+      "sha256": "07d6b782b684a59cf48a2f96950c146efcde677e85705d2324b9aa066e37c81b"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/agent_tools/custom/logging_agent_tools/__init__.py",
+      "sha256": "963824b2dfbb5fb55fd5332516b0527d2cfc4439cfe8fe55a75fe03484ea3e1b"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/agent_tools/custom/update_topic_progress/__init__.py",
+      "sha256": "e74346dbbe3badb3e1c26557caee3e18a49fddfc5795d8be636f968f21095f38"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/auth.py",
+      "sha256": "ea54736526ee6fd34909edfb1b9fc8da019ce223f8fca16ffb57b504bf916528"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/azure_services/agents/agent_creation.py",
+      "sha256": "574085dfcd59d8bc94b6bcc84568de5fd57e7a115c6908eab832934a4a81af56"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/azure_services/persistence/cosmos_db.py",
+      "sha256": "ff67efbb2f094da78f6fb445546d513c9e3a573b8a6bba65a20d9c343ff234af"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/azure_services/persistence/curriculum_git.py",
+      "sha256": "9e16a788a1f815cd481f6c2fe497d0b27583b216b6fc762fc4be2b07ab447aa1"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/azure_services/persistence/progress_inference.py",
+      "sha256": "959e01c80eba028ad552bcb761145dc0fc2e235a166f0969e89e92ea0a8f25ee"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/azure_services/storage/blob_storage_manager.py",
+      "sha256": "7bcc9d1de06b1bb8d3840db20c5341dc555db24fee5ccd0cd5922c893bbc747d"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/azure_services/tools/memory/memory_store_manager.py",
+      "sha256": "55f06a813cbcacbad5ab89ad03d901930998a9d494bda01b49d20900b5fe657f"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/azure_services/tools/search/course_index_manager.py",
+      "sha256": "bc0017d23168d1e9d9696c55e599a5c826b59c41a764b98a9bae6a31bbd231bc"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/app.py",
+      "sha256": "924eb24a3859bcab3feda0b39172c5b323e0021bad299f04248460ec9b554ac8"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/core/identity.py",
+      "sha256": "436ff8233c0d6fc5ffdb5e8ff9aab4970bfb65dc4e6a773f9d9deaca0294fc63"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/dependencies/agent_access.py",
+      "sha256": "16847e587101b83955a2fe4cdb73b75a31d6e1af23e6611c3a8e0fa0a1925b0f"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/dependencies/auth.py",
+      "sha256": "c37cba787c2f66928e81b547eafb8a05e028c74bb5f7e7b4c79812ddb3292f37"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/dependencies/learner_access.py",
+      "sha256": "f99ba0af22e41cca92215eb4335abf54cb416a899b94fb902eaa455ee610a7f0"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/dependencies/service_errors.py",
+      "sha256": "29fac529adad020cfa5dbcdc4cc913e1d598bc4f08592a71e36f0739bf7b5ad5"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/dependencies/session.py",
+      "sha256": "6f684d4bf9ccf23da18aaa699515aa2a5473eca8404dd87b7d8526bae8ff83b7"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/integrations/directory.py",
+      "sha256": "91e4c3f72a34499206cd224dabae3c1788fb5eb9d6a1f174201c79b18d055862"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/main.py",
+      "sha256": "ab09f7d5ceed6155881a14c2bbac710dd4a80e6dd0bc3afe8898cdb3f7044d5d"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/agent_membership.py",
+      "sha256": "10b6283ce6ec622942d88fa7f6ff65976f793f8f5c11846335543117470a0560"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/assessments.py",
+      "sha256": "5d8f01a0350a407c09a4a16b3e5a69e37beac23e9fa8db52364d0e27c75ab316"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/chat.py",
+      "sha256": "40c9b3e15efc4ffa1c2a86ce958eb061bfedc790b642adde31064a29b75bd634"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/chat_sharing.py",
+      "sha256": "45ad7fe3c7300b8f1ae3571ccd979f7366f579fc37d0e89aca146147e19e4ff8"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/chat_suggestions.py",
+      "sha256": "7c9b9088fe3e0f911df88a80a376a1379f67b1908fd0c45c762b4f2a36c629b6"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/circuit.py",
+      "sha256": "3168508a6c03c7e420c7fa131d8babfc04759731f3f02757b06edf8a83f455d5"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/clarification.py",
+      "sha256": "982094d6a65b5504d19e107cdb4e16ad91c05a2ccab51222c3b84828aea47426"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/course_creation.py",
+      "sha256": "4acb051f2b690741b3a0e4e29a169e62c681473aaaf362cb660278c5bac4ba41"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/course_form_assistant.py",
+      "sha256": "8f12e5f876f0f5d1aee6f61e62e4acf2b5ce4c4c8d9361b530ae576f56274ddb"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/course_materials.py",
+      "sha256": "bfebeeb986e1ef6971b25c63064ec6d11f6e0080723541bf5de40fafcbb240f3"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/course_placement.py",
+      "sha256": "3e80010841ac8415eeba4a47fcb4ef768e70ed0da363e4574d35f170eb29c24c"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/curriculum_translation.py",
+      "sha256": "b25fc92ceac8994d317214113d1bf5ef581ab46c35a6108e0158dcd320568d0d"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/directory.py",
+      "sha256": "a5b24c36f71a64e08be4dfcd5499f3018def08a393be3f90a00f421a02c6267e"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/identity.py",
+      "sha256": "4cbecf5d7cf1d2f89484236f0067c3e04748139ae31941f90c124eb5a544764a"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/learner_memory.py",
+      "sha256": "b9b5ad05ec9e386a884d590df2465878bda94415ba3026320b532b730afa9f1f"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/learner_profile.py",
+      "sha256": "bba71b5adeb60e98724f605f9373040c81eebe37d398feeafe00c0e0ab111a57"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/slides.py",
+      "sha256": "0c8f6c361f86d851b7b1e0e3f74c68cab734c3701c3962fc63bb2cdef9b94321"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/speech.py",
+      "sha256": "6116a1dbb99d0239c53b9c1bb466ade94411a1fbe1ede71af778486688dc3d18"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/system.py",
+      "sha256": "86f0009ff519e73df7b66544226a2d8a317d7859303c398189ccf77e33e1447a"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/schemas/circuit.py",
+      "sha256": "362590c5a42ac8ede921ff0349075b04c8b49fb1206e70721e7567ee14029e52"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/schemas/course_form.py",
+      "sha256": "605ec7d219a655fae22fb303d49e07143a1cfa630e00c4e92e3c8e617eeb40c8"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/schemas/course_placement.py",
+      "sha256": "7223029433456d10aa9eaa6f60db19ad28494139ee061880bdf8de89409b397c"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/schemas/learner_profile.py",
+      "sha256": "ac7c517276fc3660f0a546eaf33dba2dce042aacc42f206d96e468b1b9339b3a"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/schemas/slides.py",
+      "sha256": "2848a134da5ced70a068b53cea5eb154058cf022b14b5fc690a29773b13b849f"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/services/directory.py",
+      "sha256": "127593142ebf39ab079cedbc6c749c234edd45d3c532dfeefbc89ea828e26302"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/services/identity.py",
+      "sha256": "8c96ab6910a0989901bbc529bdc3d68fd69507c9befdaf7edde774798977f785"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/deployment_settings.py",
+      "sha256": "7522e7e44e3b0b0dbce10a7514c7d0db19d2ff4f6a89a74aa4e59f205b44b4f8"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/google_auth.py",
+      "sha256": "2fba122e466b3b70ad01c27a1cf525e7cb37ff0ee7b24d8a81080b9a2ffe9c68"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/harness/dispatch.py",
+      "sha256": "1e31e0a2370e1abdc949608bb899715d7a5064527e9755d64ad23cb492e9e686"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/harness/output.py",
+      "sha256": "f1d3446dbb5ae2b59b918028e2ab5c0a87750959fa8153531c5fbcc02a6b93c4"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/harness/runtime.py",
+      "sha256": "9778d6f4b8dfac82f96636e68e6acf6fc66f8bc5c227d30476dec2c3767f992b"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/harness/turn_policy.py",
+      "sha256": "a4e7c16b5e9b7287b0a78fb9a8a05ba91c7db3d19667032eb1357fb9a5c4ca1f"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/learner_memory/curriculum.py",
+      "sha256": "38f03c203ee49b77799f0a74ce2de4d42a05af896ada2dd691d9880814d1d1b0"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/learner_memory/events.py",
+      "sha256": "a2777072c5f6365e7ea9b5b4b23e55ce899145c5c9ecc03de6ff718d4c7da880"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/learner_memory/integration.py",
+      "sha256": "b03d1b5b812e8acd8f08ff333b972393f9ec9de041517d38090053d37dde3c8b"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/learner_memory/observations.py",
+      "sha256": "1acf8bf5a970ba658414281d0032b5c74a0da05e0b6b9a419cd70bd801f14797"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/learner_memory/processor.py",
+      "sha256": "0ca8f4e444775bb209b919707342c85b17f1dc97675a52758db23e5efd985c86"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/learner_memory/retrieval.py",
+      "sha256": "e6e30535d88959422b0019e8d2a8b0dffcd1928ea5ca94cb284ee6484d852259"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/learner_memory/service.py",
+      "sha256": "f017705e7591a4f301eee470e8a93f20220a1d17188471d210b6d7777e078b46"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/learner_memory/settings.py",
+      "sha256": "e78cb128e6d95ef7e011eacf41a06110ea765eff7a1147747cf6ca688de733c4"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/learner_memory/state.py",
+      "sha256": "efeeecbae0c3a361c5ce5a91347ee6ed6177eddc267785d9766bd03a2c12b0bd"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/teacher_dashboard/cosmos_queries.py",
+      "sha256": "3ff498b989d320d7cce6e65eb0c3807465f12b034b6557b07149f7484b864209"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/teacher_dashboard/logging_agent_chat.py",
+      "sha256": "9223ad641d1588101fe40a749d309362a2850050627efa556e0dce47a302b6be"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/teacher_dashboard/logging_agent_tools.py",
+      "sha256": "c32ef2c6f78ae4389e3e7f9b8e170ae8c68f5880ac8b5509d3f275e4888fc3fc"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py",
+      "sha256": "e664ad77df33d9894faf4016243668a1ce370fe208f4b1d8078c4ee65864b766"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/teacher_dashboard/teacher_auth.py",
+      "sha256": "7c1eb32e4a8b9f4395200f29a8a41e62014a15006258d8f25022a084e1de6aa2"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/teacher_dashboard/teacher_scope.py",
+      "sha256": "c9e2213b7d656f11c43f1f63f636e8b7e2642de68d67283206ecacb273d5d156"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/teacher_dashboard/token_stats.py",
+      "sha256": "c6d6ea6b70dc6bd50f63cf15516e5a41494af06de165610a71234f808985227a"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/utils/circuit_simulation.py",
+      "sha256": "fac2ba501718d6d816f3d3198c1ba90f562c66bd4ee9e96ac83d6a18e2c08da8"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/utils/clarification_registry.py",
+      "sha256": "bd301645175baebd470528aa034a4005d0b7825010ac375e0104c9a6d1d9bf27"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/utils/course_creation.py",
+      "sha256": "6c4acdaa75f92b214900a012a1fecf6fba03bdc39ee917f4bb8e2488123510b6"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/utils/course_materials.py",
+      "sha256": "4efaea46db62fee639019b20ea54f11e09f2925c63a5aa2c7d7fca30be51f519"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/utils/curriculum_translation.py",
+      "sha256": "75510d5be1128a6983eac29b2e31040781569318bd773bcfe42924ccb15bde2a"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/utils/form_attachments.py",
+      "sha256": "8faff144e5a4dbc0fb7e7938e33a68aabd1e689e8827c46d14745d0879db9c35"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/utils/material_jobs.py",
+      "sha256": "6dd6cf4d42ac78dd3650fe3c608687bbec12cbb23dc50f3ed087df28b97ad4d3"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/utils/material_uploads.py",
+      "sha256": "0128b8c5eaa0f2b58dac12d31c5657892832d7a41b68afa2ce561d8b8264456e"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/utils/section_detector.py",
+      "sha256": "a52dc94aece759f18f23766148654102a118dc722cdf7c4a16d79037627436d1"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/utils/slide_export.py",
+      "sha256": "dd12b4f5b61f11796585a69534847a279ba1b0ff71bb0b3640df07ef3bbf7f28"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/utils/slide_speech.py",
+      "sha256": "a46a47f083fd540a8dd6a8fb714f9869bd152caebc7102333f8f2a5aedaca646"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/components/FeedbackDialog.tsx",
+      "sha256": "f0ef822c68038f71e33774da703d23ee8ecafe0c787680fce3723386f33a12ea"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/components/LogViewer.tsx",
+      "sha256": "d55cd28f00e770844fa1dae3f7cf782b92c240d2489e8a53eb7e538c425862b7"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/components/ManageCodeDialog.tsx",
+      "sha256": "966d1531973fc82a81979b27bf84e42549b4cb20e24afd84524d93d77be45720"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/components/UpdateBanner.tsx",
+      "sha256": "36ce6ba14623e4c6ed70812982e47255465761d3d3f3c99c73f409e8f90fa6da"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/components/assets/AssetCard.tsx",
+      "sha256": "dc0f8cf081a87cf58757a870ce888e18294ff2476519a597583bb309b62c3c17"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/components/assets/AssetContent.tsx",
+      "sha256": "2e149bf016f35c52e8fbf5f978dd21bfbc9aa9ca80ca23d9c5acbff900f90c61"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/components/auth/AuthCallback.tsx",
+      "sha256": "7acc518071b50a0408ba0a07c3d5695273c1f38d43d0aac3177c4a85c61c51c6"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/components/auth/AuthGuard.tsx",
+      "sha256": "abda3c0c3ee7959558cf5d28e4702cf6e421aee298382d7e9e256d346dbca280"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/components/auth/SignOutPage.tsx",
+      "sha256": "c3ae95411f0874c2b2cefb9b1c6c41db6be61bb4e5e4f4308116b654869cd7df"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/components/chat/AgentCapabilities.tsx",
+      "sha256": "b094a8726bd2719a82c6ba8e873041ceece52abef33bf43866b2c7e7ac2a855d"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/components/chat/CatCompanion.tsx",
+      "sha256": "30d00579f8516de371ccfb75fa3ea77fa8dcd96fd04d156bb98223db8d2defce"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/components/chat/ChatHistoryDrawer.tsx",
+      "sha256": "f4fb6166306807ef95d3e1f2b8b8f2e1c14f592acbd489131c24630d0adf36dc"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/components/chat/CourseMaterialSources.tsx",
+      "sha256": "3a38bcfbe744a5879b9e5a02b8033142f0a28a63724ee1aeab6fb4d60ed1d5f8"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/components/chat/LearnerProfileDialog.tsx",
+      "sha256": "6caeb38c554b45da0a120b5240f15049b5dcbc2e2259b3c650fb1c763172e9fb"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/components/chat/ResearchMCQ.tsx",
+      "sha256": "cd68d37457c6d542e1f16d4e1a08864a78340ebe8104ed8c6e9a0cad78a8dc00"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/components/chat/ResearchSidePanel.tsx",
+      "sha256": "c36dfd55b0664e12254571876e5b5ff18222a6636dba640912975af13087322e"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/components/chat/SyllabusTranslationControl.tsx",
+      "sha256": "2bada4d5ee19d72ef03484d7e92be49630c2ba7c3b9ffed0fa9dfb1d9ecbcb28"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/components/layout/Sidebar.tsx",
+      "sha256": "6282b05eda194082e0cbc3a2844681c32a0c13f57907168ef6d03364753f8dc0"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/AskTASelection.tsx",
+      "sha256": "91c0a56f44e03cee093def24899fd96293dcebabaa177bbf3fce6d6570ec0126"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/ChallengeBlock.tsx",
+      "sha256": "2fb91fd218855674894abdba7e0692300918fc475ae7dedf80134de775ccd4ae"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/ChatBubble.tsx",
+      "sha256": "3fd5ca53f3ead3d55e161206af85b17a94659cbbd7abc73041870a872732dbd6"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/CircuitBlock.tsx",
+      "sha256": "1c05d31b11b5172182407d62d56ec3e9febdc1076ef68f6e5d83049846339e19"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/CircuitInstruments.tsx",
+      "sha256": "ad5f668df5bef78ba9d9fc87b61529f32b92df2b8d34434773ed4671a6f2bb2f"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/ClarifyBlock.tsx",
+      "sha256": "b51dfc964c6f2bab829ef21738846e1d0ebed46eaf3c49884e49b2d63e51c976"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/QuizBlock.tsx",
+      "sha256": "0be0a478dd61da01b804dcfff7d0078d156d849a4a495606949aa576da09ecd4"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/SimulationWorkspace.tsx",
+      "sha256": "e175f282f97307d1d6110a78731c7d4eb048fa9e791d3099ab282ea8319284fa"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/SlidesBlock.tsx",
+      "sha256": "b7c42952a25b553b97ee1fd06e92ebaf3da40cfa0df30e853c049d46eb49cddd"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/SlidesEditor.tsx",
+      "sha256": "884739b4a770acdc6ebd1fc782f93762623793cbf713b62c872fbe3f726d12d6"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/SlidesPresenter.tsx",
+      "sha256": "3d465c2cfdb5163ebffe153dd7473037ce24b082c20ee28100d5ebb680822678"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/chatPersistence.ts",
+      "sha256": "e9d7d08a3eae922c6457b0c59fc80f4684425a072dd7384b853030a4a05b73e9"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/chatQueryEvent.ts",
+      "sha256": "66ecd9758736435e48eb6960f619b5a194be6e743cf37570187439e0bdf9e2db"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/chatTransport.ts",
+      "sha256": "2ac0f68cfc9ee45c5ac759b7f1aabe54ff2488d544b7756fc1e9820b66ad1563"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/chatTurnController.ts",
+      "sha256": "29ff62575a814eac62ec646d368cbff90004173162dfd3686029b94221fe8200"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/chatTurnReducer.ts",
+      "sha256": "51d7850d8d966a43b8bd76038b422fa83b34e08b8ce2063c59a075531b4bcd7f"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/generationLifecycle.ts",
+      "sha256": "a448d06a1a30d2b93b63c47d74edf5cdc0fcca3f9f1a0c1fd4edfe6ec226a20a"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/useAgentChat.ts",
+      "sha256": "f73ebfc907035990399539d529c4fad1e18587ef218dcfeaecb847ef07158662"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/chat/useChatPresentation.ts",
+      "sha256": "192bdb0b74d572af993574916c7b08b6be5f686cf5c99c3c8eddd2d980edb78a"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/create/CreateView.tsx",
+      "sha256": "b98553bfa5ea9553a6b894f75f3f16a17617e936e643d68825b4beb98129032d"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/create/FormAssistant.tsx",
+      "sha256": "45d1e357c2ce6024e3906f25e7e11984089d656b9ddd40c7d6ebdbfe8891324f"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/create/MaterialWorkflow.tsx",
+      "sha256": "09325be4905dbd77822b966dbf4779577dfba94cd9056f9302e6f24d0c1f3af4"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/create/SetupPhase.tsx",
+      "sha256": "b46226b320e6532df3e6999580fe136bccf5d1fdfa2bb94a5298b05b7f90f110"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/create/builderTypes.ts",
+      "sha256": "60f6fc52ccefdbac2fa940b655b8b4762e32da522dc829a7fcb903ddbaa0f645"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/create/formAssistantHistory.ts",
+      "sha256": "413afe2bf7d07f812011cd7d5afaca1023ff888cc070014ab3e81185ba25875b"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/create/sharedUI.tsx",
+      "sha256": "0e87e8908c1aebef34f65ea7a08cebeace64b4427adff156deb1efcd315be4b5"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/dashboard/TeacherDashboardPage.tsx",
+      "sha256": "25d97401b6b7a37ef8e97637bbf910b0d9b192b958a5e566f381dcb7753a4db4"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/dashboard/lib/config.ts",
+      "sha256": "7ce4ca52e11f50328b5b2d934d0daa3255f66c976a4e5350a985833c3a286aac"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/dashboard/lib/dashboardApi.ts",
+      "sha256": "12b016aab9bb5ce585a22b97ecafe1023e6ee3ec3ed6eae0f37f61cf60925bc2"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/edit/EditView.tsx",
+      "sha256": "30762f0414ef0faf89d70864618294f644e1690420da33cbaf207d74cc3e5716"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/memory/CurriculumGraphEditor.tsx",
+      "sha256": "c10d2b0985f7d26fa6fc0ea34b5a9f1dc076474e0454f024dbc1191c44d46e50"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/memory/GraphMemoryPanel.tsx",
+      "sha256": "ababd6b3e6c3d00c3b2dee843c601c351edd7b2b0438a0e85f333229c45d49e8"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/memory/curriculumGraphValidation.ts",
+      "sha256": "f987f9e57f15e0a72e6daf5d9903e3eab9b136f35d489795ecd402972253685d"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/memory/useMemoryConfig.ts",
+      "sha256": "cfb13de3cf909f8bcd5d059448b03c2c398567ec0185cf9524c0be11d4a4ea17"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/hooks/useSlideNarration.ts",
+      "sha256": "8c2d89b0731f6dcc827af261ac73d96a3b2614d90a1f1581aa9a1827759b9e06"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/hooks/useSpeechRecognition.ts",
+      "sha256": "0e2aa37d9010791aa3224c2220148d005bb7c3d2d6a696ebfd8054ffb37c2992"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/layouts/MainLayout.tsx",
+      "sha256": "6a932e50435b13cd72171004bc2969a16c459ab04a744a48b540ab406b05d6fb"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/lib/aguiAdapter.ts",
+      "sha256": "44fabd5846a45a4905dfec9444b5310ebb61d784421d13fc5abd6d2bd3625a98"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/lib/api.ts",
+      "sha256": "35092db636f1df32fdd8e9677e0807c3d0fd804a7343d403cbdce1839aeb52d4"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/lib/chatApi.ts",
+      "sha256": "99fd0518f81cf78f3b3bf48db9008ceeb9167281d820c0152beb329b68ad5643"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/lib/chatStore.ts",
+      "sha256": "7239f55747d0445da036a5d8b40b01dec63e80c1cc0ca8d584139271a2370e15"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/lib/circuit.ts",
+      "sha256": "d6c40b4add323d8550c4876d5ca42ee17fe1e2e64a0d3abea58b02d810decc73"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/lib/learnerMemoryApi.ts",
+      "sha256": "8782f6276d1d2029a96dd882d867eaff245d6e55959f008dbda24ca0bd8d6586"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/lib/quizContract.ts",
+      "sha256": "e496209146988f1e67cf8e79276f4ba608871913c08b70c33856f3fe9fd2efbd"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/lib/retiredContent.ts",
+      "sha256": "9a043dda91c2bd490dec3ddec97528dae7b3a62d96c81d093e2a00836ece69f0"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/lib/slides.ts",
+      "sha256": "4894e7119a8356955cc7cf24d40f30c814c16adb16a9166260c26c39b8e21839"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/lib/useAuth.ts",
+      "sha256": "95bdee9b36fe4918285c3cf0a81f4b939b80495c8886a1a3d53d16ffcb192d7e"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/lib/useMessagePagination.ts",
+      "sha256": "0c1ecdf1c3509ba00b61da52fb086f638ed3a7c7c9ec17e97024868bb58f4058"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/pages/AssetsView.tsx",
+      "sha256": "20ad6a641ab43eab1166df2d72d33550a63bbf315ee2b2cc7590e0faf769337e"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/pages/ChatView.tsx",
+      "sha256": "9bf46e1db9f153112ed06345326a7a70cc0e0739620caff9dc2a4e3c14648a82"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/pages/CompanionAnimationsPage.tsx",
+      "sha256": "2275e49bf547e8906857bad1d4053f21ef511b3ae09dcfe9639c8e5285f98b42"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/pages/HelpPage.tsx",
+      "sha256": "2da0422cf317355484659177a37d3470dfefb86750b557305a0aadbf0fc1a546"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/pages/JoinAgentPage.tsx",
+      "sha256": "16da8b7836bbb5c0a8f735c7773aca28dc7d0cc46103a8009b265ad711b798ee"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/pages/LearnPage.tsx",
+      "sha256": "ff7d83150be0b69ddacf30d1cfab50cb3b4ffd6095cec4cffbe713f2eaf2afa7"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/pages/LibraryMedia.tsx",
+      "sha256": "0c9da1d21ba0dd7476c5c90b9acce5b8017b26440f53b8c653562f68c452a82b"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/pages/LibraryView.tsx",
+      "sha256": "f88822f00464e9e0bfb7a67fc3920fc22d52da57dd0ec018cb771e59bb8d896d"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/pages/NotFoundPage.tsx",
+      "sha256": "6198b03f6cd94e7a180e8c765ed7d6a4f43738625a5367c561b6122e9b062704"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/pages/OnboardingPage.tsx",
+      "sha256": "8cb47a4080f38c3f0c1b4b6d8777a3b829328e2c5bffedbbf86342e113f96cf0"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/pages/SettingsPage.tsx",
+      "sha256": "729d02b4f315ae74ce3921fc8db7d1dc9ad6572668a4eed0309fa2f91d8de0fc"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/pages/SettingsView.tsx",
+      "sha256": "238956d2ea88d03abf19905a98688958787b9c0d1b6e13dcc46cea84f2b256e7"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/pages/SharedChatView.tsx",
+      "sha256": "e1c45b6ce0e8286d26207325714c0c86316ef6eea92d0f0b0d255f330062c998"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/router.tsx",
+      "sha256": "4476656797be5d6efdd05a3786841edf7b7b47394e164d775c9201676131c182"
+    }
+  ],
+  "framework_workflow": {
+    "id": "framework-api-documentation",
+    "title": "Framework-generated API schema and documentation",
+    "doc": "README.md#framework-api-documentation",
+    "actors": [
+      "API client or operator able to reach the backend"
+    ],
+    "agent_tools": [
+      "FastAPI/Starlette schema and documentation handlers; no agent"
+    ],
+    "permissions": [
+      "No application-handler dependency is attached to the generated entries in this snapshot. Application middleware and deployment access restrictions remain separate; live access was not tested."
+    ],
+    "state_changes": [
+      "Schema generation can cache the OpenAPI document in process. Reading the schema or documentation does not itself execute a business operation or write learner/course records."
+    ],
+    "success": [
+      "GET/HEAD serves the configured schema, documentation page or Swagger OAuth redirect helper. The explicit main GET /docs registration is mapped separately."
+    ],
+    "failure_retry": [
+      "HTTP/schema generation or browser asset-loading errors require a read/reload retry. Executing a documented API operation follows that operation's own permission, mutation and retry contract."
+    ],
+    "classification": "current",
+    "handlers": [],
+    "source_refs": [
+      {
+        "path": "Agentic Shiksha Platform/Backend/backend/app.py"
+      },
+      {
+        "path": "Admin-Dashboard/backend/admin_backend/app.py"
+      }
+    ],
+    "doc_refs": [
+      "docs/workflows/README.md"
+    ]
+  },
+  "framework_routes": [
+    {
+      "service": "main",
+      "method": "GET",
+      "path": "/openapi.json",
+      "surface": "openapi",
+      "origin": "FastAPI-generated Starlette Route",
+      "source": "Agentic Shiksha Platform/Backend/backend/app.py",
+      "line": 111,
+      "registration": "mounted",
+      "setting": "openapi_url",
+      "setting_expression": "FastAPI default",
+      "method_origin": "framework GET",
+      "include_in_schema": false,
+      "dependencies": [],
+      "workflow": "framework-api-documentation"
+    },
+    {
+      "service": "main",
+      "method": "HEAD",
+      "path": "/openapi.json",
+      "surface": "openapi",
+      "origin": "FastAPI-generated Starlette Route",
+      "source": "Agentic Shiksha Platform/Backend/backend/app.py",
+      "line": 111,
+      "registration": "mounted",
+      "setting": "openapi_url",
+      "setting_expression": "FastAPI default",
+      "method_origin": "Starlette Route implicit HEAD",
+      "include_in_schema": false,
+      "dependencies": [],
+      "workflow": "framework-api-documentation"
+    },
+    {
+      "service": "main",
+      "method": "GET",
+      "path": "/redoc",
+      "surface": "redoc",
+      "origin": "FastAPI-generated Starlette Route",
+      "source": "Agentic Shiksha Platform/Backend/backend/app.py",
+      "line": 111,
+      "registration": "mounted",
+      "setting": "redoc_url",
+      "setting_expression": "FastAPI default",
+      "method_origin": "framework GET",
+      "include_in_schema": false,
+      "dependencies": [],
+      "workflow": "framework-api-documentation"
+    },
+    {
+      "service": "main",
+      "method": "HEAD",
+      "path": "/redoc",
+      "surface": "redoc",
+      "origin": "FastAPI-generated Starlette Route",
+      "source": "Agentic Shiksha Platform/Backend/backend/app.py",
+      "line": 111,
+      "registration": "mounted",
+      "setting": "redoc_url",
+      "setting_expression": "FastAPI default",
+      "method_origin": "Starlette Route implicit HEAD",
+      "include_in_schema": false,
+      "dependencies": [],
+      "workflow": "framework-api-documentation"
+    },
+    {
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/dashboard/openapi.json",
+      "surface": "openapi",
+      "origin": "FastAPI-generated Starlette Route",
+      "source": "Admin-Dashboard/backend/admin_backend/app.py",
+      "line": 104,
+      "registration": "mounted",
+      "setting": "openapi_url",
+      "setting_expression": "'/api/dashboard/openapi.json'",
+      "method_origin": "framework GET",
+      "include_in_schema": false,
+      "dependencies": [],
+      "workflow": "framework-api-documentation"
+    },
+    {
+      "service": "admin",
+      "method": "HEAD",
+      "path": "/api/dashboard/openapi.json",
+      "surface": "openapi",
+      "origin": "FastAPI-generated Starlette Route",
+      "source": "Admin-Dashboard/backend/admin_backend/app.py",
+      "line": 104,
+      "registration": "mounted",
+      "setting": "openapi_url",
+      "setting_expression": "'/api/dashboard/openapi.json'",
+      "method_origin": "Starlette Route implicit HEAD",
+      "include_in_schema": false,
+      "dependencies": [],
+      "workflow": "framework-api-documentation"
+    },
+    {
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/dashboard/docs",
+      "surface": "swagger_ui",
+      "origin": "FastAPI-generated Starlette Route",
+      "source": "Admin-Dashboard/backend/admin_backend/app.py",
+      "line": 104,
+      "registration": "mounted",
+      "setting": "docs_url",
+      "setting_expression": "'/api/dashboard/docs'",
+      "method_origin": "framework GET",
+      "include_in_schema": false,
+      "dependencies": [],
+      "workflow": "framework-api-documentation"
+    },
+    {
+      "service": "admin",
+      "method": "HEAD",
+      "path": "/api/dashboard/docs",
+      "surface": "swagger_ui",
+      "origin": "FastAPI-generated Starlette Route",
+      "source": "Admin-Dashboard/backend/admin_backend/app.py",
+      "line": 104,
+      "registration": "mounted",
+      "setting": "docs_url",
+      "setting_expression": "'/api/dashboard/docs'",
+      "method_origin": "Starlette Route implicit HEAD",
+      "include_in_schema": false,
+      "dependencies": [],
+      "workflow": "framework-api-documentation"
+    },
+    {
+      "service": "admin",
+      "method": "GET",
+      "path": "/docs/oauth2-redirect",
+      "surface": "swagger_oauth2_redirect",
+      "origin": "FastAPI-generated Starlette Route",
+      "source": "Admin-Dashboard/backend/admin_backend/app.py",
+      "line": 104,
+      "registration": "mounted",
+      "setting": "swagger_ui_oauth2_redirect_url",
+      "setting_expression": "FastAPI default",
+      "method_origin": "framework GET",
+      "include_in_schema": false,
+      "dependencies": [],
+      "workflow": "framework-api-documentation"
+    },
+    {
+      "service": "admin",
+      "method": "HEAD",
+      "path": "/docs/oauth2-redirect",
+      "surface": "swagger_oauth2_redirect",
+      "origin": "FastAPI-generated Starlette Route",
+      "source": "Admin-Dashboard/backend/admin_backend/app.py",
+      "line": 104,
+      "registration": "mounted",
+      "setting": "swagger_ui_oauth2_redirect_url",
+      "setting_expression": "FastAPI default",
+      "method_origin": "Starlette Route implicit HEAD",
+      "include_in_schema": false,
+      "dependencies": [],
+      "workflow": "framework-api-documentation"
+    },
+    {
+      "service": "admin",
+      "method": "GET",
+      "path": "/redoc",
+      "surface": "redoc",
+      "origin": "FastAPI-generated Starlette Route",
+      "source": "Admin-Dashboard/backend/admin_backend/app.py",
+      "line": 104,
+      "registration": "mounted",
+      "setting": "redoc_url",
+      "setting_expression": "FastAPI default",
+      "method_origin": "framework GET",
+      "include_in_schema": false,
+      "dependencies": [],
+      "workflow": "framework-api-documentation"
+    },
+    {
+      "service": "admin",
+      "method": "HEAD",
+      "path": "/redoc",
+      "surface": "redoc",
+      "origin": "FastAPI-generated Starlette Route",
+      "source": "Admin-Dashboard/backend/admin_backend/app.py",
+      "line": 104,
+      "registration": "mounted",
+      "setting": "redoc_url",
+      "setting_expression": "FastAPI default",
+      "method_origin": "Starlette Route implicit HEAD",
+      "include_in_schema": false,
+      "dependencies": [],
+      "workflow": "framework-api-documentation"
+    }
+  ],
+  "api_targets": [
+    {
+      "workflow": "admin-navigation-session",
+      "ui_action": "admin-session-synchronization",
+      "condition": "Shell mount when hook synchronization is not already satisfied/skipped",
+      "service": "main",
+      "method": "GET",
+      "path": "/auth/me",
+      "api_workflows": [
+        "main-session"
+      ]
+    },
+    {
+      "workflow": "admin-navigation-session",
+      "ui_action": "admin-session-synchronization",
+      "condition": "Shell mount when hook synchronization is not already satisfied/skipped",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/user/{user_id}",
+      "api_workflows": [
+        "admin-user-directory"
+      ]
+    },
+    {
+      "workflow": "admin-overview-reporting",
+      "ui_action": "admin-overview-load-sort",
+      "condition": "/overview",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/dashboard/overview/courses",
+      "api_workflows": [
+        "admin-overview-reporting"
+      ]
+    },
+    {
+      "workflow": "admin-overview-reporting",
+      "ui_action": "admin-overview-period-filter",
+      "condition": "/overview",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/dashboard/overview/today",
+      "api_workflows": [
+        "admin-overview-reporting"
+      ]
+    },
+    {
+      "workflow": "admin-overview-reporting",
+      "ui_action": "admin-student-usage-dialogs",
+      "condition": "Average token/round cell for a loaded overview course",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/dashboard/overview/tokens/per-student",
+      "api_workflows": [
+        "admin-overview-reporting"
+      ]
+    },
+    {
+      "workflow": "admin-image-quota",
+      "ui_action": "admin-image-quota-edit",
+      "condition": "/overview after successful overview load",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/dashboard/image-quota",
+      "api_workflows": [
+        "admin-image-quota"
+      ]
+    },
+    {
+      "workflow": "admin-image-quota",
+      "ui_action": "admin-image-quota-edit",
+      "condition": "/overview after successful overview load",
+      "service": "admin",
+      "method": "PUT",
+      "path": "/api/dashboard/image-quota",
+      "api_workflows": [
+        "admin-image-quota"
+      ]
+    },
+    {
+      "workflow": "admin-course-analytics",
+      "ui_action": "admin-analytics-course-filters",
+      "condition": "/analytics; agent list also loads on DashboardView mount",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/dashboard/agents",
+      "api_workflows": [
+        "admin-overview-reporting"
+      ]
+    },
+    {
+      "workflow": "admin-course-analytics",
+      "ui_action": "admin-analytics-course-filters",
+      "condition": "/analytics; agent list also loads on DashboardView mount",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/dashboard/agents/{agent_name}/overview",
+      "api_workflows": [
+        "admin-course-analytics"
+      ]
+    },
+    {
+      "workflow": "admin-course-analytics",
+      "ui_action": "admin-analytics-student-detail",
+      "condition": "Selected analytics course with legacy student summaries",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/dashboard/agents/{agent_name}/students/{user_id}",
+      "api_workflows": [
+        "admin-course-analytics"
+      ]
+    },
+    {
+      "workflow": "admin-user-directory",
+      "ui_action": "admin-directory-filter-tree",
+      "condition": "/user-directory",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/directory",
+      "api_workflows": [
+        "admin-user-directory"
+      ]
+    },
+    {
+      "workflow": "admin-user-directory",
+      "ui_action": "admin-directory-course-grouping",
+      "condition": "VITE_STUDENT_ASSIGNMENTS_ENABLED === 'true' and fresh main active admin/superadmin permission",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/dashboard/agents/{agent_id}/teachers",
+      "api_workflows": [
+        "admin-course-ownership-teachers"
+      ]
+    },
+    {
+      "workflow": "admin-user-directory",
+      "ui_action": "admin-directory-course-grouping",
+      "condition": "VITE_STUDENT_ASSIGNMENTS_ENABLED === 'true' and fresh main active admin/superadmin permission",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_id}/students",
+      "api_workflows": [
+        "domain-agent-roster"
+      ]
+    },
+    {
+      "workflow": "admin-user-invitations-import",
+      "ui_action": "admin-add-user",
+      "condition": "Directory invite always available under cosmetic admin flags; main targets only for optional TA selection with verified access",
+      "service": "admin",
+      "method": "POST",
+      "path": "/api/directory",
+      "api_workflows": [
+        "admin-user-invitations-import"
+      ]
+    },
+    {
+      "workflow": "admin-user-invitations-import",
+      "ui_action": "admin-add-user",
+      "condition": "Directory invite always available under cosmetic admin flags; main targets only for optional TA selection with verified access",
+      "service": "main",
+      "method": "GET",
+      "path": "/auth/me",
+      "api_workflows": [
+        "main-session"
+      ]
+    },
+    {
+      "workflow": "admin-user-invitations-import",
+      "ui_action": "admin-add-user",
+      "condition": "Directory invite always available under cosmetic admin flags; main targets only for optional TA selection with verified access",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/user/{user_id}",
+      "api_workflows": [
+        "main-profile-legacy"
+      ]
+    },
+    {
+      "workflow": "admin-user-invitations-import",
+      "ui_action": "admin-add-user",
+      "condition": "Directory invite always available under cosmetic admin flags; main targets only for optional TA selection with verified access",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_id}/students",
+      "api_workflows": [
+        "domain-agent-roster"
+      ]
+    },
+    {
+      "workflow": "admin-user-invitations-import",
+      "ui_action": "admin-add-user",
+      "condition": "Directory invite always available under cosmetic admin flags; main targets only for optional TA selection with verified access",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/{agent_id}/members",
+      "api_workflows": [
+        "domain-agent-membership"
+      ]
+    },
+    {
+      "workflow": "admin-user-invitations-import",
+      "ui_action": "admin-user-csv-import",
+      "condition": "Exact assignment flag true and verified main active admin/superadmin, including no-TA user imports",
+      "service": "admin",
+      "method": "POST",
+      "path": "/api/directory",
+      "api_workflows": [
+        "admin-user-invitations-import"
+      ]
+    },
+    {
+      "workflow": "admin-user-invitations-import",
+      "ui_action": "admin-user-csv-import",
+      "condition": "Exact assignment flag true and verified main active admin/superadmin, including no-TA user imports",
+      "service": "main",
+      "method": "GET",
+      "path": "/auth/me",
+      "api_workflows": [
+        "main-session"
+      ]
+    },
+    {
+      "workflow": "admin-user-invitations-import",
+      "ui_action": "admin-user-csv-import",
+      "condition": "Exact assignment flag true and verified main active admin/superadmin, including no-TA user imports",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/user/{user_id}",
+      "api_workflows": [
+        "main-profile-legacy"
+      ]
+    },
+    {
+      "workflow": "admin-user-invitations-import",
+      "ui_action": "admin-user-csv-import",
+      "condition": "Exact assignment flag true and verified main active admin/superadmin, including no-TA user imports",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_id}/students",
+      "api_workflows": [
+        "domain-agent-roster"
+      ]
+    },
+    {
+      "workflow": "admin-user-invitations-import",
+      "ui_action": "admin-user-csv-import",
+      "condition": "Exact assignment flag true and verified main active admin/superadmin, including no-TA user imports",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/{agent_id}/members",
+      "api_workflows": [
+        "domain-agent-membership"
+      ]
+    },
+    {
+      "workflow": "admin-user-role-profile-management",
+      "ui_action": "admin-edit-user-role",
+      "condition": "User row Edit; canEdit currently grants cosmetic super-admin privileges",
+      "service": "admin",
+      "method": "PATCH",
+      "path": "/api/directory/{user_id}",
+      "api_workflows": [
+        "admin-user-role-profile-management"
+      ]
+    },
+    {
+      "workflow": "admin-user-role-profile-management",
+      "ui_action": "admin-remove-user",
+      "condition": "User row Remove except configured cosmetic protected email",
+      "service": "admin",
+      "method": "DELETE",
+      "path": "/api/directory/{user_id}",
+      "api_workflows": [
+        "admin-user-role-profile-management"
+      ]
+    },
+    {
+      "workflow": "admin-organization-directory",
+      "ui_action": "admin-organization-rename-delete",
+      "condition": "Directory branch controls under cosmetic super-admin flag",
+      "service": "admin",
+      "method": "POST",
+      "path": "/api/directory/institutes/rename",
+      "api_workflows": [
+        "admin-organization-directory"
+      ]
+    },
+    {
+      "workflow": "admin-organization-directory",
+      "ui_action": "admin-organization-rename-delete",
+      "condition": "Directory branch controls under cosmetic super-admin flag",
+      "service": "admin",
+      "method": "POST",
+      "path": "/api/directory/institutes/delete",
+      "api_workflows": [
+        "admin-organization-directory"
+      ]
+    },
+    {
+      "workflow": "admin-organization-directory",
+      "ui_action": "admin-organization-rename-delete",
+      "condition": "Directory branch controls under cosmetic super-admin flag",
+      "service": "admin",
+      "method": "POST",
+      "path": "/api/directory/departments/rename",
+      "api_workflows": [
+        "admin-organization-directory"
+      ]
+    },
+    {
+      "workflow": "admin-organization-directory",
+      "ui_action": "admin-organization-rename-delete",
+      "condition": "Directory branch controls under cosmetic super-admin flag",
+      "service": "admin",
+      "method": "POST",
+      "path": "/api/directory/departments/delete",
+      "api_workflows": [
+        "admin-organization-directory"
+      ]
+    },
+    {
+      "workflow": "admin-course-ownership-teachers",
+      "ui_action": "admin-transfer-course-owner",
+      "condition": "Selected analytics course; no verified assignment permission requirement",
+      "service": "admin",
+      "method": "POST",
+      "path": "/api/dashboard/agents/{agent_id}/transfer-ownership",
+      "api_workflows": [
+        "admin-course-ownership-teachers"
+      ]
+    },
+    {
+      "workflow": "admin-course-ownership-teachers",
+      "ui_action": "admin-replace-course-teachers",
+      "condition": "Selected analytics course; no verified assignment permission requirement",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/dashboard/agents/{agent_id}/teachers",
+      "api_workflows": [
+        "admin-course-ownership-teachers"
+      ]
+    },
+    {
+      "workflow": "admin-course-ownership-teachers",
+      "ui_action": "admin-replace-course-teachers",
+      "condition": "Selected analytics course; no verified assignment permission requirement",
+      "service": "admin",
+      "method": "POST",
+      "path": "/api/dashboard/agents/{agent_id}/teachers",
+      "api_workflows": [
+        "admin-course-ownership-teachers"
+      ]
+    },
+    {
+      "workflow": "admin-student-roster",
+      "ui_action": "admin-assignment-permission-check",
+      "condition": "Directory or Analytics and VITE_STUDENT_ASSIGNMENTS_ENABLED === 'true'",
+      "service": "main",
+      "method": "GET",
+      "path": "/auth/me",
+      "api_workflows": [
+        "main-session"
+      ]
+    },
+    {
+      "workflow": "admin-student-roster",
+      "ui_action": "admin-assignment-permission-check",
+      "condition": "Directory or Analytics and VITE_STUDENT_ASSIGNMENTS_ENABLED === 'true'",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/user/{user_id}",
+      "api_workflows": [
+        "main-profile-legacy"
+      ]
+    },
+    {
+      "workflow": "admin-student-roster",
+      "ui_action": "admin-roster-open-load",
+      "condition": "Verified optional assignment access",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_id}/students",
+      "api_workflows": [
+        "domain-agent-roster"
+      ]
+    },
+    {
+      "workflow": "admin-student-roster",
+      "ui_action": "admin-roster-open-load",
+      "condition": "Verified optional assignment access",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/directory",
+      "api_workflows": [
+        "admin-user-directory"
+      ]
+    },
+    {
+      "workflow": "admin-student-roster",
+      "ui_action": "admin-roster-save-reload-discard",
+      "condition": "Verified optional assignment access and validated loaded roster",
+      "service": "main",
+      "method": "PUT",
+      "path": "/api/agents/{agent_id}/students",
+      "api_workflows": [
+        "domain-agent-roster"
+      ]
+    },
+    {
+      "workflow": "admin-student-roster",
+      "ui_action": "admin-roster-save-reload-discard",
+      "condition": "Verified optional assignment access and validated loaded roster",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_id}/students",
+      "api_workflows": [
+        "domain-agent-roster"
+      ]
+    },
+    {
+      "workflow": "admin-student-roster",
+      "ui_action": "admin-roster-save-reload-discard",
+      "condition": "Verified optional assignment access and validated loaded roster",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/directory",
+      "api_workflows": [
+        "admin-user-directory"
+      ]
+    },
+    {
+      "workflow": "admin-course-placement",
+      "ui_action": "admin-placement-open-load",
+      "condition": "Verified optional assignment access",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_id}/placement",
+      "api_workflows": [
+        "domain-course-placement"
+      ]
+    },
+    {
+      "workflow": "admin-course-placement",
+      "ui_action": "admin-placement-open-load",
+      "condition": "Verified optional assignment access",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/directory",
+      "api_workflows": [
+        "admin-user-directory"
+      ]
+    },
+    {
+      "workflow": "admin-course-placement",
+      "ui_action": "admin-placement-save-clear-discard",
+      "condition": "Verified optional assignment access and saved placement revision",
+      "service": "main",
+      "method": "PUT",
+      "path": "/api/agents/{agent_id}/placement",
+      "api_workflows": [
+        "domain-course-placement"
+      ]
+    },
+    {
+      "workflow": "admin-course-placement",
+      "ui_action": "admin-placement-save-clear-discard",
+      "condition": "Verified optional assignment access and saved placement revision",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_id}/placement",
+      "api_workflows": [
+        "domain-course-placement"
+      ]
+    },
+    {
+      "workflow": "admin-course-placement",
+      "ui_action": "admin-placement-save-clear-discard",
+      "condition": "Verified optional assignment access and saved placement revision",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/directory",
+      "api_workflows": [
+        "admin-user-directory"
+      ]
+    },
+    {
+      "workflow": "admin-analytics-chat",
+      "ui_action": "admin-chat-send-stop",
+      "condition": "Analytics institution, department and TA selected to open Ask Agent",
+      "service": "admin",
+      "method": "POST",
+      "path": "/api/dashboard/logging-agent/chat/stream",
+      "api_workflows": [
+        "admin-analytics-chat"
+      ]
+    },
+    {
+      "workflow": "admin-institute-department-research",
+      "ui_action": "admin-research-status-poll",
+      "condition": "Loaded directory under cosmetic super-admin flag; interval for researching keys",
+      "service": "admin",
+      "method": "POST",
+      "path": "/api/dashboard/directory/research/bulk-status",
+      "api_workflows": [
+        "admin-institute-department-research"
+      ]
+    },
+    {
+      "workflow": "admin-institute-department-research",
+      "ui_action": "admin-research-status-poll",
+      "condition": "Loaded directory under cosmetic super-admin flag; interval for researching keys",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/dashboard/directory/institutes/research",
+      "api_workflows": [
+        "admin-institute-department-research"
+      ]
+    },
+    {
+      "workflow": "admin-institute-department-research",
+      "ui_action": "admin-research-status-poll",
+      "condition": "Loaded directory under cosmetic super-admin flag; interval for researching keys",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/dashboard/directory/departments/research",
+      "api_workflows": [
+        "admin-institute-department-research"
+      ]
+    },
+    {
+      "workflow": "admin-institute-department-research",
+      "ui_action": "admin-research-start-retry",
+      "condition": "Directory institute/department Research or Retry control",
+      "service": "admin",
+      "method": "POST",
+      "path": "/api/dashboard/directory/institutes/research",
+      "api_workflows": [
+        "admin-institute-department-research"
+      ]
+    },
+    {
+      "workflow": "admin-institute-department-research",
+      "ui_action": "admin-research-start-retry",
+      "condition": "Directory institute/department Research or Retry control",
+      "service": "admin",
+      "method": "POST",
+      "path": "/api/dashboard/directory/departments/research",
+      "api_workflows": [
+        "admin-institute-department-research"
+      ]
+    },
+    {
+      "workflow": "admin-institute-department-research",
+      "ui_action": "admin-research-view-rerun",
+      "condition": "Directory research result viewer",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/dashboard/directory/institutes/research",
+      "api_workflows": [
+        "admin-institute-department-research"
+      ]
+    },
+    {
+      "workflow": "admin-institute-department-research",
+      "ui_action": "admin-research-view-rerun",
+      "condition": "Directory research result viewer",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/dashboard/directory/departments/research",
+      "api_workflows": [
+        "admin-institute-department-research"
+      ]
+    },
+    {
+      "workflow": "admin-institute-department-research",
+      "ui_action": "admin-research-view-rerun",
+      "condition": "Directory research result viewer",
+      "service": "admin",
+      "method": "POST",
+      "path": "/api/dashboard/directory/institutes/research",
+      "api_workflows": [
+        "admin-institute-department-research"
+      ]
+    },
+    {
+      "workflow": "admin-institute-department-research",
+      "ui_action": "admin-research-view-rerun",
+      "condition": "Directory research result viewer",
+      "service": "admin",
+      "method": "POST",
+      "path": "/api/dashboard/directory/departments/research",
+      "api_workflows": [
+        "admin-institute-department-research"
+      ]
+    },
+    {
+      "workflow": "admin-institute-department-research",
+      "ui_action": "admin-research-cancel",
+      "condition": "Researching status control",
+      "service": "admin",
+      "method": "DELETE",
+      "path": "/api/dashboard/directory/institutes/research",
+      "api_workflows": [
+        "admin-institute-department-research"
+      ]
+    },
+    {
+      "workflow": "admin-institute-department-research",
+      "ui_action": "admin-research-cancel",
+      "condition": "Researching status control",
+      "service": "admin",
+      "method": "DELETE",
+      "path": "/api/dashboard/directory/departments/research",
+      "api_workflows": [
+        "admin-institute-department-research"
+      ]
+    },
+    {
+      "workflow": "admin-feedback-assets",
+      "ui_action": "admin-feedback-load-filter",
+      "condition": "/feedback",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/dashboard/feedback",
+      "api_workflows": [
+        "admin-feedback-assets"
+      ]
+    },
+    {
+      "workflow": "admin-feedback-assets",
+      "ui_action": "admin-feedback-attachments",
+      "condition": "Feedback item has saved attachment URLs",
+      "service": "admin",
+      "method": "GET",
+      "path": "/api/dashboard/blob/proxy",
+      "api_workflows": [
+        "admin-feedback-assets"
+      ]
+    },
+    {
+      "workflow": "ui-shell",
+      "service": "main",
+      "method": "GET",
+      "path": "/auth/me",
+      "api_workflows": [
+        "main-session"
+      ]
+    },
+    {
+      "workflow": "ui-shell",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/config",
+      "api_workflows": [
+        "domain-system-status"
+      ]
+    },
+    {
+      "workflow": "ui-authentication",
+      "service": "main",
+      "method": "GET",
+      "path": "/auth/login",
+      "api_workflows": [
+        "main-entra-sign-in"
+      ]
+    },
+    {
+      "workflow": "ui-authentication",
+      "service": "main",
+      "method": "GET",
+      "path": "/auth/google/login",
+      "api_workflows": [
+        "main-google-sign-in"
+      ]
+    },
+    {
+      "workflow": "ui-authentication",
+      "service": "main",
+      "method": "GET",
+      "path": "/auth/me",
+      "api_workflows": [
+        "main-session"
+      ]
+    },
+    {
+      "workflow": "ui-authentication",
+      "service": "main",
+      "method": "POST",
+      "path": "/auth/logout",
+      "api_workflows": [
+        "main-session"
+      ]
+    },
+    {
+      "workflow": "ui-authentication",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/user/{userId}",
+      "api_workflows": [
+        "main-profile-legacy"
+      ]
+    },
+    {
+      "workflow": "ui-authentication",
+      "service": "main",
+      "method": "PUT",
+      "path": "/api/user/{userId}",
+      "api_workflows": [
+        "main-profile-legacy"
+      ]
+    },
+    {
+      "workflow": "ui-onboarding",
+      "service": "main",
+      "method": "PUT",
+      "path": "/api/user/{userId}",
+      "api_workflows": [
+        "main-profile-legacy"
+      ]
+    },
+    {
+      "workflow": "ui-settings",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/user/{userId}",
+      "api_workflows": [
+        "main-profile-legacy"
+      ]
+    },
+    {
+      "workflow": "ui-settings",
+      "service": "main",
+      "method": "PUT",
+      "path": "/api/user/{userId}",
+      "api_workflows": [
+        "main-profile-legacy"
+      ]
+    },
+    {
+      "workflow": "ui-library",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/azure/agents/list",
+      "api_workflows": [
+        "domain-agent-connect-list"
+      ]
+    },
+    {
+      "workflow": "ui-library",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/setup/{agent_name}",
+      "api_workflows": [
+        "main-agent-setup"
+      ]
+    },
+    {
+      "workflow": "ui-invitation",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/connect-by-code",
+      "api_workflows": [
+        "domain-agent-connect-list"
+      ]
+    },
+    {
+      "workflow": "ui-course-management",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_name}/details",
+      "api_workflows": [
+        "main-agent-inspection"
+      ]
+    },
+    {
+      "workflow": "ui-course-management",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_id}/manage-code",
+      "api_workflows": [
+        "main-manage-codes"
+      ]
+    },
+    {
+      "workflow": "ui-course-management",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/{agent_id}/circuit/tool",
+      "api_workflows": [
+        "domain-circuit-tool-control"
+      ]
+    },
+    {
+      "workflow": "ui-course-management",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/{agent_id}/slides/tool",
+      "api_workflows": [
+        "domain-slides-tool-control"
+      ]
+    },
+    {
+      "workflow": "ui-chat-turn",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/{agent_id}/chat/stream",
+      "api_workflows": [
+        "domain-chat-turn"
+      ]
+    },
+    {
+      "workflow": "ui-chat-turn",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/{agent_id}/chat/agui",
+      "api_workflows": [
+        "domain-chat-turn"
+      ]
+    },
+    {
+      "workflow": "ui-chat-turn",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/chat/sync",
+      "api_workflows": [
+        "main-chat-persistence"
+      ]
+    },
+    {
+      "workflow": "ui-chat-turn",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/{agent_id}/chat/suggestions",
+      "api_workflows": [
+        "domain-chat-suggestions"
+      ]
+    },
+    {
+      "workflow": "ui-chat-turn",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/assets",
+      "api_workflows": [
+        "main-assets-legacy"
+      ]
+    },
+    {
+      "workflow": "ui-chat-turn",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/quiz-assets",
+      "api_workflows": [
+        "domain-assessment-first-attempt"
+      ]
+    },
+    {
+      "workflow": "ui-history",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/chat/load/{user_id}",
+      "api_workflows": [
+        "main-chat-persistence"
+      ]
+    },
+    {
+      "workflow": "ui-history",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/chat/threads/{user_id}",
+      "api_workflows": [
+        "main-chat-persistence"
+      ]
+    },
+    {
+      "workflow": "ui-history",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/chat/thread/{thread_id}/messages",
+      "api_workflows": [
+        "main-chat-persistence"
+      ]
+    },
+    {
+      "workflow": "ui-history",
+      "service": "main",
+      "method": "PUT",
+      "path": "/api/chat/thread/{thread_id}",
+      "api_workflows": [
+        "main-chat-persistence"
+      ]
+    },
+    {
+      "workflow": "ui-history",
+      "service": "main",
+      "method": "DELETE",
+      "path": "/api/chat/thread/{thread_id}",
+      "api_workflows": [
+        "main-chat-persistence"
+      ]
+    },
+    {
+      "workflow": "ui-history",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/chat/generate-title",
+      "api_workflows": [
+        "main-chat-titles-starters"
+      ]
+    },
+    {
+      "workflow": "ui-chat-sharing",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/chat/thread/{thread_id}/share",
+      "api_workflows": [
+        "domain-chat-share"
+      ]
+    },
+    {
+      "workflow": "ui-chat-sharing",
+      "service": "main",
+      "method": "DELETE",
+      "path": "/api/chat/thread/{thread_id}/share",
+      "api_workflows": [
+        "domain-chat-share"
+      ]
+    },
+    {
+      "workflow": "ui-chat-sharing",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/shared/{share_token}",
+      "api_workflows": [
+        "main-public-chat-share"
+      ]
+    },
+    {
+      "workflow": "ui-attachments-speech",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/blob/upload",
+      "api_workflows": [
+        "main-blob-legacy"
+      ]
+    },
+    {
+      "workflow": "ui-attachments-speech",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/document/extract-text",
+      "api_workflows": [
+        "main-document-extraction"
+      ]
+    },
+    {
+      "workflow": "ui-attachments-speech",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/speech/token",
+      "api_workflows": [
+        "domain-speech-token"
+      ]
+    },
+    {
+      "workflow": "ui-clarification",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/clarify/{clarify_id}",
+      "api_workflows": [
+        "domain-chat-clarification"
+      ]
+    },
+    {
+      "workflow": "ui-clarification",
+      "service": "main",
+      "method": "PATCH",
+      "path": "/api/clarify/{clarify_id}",
+      "api_workflows": [
+        "domain-chat-clarification"
+      ]
+    },
+    {
+      "workflow": "ui-clarification",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/clarify/{clarify_id}",
+      "api_workflows": [
+        "domain-chat-clarification"
+      ]
+    },
+    {
+      "workflow": "ui-clarification",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/clarify/{clarify_id}/extend",
+      "api_workflows": [
+        "domain-chat-clarification"
+      ]
+    },
+    {
+      "workflow": "ui-documents-images",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_name}/course-materials/file",
+      "api_workflows": [
+        "domain-material-files"
+      ]
+    },
+    {
+      "workflow": "ui-documents-images",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/blob/proxy",
+      "api_workflows": [
+        "main-blob-legacy"
+      ]
+    },
+    {
+      "workflow": "ui-quiz",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/quiz-assets",
+      "api_workflows": [
+        "domain-assessment-first-attempt"
+      ]
+    },
+    {
+      "workflow": "ui-quiz",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/quiz-attempts/{quiz_id}/first",
+      "api_workflows": [
+        "domain-assessment-first-attempt"
+      ]
+    },
+    {
+      "workflow": "ui-quiz",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/quiz-attempts/first",
+      "api_workflows": [
+        "domain-assessment-first-attempt"
+      ]
+    },
+    {
+      "workflow": "ui-quiz",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/quiz-attempts/{quiz_id}/feedback",
+      "api_workflows": [
+        "domain-assessment-feedback"
+      ]
+    },
+    {
+      "workflow": "ui-slides",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/{agent_id}/slides/save",
+      "api_workflows": [
+        "domain-slides-export-copy"
+      ]
+    },
+    {
+      "workflow": "ui-slides",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/{agent_id}/slides/export",
+      "api_workflows": [
+        "domain-slides-export-copy"
+      ]
+    },
+    {
+      "workflow": "ui-slides",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_id}/slides/voices",
+      "api_workflows": [
+        "domain-slides-narration"
+      ]
+    },
+    {
+      "workflow": "ui-slides",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/{agent_id}/slides/speech",
+      "api_workflows": [
+        "domain-slides-narration"
+      ]
+    },
+    {
+      "workflow": "ui-circuits",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/{agent_id}/circuit/simulate",
+      "api_workflows": [
+        "domain-circuit-simulation"
+      ]
+    },
+    {
+      "workflow": "ui-circuits",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_id}/circuit/tool",
+      "api_workflows": [
+        "domain-circuit-tool-control"
+      ]
+    },
+    {
+      "workflow": "ui-assets",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/assets",
+      "api_workflows": [
+        "main-assets-legacy"
+      ]
+    },
+    {
+      "workflow": "ui-assets",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/assets",
+      "api_workflows": [
+        "main-assets-legacy"
+      ]
+    },
+    {
+      "workflow": "ui-assets",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/assets/{asset_id}",
+      "api_workflows": [
+        "main-assets-legacy"
+      ]
+    },
+    {
+      "workflow": "ui-assets",
+      "service": "main",
+      "method": "PUT",
+      "path": "/api/assets/{asset_id}",
+      "api_workflows": [
+        "main-assets-legacy"
+      ]
+    },
+    {
+      "workflow": "ui-assets",
+      "service": "main",
+      "method": "DELETE",
+      "path": "/api/assets/{asset_id}",
+      "api_workflows": [
+        "main-assets-legacy"
+      ]
+    },
+    {
+      "workflow": "ui-assets",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/assets/public",
+      "api_workflows": [
+        "main-assets-legacy"
+      ]
+    },
+    {
+      "workflow": "ui-learner-profile",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/learner-profile",
+      "api_workflows": [
+        "domain-learner-profile"
+      ]
+    },
+    {
+      "workflow": "ui-learner-profile",
+      "service": "main",
+      "method": "PUT",
+      "path": "/api/learner-profile",
+      "api_workflows": [
+        "domain-learner-profile"
+      ]
+    },
+    {
+      "workflow": "ui-learner-profile",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/learner-profile/learning/{agent_id}",
+      "api_workflows": [
+        "domain-learner-learning-compatibility"
+      ]
+    },
+    {
+      "workflow": "ui-curriculum",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_name}/course-curriculum",
+      "api_workflows": [
+        "domain-course-curriculum"
+      ]
+    },
+    {
+      "workflow": "ui-curriculum",
+      "service": "main",
+      "method": "PUT",
+      "path": "/api/agents/{agent_name}/course-curriculum",
+      "api_workflows": [
+        "domain-course-curriculum"
+      ]
+    },
+    {
+      "workflow": "ui-curriculum",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/{agent_name}/course-curriculum/retry",
+      "api_workflows": [
+        "domain-course-curriculum"
+      ]
+    },
+    {
+      "workflow": "ui-curriculum",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_name}/course-curriculum/versions",
+      "api_workflows": [
+        "main-curriculum-history"
+      ]
+    },
+    {
+      "workflow": "ui-curriculum",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_name}/course-curriculum/versions/{version_id}",
+      "api_workflows": [
+        "main-curriculum-history"
+      ]
+    },
+    {
+      "workflow": "ui-curriculum",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/{agent_id}/course-curriculum/translations",
+      "api_workflows": [
+        "domain-curriculum-translations"
+      ]
+    },
+    {
+      "workflow": "ui-graph-memory",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_id}/memory/config",
+      "api_workflows": [
+        "domain-memory-config"
+      ]
+    },
+    {
+      "workflow": "ui-graph-memory",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_id}/learners/{student_id}/memory",
+      "api_workflows": [
+        "domain-memory-read"
+      ]
+    },
+    {
+      "workflow": "ui-graph-memory",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_id}/learners/{student_id}/memory/context",
+      "api_workflows": [
+        "domain-memory-read"
+      ]
+    },
+    {
+      "workflow": "ui-graph-memory",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_id}/learners/{student_id}/memory/evidence/{evidence_id}",
+      "api_workflows": [
+        "domain-memory-read"
+      ]
+    },
+    {
+      "workflow": "ui-graph-authoring",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/{agent_id}/course-curriculum/graph",
+      "api_workflows": [
+        "domain-memory-graph-draft"
+      ]
+    },
+    {
+      "workflow": "ui-graph-authoring",
+      "service": "main",
+      "method": "PUT",
+      "path": "/api/agents/{agent_id}/course-curriculum/graph",
+      "api_workflows": [
+        "domain-memory-graph-draft"
+      ]
+    },
+    {
+      "workflow": "ui-graph-authoring",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/{agent_id}/course-curriculum/graph/import",
+      "api_workflows": [
+        "domain-memory-graph-draft"
+      ]
+    },
+    {
+      "workflow": "ui-graph-authoring",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/{agent_id}/course-curriculum/publish",
+      "api_workflows": [
+        "domain-memory-graph-publish"
+      ]
+    },
+    {
+      "workflow": "ui-graph-authoring",
+      "service": "main",
+      "method": "PUT",
+      "path": "/api/agents/{agent_id}/memory/config",
+      "api_workflows": [
+        "domain-memory-config"
+      ]
+    },
+    {
+      "workflow": "ui-create-course",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/knowledge/preflight",
+      "api_workflows": [
+        "domain-material-preflight"
+      ]
+    },
+    {
+      "workflow": "ui-create-course",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/knowledge/drafts",
+      "api_workflows": [
+        "domain-material-draft-upload"
+      ]
+    },
+    {
+      "workflow": "ui-create-course",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/create-async",
+      "api_workflows": [
+        "domain-course-creation"
+      ]
+    },
+    {
+      "workflow": "ui-create-course",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/creation-jobs/{job_id}",
+      "api_workflows": [
+        "domain-course-creation"
+      ]
+    },
+    {
+      "workflow": "ui-create-course",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/creation-jobs/{job_id}/retry",
+      "api_workflows": [
+        "domain-course-creation"
+      ]
+    },
+    {
+      "workflow": "ui-course-companion",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/course-form/assist",
+      "api_workflows": [
+        "domain-course-form-companion"
+      ]
+    },
+    {
+      "workflow": "ui-edit-course",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/agents/setup/{agent_name}",
+      "api_workflows": [
+        "main-agent-setup"
+      ]
+    },
+    {
+      "workflow": "ui-edit-course",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/cca/start",
+      "api_workflows": [
+        "main-builder-conversations"
+      ]
+    },
+    {
+      "workflow": "ui-edit-course",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/cca/step",
+      "api_workflows": [
+        "main-builder-conversations"
+      ]
+    },
+    {
+      "workflow": "ui-edit-course",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/agents/{agent_id}/update",
+      "api_workflows": [
+        "main-agent-update"
+      ]
+    },
+    {
+      "workflow": "ui-research",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/deep-research/stream",
+      "api_workflows": [
+        "main-deep-research"
+      ]
+    },
+    {
+      "workflow": "ui-teacher-dashboard",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/teacher-dashboard/agents",
+      "api_workflows": [
+        "main-teacher-roster"
+      ]
+    },
+    {
+      "workflow": "ui-teacher-dashboard",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/teacher-dashboard/summary",
+      "api_workflows": [
+        "main-teacher-roster"
+      ]
+    },
+    {
+      "workflow": "ui-teacher-dashboard",
+      "service": "main",
+      "method": "GET",
+      "path": "/api/teacher-dashboard/agents/{agent_id}/overview",
+      "api_workflows": [
+        "main-teacher-roster"
+      ]
+    },
+    {
+      "workflow": "ui-teacher-dashboard",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/teacher-dashboard/logging-agent/chat/stream",
+      "api_workflows": [
+        "main-teacher-insights"
+      ]
+    },
+    {
+      "workflow": "ui-feedback",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/feedback/upload-image",
+      "api_workflows": [
+        "main-feedback"
+      ]
+    },
+    {
+      "workflow": "ui-feedback",
+      "service": "main",
+      "method": "POST",
+      "path": "/api/feedback",
+      "api_workflows": [
+        "main-feedback"
+      ]
+    }
+  ]
+}

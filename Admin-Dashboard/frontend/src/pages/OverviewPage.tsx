@@ -21,6 +21,8 @@ import {
   Zap,
   MessageCircle,
   ChevronDown,
+  RefreshCw,
+  Search,
 } from "lucide-react";
 import {
   getCoursesOverview,
@@ -35,6 +37,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 
 /* ── Helpers ── */
@@ -86,8 +89,8 @@ type SortDir = "asc" | "desc";
 
 /* ── Merged row type ── */
 type CourseRow = CourseOverviewItem & {
-  avgTokensPerStudent: number;
-  avgRoundsPerStudent: number;
+  avgTokensPerStudent: number | null;
+  avgRoundsPerStudent: number | null;
 };
 
 /* ── Component ── */
@@ -102,32 +105,38 @@ export default function OverviewContent() {
 
   // Course-wise token dialog (Total Tokens card)
   const [courseTokenDialogOpen, setCourseTokenDialogOpen] = useState(false);
+  const [courseTokenSearch, setCourseTokenSearch] = useState("");
 
   // Per-student token dialog (Avg Tokens/Student cell)
   const [studentTokenDialogOpen, setStudentTokenDialogOpen] = useState(false);
   const [studentTokens, setStudentTokens] = useState<StudentTokenUsage[]>([]);
   const [studentTokenDialogLoading, setStudentTokenDialogLoading] = useState(false);
+  const [studentTokenError, setStudentTokenError] = useState<string | null>(null);
   const [studentTokenDialogCourse, setStudentTokenDialogCourse] = useState("");
 
   // Per-student rounds dialog (Avg Rounds/Student cell)
   const [studentRoundsDialogOpen, setStudentRoundsDialogOpen] = useState(false);
   const [studentRounds, setStudentRounds] = useState<StudentTokenUsage[]>([]);
   const [studentRoundsDialogLoading, setStudentRoundsDialogLoading] = useState(false);
+  const [studentRoundsError, setStudentRoundsError] = useState<string | null>(null);
   const [studentRoundsDialogCourse, setStudentRoundsDialogCourse] = useState("");
 
   const openCourseTokenDialog = () => {
+    setCourseTokenSearch("");
     setCourseTokenDialogOpen(true);
   };
 
   const openStudentTokenDialog = async (agentId: string, courseName: string) => {
     setStudentTokenDialogOpen(true);
     setStudentTokenDialogLoading(true);
+    setStudentTokenError(null);
+    setStudentTokens([]);
     setStudentTokenDialogCourse(courseName);
     try {
       const data = await getTokenUsagePerStudent(agentId);
       setStudentTokens(data.students);
     } catch {
-      setStudentTokens([]);
+      setStudentTokenError("Student token usage could not be loaded. Please try again.");
     } finally {
       setStudentTokenDialogLoading(false);
     }
@@ -136,13 +145,15 @@ export default function OverviewContent() {
   const openStudentRoundsDialog = async (agentId: string, courseName: string) => {
     setStudentRoundsDialogOpen(true);
     setStudentRoundsDialogLoading(true);
+    setStudentRoundsError(null);
+    setStudentRounds([]);
     setStudentRoundsDialogCourse(courseName);
     try {
       const data = await getTokenUsagePerStudent(agentId);
       // Sort by rounds descending
       setStudentRounds([...data.students].sort((a, b) => b.rounds - a.rounds));
     } catch {
-      setStudentRounds([]);
+      setStudentRoundsError("Student rounds could not be loaded. Please try again.");
     } finally {
       setStudentRoundsDialogLoading(false);
     }
@@ -151,6 +162,7 @@ export default function OverviewContent() {
   // Period stats
   const [periodStats, setPeriodStats] = useState<TodayStats | null>(null);
   const [periodLoading, setPeriodLoading] = useState(true);
+  const [periodError, setPeriodError] = useState<string | null>(null);
   const [periodKey, setPeriodKey] = useState<PeriodKey>("today");
   const [customStart, setCustomStart] = useState(toISODate(new Date()));
   const [customEnd, setCustomEnd] = useState(toISODate(new Date()));
@@ -158,6 +170,7 @@ export default function OverviewContent() {
 
   const fetchPeriodStats = useCallback(async (key: PeriodKey, cStart?: string, cEnd?: string) => {
     setPeriodLoading(true);
+    setPeriodError(null);
     try {
       const range = key === "custom"
         ? { start: cStart || customStart, end: cEnd || customEnd }
@@ -166,6 +179,7 @@ export default function OverviewContent() {
       setPeriodStats(data);
     } catch {
       setPeriodStats(null);
+      setPeriodError("Usage for this period could not be loaded.");
     } finally {
       setPeriodLoading(false);
     }
@@ -199,12 +213,12 @@ export default function OverviewContent() {
   // Compute derived fields
   const rows: CourseRow[] = useMemo(() => {
     return courses.map((c) => {
-      const active = c.activeUsers || 1;
+      const active = c.attributedStudents ?? c.activeUsers;
       return {
         ...c,
-        avgTokensPerStudent: active > 0 ? Math.round((c.totalTokens ?? 0) / active) : 0,
+        avgTokensPerStudent: active > 0 ? Math.round((c.attributedTokens ?? c.totalTokens ?? 0) / active) : null,
         avgRoundsPerStudent:
-          active > 0 ? Math.round(((c.rounds ?? 0) / active) * 10) / 10 : 0,
+          active > 0 ? Math.round(((c.attributedRounds ?? c.rounds ?? 0) / active) * 10) / 10 : null,
       };
     });
   }, [courses]);
@@ -231,10 +245,10 @@ export default function OverviewContent() {
           cmp = (a.totalTokens ?? 0) - (b.totalTokens ?? 0);
           break;
         case "avgTokens":
-          cmp = a.avgTokensPerStudent - b.avgTokensPerStudent;
+          cmp = (a.avgTokensPerStudent ?? -1) - (b.avgTokensPerStudent ?? -1);
           break;
         case "avgRounds":
-          cmp = a.avgRoundsPerStudent - b.avgRoundsPerStudent;
+          cmp = (a.avgRoundsPerStudent ?? -1) - (b.avgRoundsPerStudent ?? -1);
           break;
       }
       return sortDir === "asc" ? cmp : -cmp;
@@ -267,6 +281,12 @@ export default function OverviewContent() {
     const totalTok = rows.reduce((s, r) => s + (r.totalTokens ?? 0), 0);
     return { totalActive, totalTok, courseCount: rows.length };
   }, [rows]);
+
+  const tokenCourses = rows
+    .filter((course) => (course.totalTokens ?? 0) > 0)
+    .sort((first, second) => second.totalTokens - first.totalTokens || first.course.localeCompare(second.course));
+  const courseQuery = courseTokenSearch.trim().toLocaleLowerCase();
+  const matchingTokenCourses = tokenCourses.filter((course) => course.course.toLocaleLowerCase().includes(courseQuery));
 
   if (loading) {
     return (
@@ -343,32 +363,46 @@ export default function OverviewContent() {
               )}
             </div>
           </div>
+          {periodError && (
+            <div role="alert" className="mb-2 flex items-center justify-between gap-2 text-xs text-red-400">
+              <span>{periodError}</span>
+              <button
+                type="button"
+                onClick={() => fetchPeriodStats(periodKey)}
+                aria-label="Retry period statistics"
+                title="Retry period statistics"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded hover:bg-neutral-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-400"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-2">
             <SummaryCard
               icon={<Users className="w-4 h-4" />}
               label="Active Students"
-              value={periodStats?.activeStudents ?? 0}
+              value={periodStats?.activeStudents ?? "Unavailable"}
               accent="emerald"
               loading={periodLoading}
             />
             <SummaryCard
               icon={<Coins className="w-4 h-4" />}
               label="Tokens Used"
-              value={formatNumber(periodStats?.tokens ?? 0)}
+              value={periodStats ? formatNumber(periodStats.tokens) : "Unavailable"}
               accent="purple"
               loading={periodLoading}
             />
             <SummaryCard
               icon={<Zap className="w-4 h-4" />}
               label="Rounds"
-              value={periodStats?.rounds ?? 0}
+              value={periodStats?.rounds ?? "Unavailable"}
               accent="blue"
               loading={periodLoading}
             />
             <SummaryCard
               icon={<MessageCircle className="w-4 h-4" />}
               label="New Conversations"
-              value={periodStats?.newConversations ?? 0}
+              value={periodStats?.newConversations ?? "Unavailable"}
               accent="amber"
               loading={periodLoading}
             />
@@ -412,36 +446,68 @@ export default function OverviewContent() {
 
       {/* ── Course-wise Token Distribution Dialog ── */}
       <Dialog open={courseTokenDialogOpen} onOpenChange={setCourseTokenDialogOpen}>
-        <DialogContent className="max-w-4xl bg-neutral-900 border-neutral-800 max-h-[85vh] flex flex-col">
-          <DialogHeader>
-            <div className="flex items-center justify-between pr-8">
-              <DialogTitle className="text-neutral-100">
-                Token Usage by Course
-              </DialogTitle>
-              <div className="flex items-center gap-4 text-xs text-neutral-500">
-                <span>{rows.filter((r) => (r.totalTokens ?? 0) > 0).length} courses</span>
-                <span>Total: {formatNumber(totals.totalTok)} tokens</span>
-              </div>
-            </div>
+        <DialogContent className="flex max-h-[85dvh] w-[calc(100%_-_2rem)] max-w-4xl flex-col gap-0 overflow-hidden rounded-lg border-neutral-800 bg-neutral-900 p-0">
+          <DialogHeader className="shrink-0 space-y-2 px-4 pb-4 pt-5 pr-12 text-left sm:px-6 sm:pr-14">
+            <DialogTitle className="text-lg leading-tight tracking-normal text-neutral-100">
+              Token Usage by Course
+            </DialogTitle>
+            <DialogDescription className="flex flex-wrap gap-x-4 gap-y-1 text-xs tabular-nums text-neutral-400">
+              <span>{tokenCourses.length} courses</span>
+              <span>{totals.totalTok.toLocaleString()} tokens total</span>
+            </DialogDescription>
           </DialogHeader>
-          {rows.length === 0 ? (
-            <div className="text-center py-12 text-neutral-500">
-              No course data found.
-            </div>
-          ) : (
-            <div className="flex-1 -mx-6 px-6 overflow-x-auto">
-              <LineChart
-                data={rows.filter((r) => (r.totalTokens ?? 0) > 0).map((r) => ({
-                  label: r.course,
-                  value: r.totalTokens ?? 0,
-                  tooltip: `${r.course}\n${formatNumber(r.totalTokens ?? 0)} tokens · ${r.activeUsers} students`,
-                }))}
-                color="rgb(168,85,247)"
-                gradientId="courseTokenGrad"
-                showLabels
+          <div className="shrink-0 border-y border-neutral-800 px-4 py-3 sm:px-6">
+            <div className="relative">
+              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-neutral-500" />
+              <input
+                type="search"
+                aria-label="Search courses"
+                placeholder="Search courses"
+                value={courseTokenSearch}
+                onChange={(event) => setCourseTokenSearch(event.target.value)}
+                className="h-9 w-full min-w-0 rounded-md border border-neutral-700 bg-neutral-950 py-2 pl-9 pr-3 text-sm text-neutral-100 placeholder:text-neutral-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-400"
               />
             </div>
-          )}
+          </div>
+          <div className="flex shrink-0 justify-between gap-3 px-4 py-2 text-xs text-neutral-500 sm:px-6">
+            <span aria-live="polite">
+              {courseQuery ? `${matchingTokenCourses.length} of ${tokenCourses.length} courses` : "Course"}
+            </span>
+            <span className="shrink-0">Tokens / Share</span>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain [scrollbar-gutter:stable]">
+            {matchingTokenCourses.length === 0 ? (
+              <div role="status" className="px-4 py-12 text-center text-sm text-neutral-400">
+                {courseQuery ? "No matching courses." : "No token usage recorded."}
+              </div>
+            ) : (
+              <ol aria-label="Course token usage" className="divide-y divide-neutral-800/70">
+                {matchingTokenCourses.map((course) => {
+                  const share = totals.totalTok > 0 ? (course.totalTokens / totals.totalTok) * 100 : 0;
+                  return (
+                    <li key={course.agentId} className="px-4 py-3 sm:px-6">
+                      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+                        <span className="min-w-0 text-sm font-medium leading-5 text-neutral-100 [overflow-wrap:anywhere]">
+                          {course.course}
+                        </span>
+                        <div className="text-right tabular-nums">
+                          <span className="block whitespace-nowrap text-sm font-semibold text-neutral-100">
+                            {course.totalTokens.toLocaleString()}
+                          </span>
+                          <span className="block text-xs text-neutral-400">
+                            {share > 0 && share < 0.1 ? "<0.1" : share.toFixed(1)}%
+                          </span>
+                        </div>
+                      </div>
+                      <div aria-hidden="true" className="mt-2 h-1.5 overflow-hidden rounded-sm bg-neutral-800">
+                        <div className="h-full bg-purple-400" style={{ width: `${share}%` }} />
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -464,6 +530,10 @@ export default function OverviewContent() {
           {studentTokenDialogLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-6 h-6 text-neutral-400 animate-spin" />
+            </div>
+          ) : studentTokenError ? (
+            <div role="alert" className="py-12 text-center text-red-400">
+              {studentTokenError}
             </div>
           ) : studentTokens.length === 0 ? (
             <div className="text-center py-12 text-neutral-500">
@@ -504,6 +574,10 @@ export default function OverviewContent() {
           {studentRoundsDialogLoading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-6 h-6 text-neutral-400 animate-spin" />
+            </div>
+          ) : studentRoundsError ? (
+            <div role="alert" className="py-12 text-center text-red-400">
+              {studentRoundsError}
             </div>
           ) : studentRounds.length === 0 ? (
             <div className="text-center py-12 text-neutral-500">
@@ -563,6 +637,11 @@ export default function OverviewContent() {
                 >
                   <td className="px-4 py-3 font-medium text-neutral-100">
                     {row.course}
+                    {(row.progress_available === false || row.graph_memory_mode === "authoritative" || row.graph_memory_mode === "shadow") && (
+                      <p className="mt-1 max-w-sm text-xs font-normal text-amber-300" role="status">
+                        Graph Memory ({row.graph_memory_mode || "enabled"}): legacy progress unavailable. Use the authorized teacher view.
+                      </p>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-neutral-400">
                     {row.institute || "—"}
@@ -590,14 +669,14 @@ export default function OverviewContent() {
                     onClick={() => openStudentTokenDialog(row.agentId, row.course)}
                     title="Click to see student breakdown"
                   >
-                    <span className="border-b border-dashed border-neutral-500 hover:border-purple-400 text-neutral-200">{formatNumber(row.avgTokensPerStudent)}</span>
+                    <span className="border-b border-dashed border-neutral-500 hover:border-purple-400 text-neutral-200">{row.avgTokensPerStudent === null ? "Unavailable" : formatNumber(row.avgTokensPerStudent)}</span>
                   </td>
                   <td
                     className="px-4 py-3 text-right font-mono cursor-pointer hover:text-emerald-400 transition-colors"
                     onClick={() => openStudentRoundsDialog(row.agentId, row.course)}
                     title="Click to see rounds breakdown"
                   >
-                    <span className="border-b border-dashed border-neutral-500 hover:border-emerald-400 text-neutral-200">{row.avgRoundsPerStudent}</span>
+                    <span className="border-b border-dashed border-neutral-500 hover:border-emerald-400 text-neutral-200">{row.avgRoundsPerStudent ?? "Unavailable"}</span>
                   </td>
                 </tr>
               ))}
@@ -653,20 +732,23 @@ function SummaryCard({
     amber: "text-amber-400",
     purple: "text-purple-400",
   };
+  const Card = onClick ? "button" : "div";
   return (
-    <div
+    <Card
+      type={onClick ? "button" : undefined}
+      aria-label={onClick ? `View ${label.toLowerCase()}` : undefined}
       className={`bg-neutral-900/80 rounded-lg border border-neutral-800/60 px-3 py-2.5 flex items-center gap-2.5 ${
-        onClick ? "cursor-pointer hover:border-neutral-700 hover:bg-neutral-800/80 transition-colors" : ""
+        onClick ? "w-full cursor-pointer text-left hover:border-neutral-700 hover:bg-neutral-800/80 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-400" : ""
       }`}
       onClick={onClick}
     >
       <div className={`${colors[accent] || "text-neutral-400"}`}>{icon}</div>
-      <div>
-        <div className="text-xl font-bold text-neutral-100 flex items-center gap-1.5 leading-tight">
+      <div className="min-w-0">
+        <div className={`${value === "Unavailable" ? "text-xs" : "text-xl"} font-bold text-neutral-100 flex items-center gap-1.5 leading-tight break-words`}>
           {loading ? (
             <Loader2 className="w-4 h-4 animate-spin text-neutral-500" />
           ) : (
-            value
+            <span className="min-w-0 break-words">{value}</span>
           )}
         </div>
         <div className="text-[11px] text-neutral-500">
@@ -674,7 +756,7 @@ function SummaryCard({
           {onClick && <span className="ml-1 text-neutral-600">▸</span>}
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
 

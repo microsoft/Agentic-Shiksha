@@ -1,0 +1,36 @@
+%% Semantic companion to the composed SVG illustration; not its visual layout.
+flowchart TB
+  TC1["TC1<br/>Complete<br/>circuits"]
+  TC2["TC2<br/>Current<br/>conservation"]
+  MC1["MC1<br/>A single wire<br/>is enough"]
+  MC3["MC3<br/>Current is<br/>used up"]
+  MC2["MC2<br/>Voltage equals<br/>current"]
+  L1["L1"]
+  P1["Profile<br/>Goals / context"]
+  S1["S1"]
+  S2["S2"]
+  S3["S3"]
+  CS1["TC1 / concept state<br/>Progressing<br/>Threshold not crossed"]
+  CS2["TC2 / concept state<br/>Not attempted<br/>Threshold not crossed"]
+  MS3["MC3 / misconception state<br/>Resolving"]
+  E12["E12"]
+  E19["E19"]
+  TC1 -->|PREREQUISITE_OF| TC2
+  TC1 -->|HAS_COMMON_MISCONCEPTION| MC1
+  TC1 -->|HAS_COMMON_MISCONCEPTION| MC3
+  TC2 -->|HAS_COMMON_MISCONCEPTION| MC3
+  TC2 -->|HAS_COMMON_MISCONCEPTION| MC2
+  L1 -->|HAS_PROFILE| P1
+  L1 -->|HAS_SESSION| S1
+  S1 -->|NEXT_SESSION| S2
+  S2 -->|NEXT_SESSION| S3
+  L1 -->|HAS_CONCEPT_STATE| CS1
+  L1 -->|HAS_CONCEPT_STATE| CS2
+  CS1 -->|HAS_ASSOCIATED_STATE| MS3
+  CS2 -->|HAS_ASSOCIATED_STATE| MS3
+  L1 -->|HAS_MISCONCEPTION_STATE| MS3
+  MS3 -->|HAS_EVIDENCE| E12
+  MS3 -->|HAS_EVIDENCE| E19
+  CS1 -->|INSTANCE_OF| TC1
+  CS2 -->|INSTANCE_OF| TC2
+  MS3 -->|INSTANCE_OF| MC3

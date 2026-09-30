@@ -1,0 +1,1194 @@
+{
+  "projectName": "Agentic Shiksha",
+  "count": 16,
+  "generatedOn": "2026-09-30",
+  "tutorials": [
+    {
+      "id": "onboarding-profile",
+      "name": "shiksha-onboarding-profile-tutorial",
+      "title": "Set up your learner profile",
+      "role": "Learner",
+      "duration": 33.166666666666664,
+      "width": 1360,
+      "height": 928,
+      "note": "The real first-run flow starts after simulated sign-in. Profile details and saves are synthetic, isolated in memory; no external identity or real learner profile is changed.",
+      "chapters": [
+        {
+          "start": 0,
+          "end": 5,
+          "caption": "01  Begin after sign-in and choose the name you want your tutor to use."
+        },
+        {
+          "start": 5,
+          "end": 11,
+          "caption": "02  Add a hometown and a familiar language for a more personal profile."
+        },
+        {
+          "start": 11,
+          "end": 17.666666666666668,
+          "caption": "03  Share your interests and finish the first-run setup."
+        },
+        {
+          "start": 17.666666666666668,
+          "end": 21.666666666666668,
+          "caption": "04  Open Settings to review the profile saved during onboarding."
+        },
+        {
+          "start": 21.666666666666668,
+          "end": 27.25,
+          "caption": "05  Update a profile detail, then save and verify the confirmed value."
+        },
+        {
+          "start": 27.25,
+          "end": 33.166666666666664,
+          "caption": "06  Return to the library and begin learning with four course starters."
+        }
+      ],
+      "presentation": {
+        "configuredCourseStarters": 4,
+        "verifiedWelcomeScreens": 1,
+        "assetChecks": []
+      },
+      "layout": "single-screen",
+      "headerStyle": {
+        "background": "#EDE9FE",
+        "text": "#30264D",
+        "badge": false
+      },
+      "verification": {
+        "feature": "onboarding-profile",
+        "completedOnboarding": true,
+        "savedProfile": {
+          "nickname": "Asha",
+          "language": "Kannada",
+          "currentLocation": "Bengaluru",
+          "passionateAbout": "Science puzzles, drawing and learning how things work."
+        },
+        "writesVerified": 2,
+        "provenance": "Fresh synthetic signed-in learner; onboarding and profile writes are intercepted in memory, not persisted to a real account."
+      },
+      "source": "Agentic Shiksha Platform/Frontend"
+    },
+    {
+      "id": "teacher-roster",
+      "name": "shiksha-teacher-roster-tutorial",
+      "title": "Review learners and their work",
+      "role": "Teacher",
+      "duration": 33.416666666666664,
+      "width": 1360,
+      "height": 928,
+      "note": "The embedded teacher dashboard shows a fictional course and roster. Learner progress and artifact data are controlled local fixtures, not real participant records or measured outcomes.",
+      "chapters": [
+        {
+          "start": 0,
+          "end": 6.5,
+          "caption": "01  Open Dashboard and confirm the course before reviewing its learners."
+        },
+        {
+          "start": 6.5,
+          "end": 10.333333333333334,
+          "caption": "02  My Students shows the roster and the course plan side by side."
+        },
+        {
+          "start": 10.333333333333334,
+          "end": 16.333333333333332,
+          "caption": "03  Select a learner and expand a concept. In progress is not a mastery claim."
+        },
+        {
+          "start": 16.333333333333332,
+          "end": 22,
+          "caption": "04  Switch to Topics to read the learner's recorded work against the syllabus."
+        },
+        {
+          "start": 22,
+          "end": 29.583333333333332,
+          "caption": "05  Open Assets to read the saved example, with navigation already collapsed."
+        },
+        {
+          "start": 29.583333333333332,
+          "end": 33.416666666666664,
+          "caption": "06  Close the preview to return to the same learner and their course work."
+        }
+      ],
+      "presentation": {
+        "configuredCourseStarters": 4,
+        "starterRuleApplicable": true,
+        "verifiedWelcomeScreens": 0,
+        "assetChecks": [
+          {
+            "event": "teacher-document-preview",
+            "atSeconds": 24.416666666666668,
+            "navigationCollapsed": true
+          }
+        ]
+      },
+      "layout": "single-screen",
+      "headerStyle": {
+        "background": "#EDE9FE",
+        "text": "#30264D",
+        "badge": false
+      },
+      "verification": {
+        "synthetic": true,
+        "courseId": "course-Electricity-Basics",
+        "enrolledLearners": 3,
+        "conceptsCrossed": 0,
+        "readOnly": true,
+        "endpoints": [
+          "/api/teacher-dashboard/agents",
+          "/api/teacher-dashboard/agents/course-Electricity-Basics/curriculum",
+          "/api/teacher-dashboard/agents/course-Electricity-Basics/overview",
+          "/api/teacher-dashboard/agents/course-Electricity-Basics/students/tutorial-learner-a",
+          "/api/teacher-dashboard/agents/course-Electricity-Basics/students/tutorial-learner-a/assets",
+          "/api/teacher-dashboard/agents/course-Electricity-Basics/students/tutorial-learner-a/assets/tutorial-fixed-voltage-note",
+          "/api/teacher-dashboard/summary",
+          "/api/teacher-dashboard/usage/analytics"
+        ],
+        "learnerId": "tutorial-learner-a",
+        "openedAssetId": "tutorial-fixed-voltage-note",
+        "navigationCollapsedBeforeAsset": true
+      },
+      "source": "Agentic Shiksha Platform/Frontend"
+    },
+    {
+      "id": "teacher-usage",
+      "name": "shiksha-teacher-usage-tutorial",
+      "title": "Explore course usage and activity",
+      "role": "Teacher",
+      "duration": 31.416666666666668,
+      "width": 1360,
+      "height": 928,
+      "note": "Actual usage and learning-activity controls with synthetic analytics. Filtering changes local fixture responses; the figures are illustrative, not live service usage or evaluation results.",
+      "chapters": [
+        {
+          "start": 0,
+          "end": 6.666666666666667,
+          "caption": "01  Open Dashboard, then find Learning activity for the selected course."
+        },
+        {
+          "start": 6.666666666666667,
+          "end": 10.666666666666666,
+          "caption": "02  Review tracked tokens and responses; the calendar spans the rolling six months."
+        },
+        {
+          "start": 10.666666666666666,
+          "end": 16.333333333333332,
+          "caption": "03  Set From and To to focus on a two-week window of course activity."
+        },
+        {
+          "start": 16.333333333333332,
+          "end": 20.666666666666668,
+          "caption": "04  Group by week to compare periods without changing the selected course or dates."
+        },
+        {
+          "start": 20.666666666666668,
+          "end": 27.083333333333332,
+          "caption": "05  Switch to Assets and daily grouping to inspect when saved work was created."
+        },
+        {
+          "start": 27.083333333333332,
+          "end": 31.416666666666668,
+          "caption": "06  Small-cohort distributions stay hidden. Activity counts do not prove mastery."
+        }
+      ],
+      "presentation": {
+        "configuredCourseStarters": 4,
+        "starterRuleApplicable": true,
+        "verifiedWelcomeScreens": 0,
+        "assetChecks": []
+      },
+      "layout": "single-screen",
+      "headerStyle": {
+        "background": "#EDE9FE",
+        "text": "#30264D",
+        "badge": false
+      },
+      "verification": {
+        "synthetic": true,
+        "courseId": "course-Electricity-Basics",
+        "enrolledLearners": 3,
+        "conceptsCrossed": 0,
+        "readOnly": true,
+        "endpoints": [
+          "/api/teacher-dashboard/activity/analytics",
+          "/api/teacher-dashboard/agents",
+          "/api/teacher-dashboard/agents/course-Electricity-Basics/overview",
+          "/api/teacher-dashboard/summary",
+          "/api/teacher-dashboard/usage/analytics"
+        ],
+        "selectedRange": {
+          "from": "2026-09-15",
+          "to": "2026-09-28"
+        },
+        "groupedTokens": 7100,
+        "assetEvents": 1,
+        "distributionSuppressed": true,
+        "analyticsQueries": [
+          {
+            "metric": "tokens",
+            "query": "?start_date=2026-09-01&end_date=2026-09-30&granularity=day&agent_id=course-Electricity-Basics"
+          },
+          {
+            "metric": "tokens",
+            "query": "?start_date=2026-03-30&end_date=2026-09-30&granularity=day&agent_id=course-Electricity-Basics"
+          },
+          {
+            "metric": "tokens",
+            "query": "?start_date=2026-09-15&end_date=2026-09-30&granularity=day&agent_id=course-Electricity-Basics"
+          },
+          {
+            "metric": "tokens",
+            "query": "?start_date=2026-09-15&end_date=2026-09-28&granularity=day&agent_id=course-Electricity-Basics"
+          },
+          {
+            "metric": "tokens",
+            "query": "?start_date=2026-09-15&end_date=2026-09-28&granularity=week&agent_id=course-Electricity-Basics"
+          },
+          {
+            "metric": "assets_created",
+            "query": "?metric=assets_created&start_date=2026-09-15&end_date=2026-09-28&granularity=week&agent_id=course-Electricity-Basics"
+          },
+          {
+            "metric": "assets_created",
+            "query": "?metric=assets_created&start_date=2026-03-30&end_date=2026-09-30&granularity=day&agent_id=course-Electricity-Basics"
+          },
+          {
+            "metric": "assets_created",
+            "query": "?metric=assets_created&start_date=2026-09-15&end_date=2026-09-28&granularity=day&agent_id=course-Electricity-Basics"
+          }
+        ]
+      },
+      "source": "Agentic Shiksha Platform/Frontend"
+    },
+    {
+      "id": "admin-overview",
+      "name": "shiksha-admin-overview-tutorial",
+      "title": "Explore platform and course analytics",
+      "role": "Administrator",
+      "duration": 35,
+      "width": 1360,
+      "height": 928,
+      "note": "Recorded in the separately built Admin Dashboard, with fictional institution, course and usage records. No real administrative account or live analytics service is accessed.",
+      "chapters": [
+        {
+          "start": 0,
+          "end": 4.333333333333333,
+          "caption": "01  Explore synthetic platform usage across three courses."
+        },
+        {
+          "start": 4.333333333333333,
+          "end": 10.5,
+          "caption": "02  Change Today to This Week to compare the reporting period."
+        },
+        {
+          "start": 10.5,
+          "end": 15.333333333333334,
+          "caption": "03  Open Total Tokens to compare each course's share."
+        },
+        {
+          "start": 15.333333333333334,
+          "end": 21.666666666666668,
+          "caption": "04  Search for Electricity Basics; overall totals stay unchanged."
+        },
+        {
+          "start": 21.666666666666668,
+          "end": 28.333333333333332,
+          "caption": "05  Inspect per-student token usage from the course row."
+        },
+        {
+          "start": 28.333333333333332,
+          "end": 35,
+          "caption": "06  Compare rounds per student without changing course settings."
+        }
+      ],
+      "presentation": {
+        "configuredCourseStarters": 0,
+        "starterRuleApplicable": false,
+        "verifiedWelcomeScreens": 0,
+        "assetChecks": []
+      },
+      "layout": "single-screen",
+      "headerStyle": {
+        "background": "#EDE9FE",
+        "text": "#30264D",
+        "badge": false
+      },
+      "verification": {
+        "source": "Admin-Dashboard/frontend",
+        "nativeUI": true,
+        "syntheticData": true,
+        "liveSignIn": false,
+        "productionSecurity": "Not assessed; authentication and APIs are local browser-test fixtures.",
+        "courseChatStarters": {
+          "applicable": false,
+          "reason": "The native admin dashboard does not have course-chat starters."
+        },
+        "navigationCollapsedBeforeDialogs": true,
+        "durationSeconds": 35,
+        "readOnly": true,
+        "institution": "Demo Technical Institute",
+        "courseId": "tutorial-admin-electricity",
+        "courseName": "Electricity Basics",
+        "reportingPeriods": [
+          {
+            "startDate": "2026-09-23",
+            "endDate": "2026-09-23",
+            "activeStudents": 1,
+            "tokens": 12000,
+            "rounds": 6,
+            "newConversations": 2
+          },
+          {
+            "startDate": "2026-09-20",
+            "endDate": "2026-09-23",
+            "activeStudents": 2,
+            "tokens": 63000,
+            "rounds": 30,
+            "newConversations": 5
+          }
+        ],
+        "search": {
+          "query": "Electricity",
+          "matchingCourses": 1,
+          "allCourses": 3,
+          "totalTokens": 90000,
+          "shareUnchanged": true
+        },
+        "studentUsage": {
+          "students": 2,
+          "tokens": 48000,
+          "rounds": 24
+        }
+      },
+      "source": "Admin-Dashboard/frontend"
+    },
+    {
+      "id": "admin-assignments",
+      "name": "shiksha-admin-assignments-tutorial",
+      "title": "Manage student course access",
+      "role": "Administrator",
+      "duration": 38.666666666666664,
+      "width": 1360,
+      "height": 928,
+      "note": "The real admin assignment controls operate only on an isolated synthetic directory. Any demonstrated save is intercepted and verified locally; no real student's permissions or course access are changed.",
+      "chapters": [
+        {
+          "start": 0,
+          "end": 6.166666666666667,
+          "caption": "01  Find Demo Learner in the isolated, synthetic directory."
+        },
+        {
+          "start": 6.166666666666667,
+          "end": 10.666666666666666,
+          "caption": "02  Open Assign Students and choose Electricity Basics."
+        },
+        {
+          "start": 10.666666666666666,
+          "end": 18.833333333333332,
+          "caption": "03  Filter the roster; filters alone do not change assignments."
+        },
+        {
+          "start": 18.833333333333332,
+          "end": 23,
+          "caption": "04  Select this learner and review the unsaved, course-specific change."
+        },
+        {
+          "start": 23,
+          "end": 29.333333333333332,
+          "caption": "05  Confirm with Save assignments and read the saved result."
+        },
+        {
+          "start": 29.333333333333332,
+          "end": 38.666666666666664,
+          "caption": "06  Verify the directory result, then reopen the persisted roster."
+        }
+      ],
+      "presentation": {
+        "configuredCourseStarters": 0,
+        "starterRuleApplicable": false,
+        "verifiedWelcomeScreens": 0,
+        "assetChecks": []
+      },
+      "layout": "single-screen",
+      "headerStyle": {
+        "background": "#EDE9FE",
+        "text": "#30264D",
+        "badge": false
+      },
+      "verification": {
+        "source": "Admin-Dashboard/frontend",
+        "nativeUI": true,
+        "syntheticData": true,
+        "liveSignIn": false,
+        "productionSecurity": "Not assessed; authentication and APIs are local browser-test fixtures.",
+        "courseChatStarters": {
+          "applicable": false,
+          "reason": "The native admin dashboard does not have course-chat starters."
+        },
+        "navigationCollapsedBeforeDialogs": true,
+        "durationSeconds": 38.666666666666664,
+        "courseId": "tutorial-admin-electricity",
+        "courseName": "Electricity Basics",
+        "learnerId": "tutorial-admin-learner",
+        "learnerName": "Demo Learner",
+        "roster": {
+          "student_ids": [
+            "tutorial-admin-classmate",
+            "tutorial-admin-partner",
+            "tutorial-admin-learner"
+          ],
+          "revision": "tutorial-v2"
+        },
+        "writes": [
+          {
+            "agentId": "tutorial-admin-electricity",
+            "before": [
+              "tutorial-admin-classmate",
+              "tutorial-admin-partner"
+            ],
+            "after": [
+              "tutorial-admin-classmate",
+              "tutorial-admin-partner",
+              "tutorial-admin-learner"
+            ],
+            "submittedRevision": "tutorial-v1",
+            "savedRevision": "tutorial-v2",
+            "syntheticSession": true
+          }
+        ],
+        "confirmation": [
+          {
+            "courseId": "tutorial-admin-electricity",
+            "learnerId": "tutorial-admin-learner"
+          }
+        ],
+        "confirmationControl": "Save assignments",
+        "directoryMembershipVisible": true,
+        "reopenedRosterVerified": true,
+        "preservedExistingStudents": [
+          "tutorial-admin-classmate",
+          "tutorial-admin-partner"
+        ],
+        "otherCoursesUnchanged": true,
+        "syntheticWrites": 1,
+        "realWrites": 0
+      },
+      "source": "Admin-Dashboard/frontend"
+    },
+    {
+      "id": "memory",
+      "name": "shiksha-learner-memory-tutorial",
+      "title": "See how learner memory changes",
+      "role": "Learner",
+      "duration": 44.083333333333336,
+      "width": 1360,
+      "height": 928,
+      "note": "Demonstrates the project's custom learner-memory structure in the actual Graph Memory panel, not the separate hosted Memory Store. Two prior diagnostic records and the before/pending/after snapshots are synthetic fixtures. The new evidence quote comes from the answer typed in this recording. No live memory worker, model or state reducer was run, and no real course was activated. A correct response improves the demonstrated state without clearing a misconception or crossing a threshold.",
+      "chapters": [
+        {
+          "start": 0,
+          "end": 8,
+          "caption": "01  Open Graph Memory: the course keeps a learner-specific, versioned snapshot."
+        },
+        {
+          "start": 8,
+          "end": 11.416666666666666,
+          "caption": "02  Two earlier demo probes support this misconception; one new answer is not clearance."
+        },
+        {
+          "start": 11.416666666666666,
+          "end": 23.416666666666668,
+          "caption": "03  Answer a fresh diagnostic and explain the fixed-voltage condition."
+        },
+        {
+          "start": 23.416666666666668,
+          "end": 28.833333333333332,
+          "caption": "04  Pending evidence does not replace the last committed memory snapshot."
+        },
+        {
+          "start": 28.833333333333332,
+          "end": 34.166666666666664,
+          "caption": "05  After demo processing commits, state improves without declaring mastery or crossing."
+        },
+        {
+          "start": 34.166666666666664,
+          "end": 40.75,
+          "caption": "06  Inspect the next probe and open the evidence behind the updated memory."
+        },
+        {
+          "start": 40.75,
+          "end": 44.083333333333336,
+          "caption": "07  The profile recommends another independent probe, not an automatic mastery claim."
+        }
+      ],
+      "presentation": {
+        "configuredCourseStarters": 4,
+        "starterRuleApplicable": true,
+        "verifiedWelcomeScreens": 1,
+        "assetChecks": [
+          {
+            "event": "quiz_start",
+            "atSeconds": 15.5,
+            "navigationCollapsed": true
+          },
+          {
+            "event": "quiz",
+            "atSeconds": 16,
+            "navigationCollapsed": true
+          }
+        ]
+      },
+      "layout": "single-screen",
+      "headerStyle": {
+        "background": "#EDE9FE",
+        "text": "#30264D",
+        "badge": false
+      },
+      "verification": {
+        "feature": "custom-learner-memory",
+        "fixtureMode": "authoritative",
+        "snapshots": [
+          {
+            "version": 1,
+            "pending": 0,
+            "concept": "STRUGGLING",
+            "misconception": "PRESENT",
+            "crossing": "NOT_CROSSED"
+          },
+          {
+            "version": 1,
+            "pending": 0,
+            "concept": "STRUGGLING",
+            "misconception": "PRESENT",
+            "crossing": "NOT_CROSSED"
+          },
+          {
+            "version": 1,
+            "pending": 1,
+            "concept": "STRUGGLING",
+            "misconception": "PRESENT",
+            "crossing": "NOT_CROSSED"
+          },
+          {
+            "version": 1,
+            "pending": 1,
+            "concept": "STRUGGLING",
+            "misconception": "PRESENT",
+            "crossing": "NOT_CROSSED"
+          },
+          {
+            "version": 2,
+            "pending": 0,
+            "concept": "PROGRESSING",
+            "misconception": "RESOLVING",
+            "crossing": "NOT_CROSSED"
+          }
+        ],
+        "submittedAssessmentId": "memory-diagnostic-03",
+        "evidenceId": "evidence-ohms-03",
+        "evidenceQuote": "I = V/R. At fixed voltage, doubling resistance halves the current.",
+        "nextProblemId": "P-independent-context",
+        "noAutomaticMasteryOrCrossing": true,
+        "provenance": "Synthetic before/pending/after API fixtures exercise the real Graph Memory UI; no live worker, model or state reducer was run."
+      },
+      "source": "Agentic Shiksha Platform/Frontend"
+    },
+    {
+      "id": "student-teacher",
+      "name": "shiksha-student-teacher-tutorial",
+      "title": "Learning and teaching, side by side",
+      "role": "Learner + Teacher",
+      "duration": 41.5,
+      "width": 2656,
+      "height": 976,
+      "note": "Two actual application sessions are captured together. The teacher explicitly asks Insights for an update; its scripted reply uses the learner's real intercepted demo question and submitted check. This demonstrates a shared local fixture, not a live cloud telemetry feed or an automatic mastery decision.",
+      "chapters": [
+        {
+          "start": 0,
+          "end": 5.5,
+          "caption": "01  Two separate accounts: the learner opens a course while the teacher views the class."
+        },
+        {
+          "start": 5.5,
+          "end": 14.75,
+          "caption": "02  The learner asks a question; the teacher opens Insights and scopes it to that learner."
+        },
+        {
+          "start": 14.75,
+          "end": 23,
+          "caption": "03  While the course answer arrives, the teacher asks about the learner's current activity."
+        },
+        {
+          "start": 23,
+          "end": 30.333333333333332,
+          "caption": "04  The learner opens the check, chooses an answer and explains the reasoning."
+        },
+        {
+          "start": 30.333333333333332,
+          "end": 38.333333333333336,
+          "caption": "05  The teacher asks what changed; the response uses the submitted demo attempt."
+        },
+        {
+          "start": 38.333333333333336,
+          "end": 41.5,
+          "caption": "06  Both views remain visible: learner feedback and a scoped teaching next step."
+        }
+      ],
+      "presentation": {
+        "configuredCourseStarters": 4,
+        "verifiedWelcomeScreens": 1,
+        "assetChecks": [
+          {
+            "event": "quiz_start",
+            "atSeconds": 19.333333333333332,
+            "navigationCollapsed": true
+          },
+          {
+            "event": "quiz",
+            "atSeconds": 19.333333333333332,
+            "navigationCollapsed": true
+          }
+        ]
+      },
+      "layout": "side-by-side",
+      "linkedUsage": [
+        {
+          "learnerId": "tutorial-student",
+          "learnerName": "Demo Learner",
+          "questionCount": 1,
+          "conversationCount": 1,
+          "submittedChecks": 0,
+          "correctAnswers": 0,
+          "totalQuestions": 0,
+          "question": "At a fixed 12 V, how does doubling resistance affect current? Give me a concept check."
+        },
+        {
+          "learnerId": "tutorial-student",
+          "learnerName": "Demo Learner",
+          "questionCount": 1,
+          "conversationCount": 1,
+          "submittedChecks": 1,
+          "correctAnswers": 1,
+          "totalQuestions": 1,
+          "question": "At a fixed 12 V, how does doubling resistance affect current? Give me a concept check."
+        }
+      ],
+      "headerStyle": {
+        "background": "#EDE9FE",
+        "text": "#30264D",
+        "badge": false
+      },
+      "source": "Agentic Shiksha Platform/Frontend"
+    },
+    {
+      "id": "challenges",
+      "name": "shiksha-challenges-tutorial",
+      "title": "Work through a guided challenge",
+      "role": "Learner",
+      "duration": 34.666666666666664,
+      "width": 1360,
+      "height": 928,
+      "note": "A guided challenge is generated and explored through the actual challenge UI. Task content, hints and solution are synthetic. Hints and a revealed solution are learning aids, not assessment proof.",
+      "chapters": [
+        {
+          "start": 0,
+          "end": 7.666666666666667,
+          "caption": "01  Ask for a challenge that tests reasoning, not just recall."
+        },
+        {
+          "start": 7.666666666666667,
+          "end": 13,
+          "caption": "02  Open the challenge and predict before viewing any help."
+        },
+        {
+          "start": 13,
+          "end": 17.666666666666668,
+          "caption": "03  Choose Solution, then reveal just the first hint."
+        },
+        {
+          "start": 17.666666666666668,
+          "end": 21.5,
+          "caption": "04  Reveal the last hint and compare the ratios yourself."
+        },
+        {
+          "start": 21.5,
+          "end": 26.333333333333332,
+          "caption": "05  Reveal the worked solution: both currents are 4 mA."
+        },
+        {
+          "start": 26.333333333333332,
+          "end": 34.666666666666664,
+          "caption": "06  Put the solution away and explain the reasoning in chat."
+        }
+      ],
+      "presentation": {
+        "configuredCourseStarters": 4,
+        "verifiedWelcomeScreens": 1,
+        "assetChecks": [
+          {
+            "event": "challenge_start",
+            "atSeconds": 8.5,
+            "navigationCollapsed": true
+          },
+          {
+            "event": "challenge",
+            "atSeconds": 9.166666666666666,
+            "navigationCollapsed": true
+          }
+        ]
+      },
+      "layout": "single-screen",
+      "headerStyle": {
+        "background": "#EDE9FE",
+        "text": "#30264D",
+        "badge": false
+      },
+      "source": "Agentic Shiksha Platform/Frontend"
+    },
+    {
+      "id": "chat",
+      "name": "shiksha-chat-tutorial",
+      "title": "Ask, practise and explain",
+      "role": "Learner",
+      "duration": 36.25,
+      "width": 1360,
+      "height": 928,
+      "note": "Real chat and assessment UI with synthetic lesson content and grading. A single correct answer does not establish mastery.",
+      "chapters": [
+        {
+          "start": 0,
+          "end": 6.333333333333333,
+          "caption": "01  Open a course from the Teaching Assistant library, then choose Start Chat."
+        },
+        {
+          "start": 6.333333333333333,
+          "end": 14.916666666666666,
+          "caption": "02  Choose an answer depth, then ask a focused question."
+        },
+        {
+          "start": 14.916666666666666,
+          "end": 23.916666666666668,
+          "caption": "03  Follow context preparation and the streamed course explanation."
+        },
+        {
+          "start": 23.916666666666668,
+          "end": 26.916666666666668,
+          "caption": "04  Open the generated concept inventory in the actual artifact pane."
+        },
+        {
+          "start": 26.916666666666668,
+          "end": 33.25,
+          "caption": "05  Select an answer and explain the reasoning before submitting."
+        },
+        {
+          "start": 33.25,
+          "end": 36.25,
+          "caption": "06  Review the result and tutor feedback. One answer is not proof of mastery."
+        }
+      ],
+      "presentation": {
+        "configuredCourseStarters": 4,
+        "verifiedWelcomeScreens": 1,
+        "assetChecks": [
+          {
+            "event": "quiz_start",
+            "atSeconds": 20.833333333333332,
+            "navigationCollapsed": true
+          },
+          {
+            "event": "quiz",
+            "atSeconds": 21.416666666666668,
+            "navigationCollapsed": true
+          }
+        ]
+      },
+      "headerStyle": {
+        "background": "#EDE9FE",
+        "text": "#30264D",
+        "badge": false
+      },
+      "source": "Agentic Shiksha Platform/Frontend"
+    },
+    {
+      "id": "teacher",
+      "name": "shiksha-course-setup-tutorial",
+      "title": "Draft a course with Course Companion",
+      "role": "Teacher",
+      "duration": 31.583333333333332,
+      "width": 1360,
+      "height": 928,
+      "note": "Actual Create and Course Companion screens. The walkthrough stops at draft review; it does not submit Create or provision a remote agent.",
+      "chapters": [
+        {
+          "start": 0,
+          "end": 4.666666666666667,
+          "caption": "01  Use Create in the real Agentic Shiksha teacher workspace."
+        },
+        {
+          "start": 4.666666666666667,
+          "end": 10.333333333333334,
+          "caption": "02  Give the course a name, then open Course Companion."
+        },
+        {
+          "start": 10.333333333333334,
+          "end": 19.25,
+          "caption": "03  Describe the level, duration, code and learning goals."
+        },
+        {
+          "start": 19.25,
+          "end": 25.083333333333332,
+          "caption": "04  Review the Companion's proposed fields in the actual course form."
+        },
+        {
+          "start": 25.083333333333332,
+          "end": 28.583333333333332,
+          "caption": "05  Review the course description and prerequisites before choosing Create."
+        },
+        {
+          "start": 28.583333333333332,
+          "end": 31.583333333333332,
+          "caption": "Draft only: this tutorial does not submit Create or provision a remote agent."
+        }
+      ],
+      "presentation": {
+        "configuredCourseStarters": 4,
+        "verifiedWelcomeScreens": 0,
+        "assetChecks": []
+      },
+      "headerStyle": {
+        "background": "#EDE9FE",
+        "text": "#30264D",
+        "badge": false
+      },
+      "source": "Agentic Shiksha Platform/Frontend"
+    },
+    {
+      "id": "answer-depth",
+      "name": "shiksha-answer-depth-tutorial",
+      "title": "Choose the right answer depth",
+      "role": "Learner",
+      "duration": 29,
+      "width": 1360,
+      "height": 928,
+      "note": "The actual answer-depth control changes from Concise to Comprehensive. Responses are scripted examples, not a comparison of live model performance.",
+      "chapters": [
+        {
+          "start": 0,
+          "end": 7.25,
+          "caption": "01  Open your course and choose how much explanation you want."
+        },
+        {
+          "start": 7.25,
+          "end": 15.833333333333334,
+          "caption": "02  Concise gives a short response to a focused question."
+        },
+        {
+          "start": 15.833333333333334,
+          "end": 23.75,
+          "caption": "03  Switch to Comprehensive when you want a worked explanation."
+        },
+        {
+          "start": 23.75,
+          "end": 29,
+          "caption": "04  Read the example and its assumptions; depth can change on every turn."
+        }
+      ],
+      "presentation": {
+        "configuredCourseStarters": 4,
+        "verifiedWelcomeScreens": 1,
+        "assetChecks": []
+      },
+      "headerStyle": {
+        "background": "#EDE9FE",
+        "text": "#30264D",
+        "badge": false
+      },
+      "source": "Agentic Shiksha Platform/Frontend"
+    },
+    {
+      "id": "documents",
+      "name": "shiksha-document-reader-tutorial",
+      "title": "Read and navigate generated notes",
+      "role": "Learner",
+      "duration": 28.583333333333332,
+      "width": 1360,
+      "height": 928,
+      "note": "A synthetic field guide passes through the real document renderer, full-screen reader and section navigation.",
+      "chapters": [
+        {
+          "start": 0,
+          "end": 9.166666666666666,
+          "caption": "01  Ask your course TA to turn an explanation into structured study notes."
+        },
+        {
+          "start": 9.166666666666666,
+          "end": 14.5,
+          "caption": "02  Follow the document being created through the real artifact renderer."
+        },
+        {
+          "start": 14.5,
+          "end": 19.75,
+          "caption": "03  Open the saved document, then enter full screen for focused reading."
+        },
+        {
+          "start": 19.75,
+          "end": 24.083333333333332,
+          "caption": "04  Use the document-section rail to jump straight to the worked example."
+        },
+        {
+          "start": 24.083333333333332,
+          "end": 28.583333333333332,
+          "caption": "05  Return to the conversation without losing the generated notes."
+        }
+      ],
+      "presentation": {
+        "configuredCourseStarters": 4,
+        "verifiedWelcomeScreens": 1,
+        "assetChecks": [
+          {
+            "event": "document_start",
+            "atSeconds": 10,
+            "navigationCollapsed": true
+          },
+          {
+            "event": "document",
+            "atSeconds": 12.666666666666666,
+            "navigationCollapsed": true
+          }
+        ]
+      },
+      "headerStyle": {
+        "background": "#EDE9FE",
+        "text": "#30264D",
+        "badge": false
+      },
+      "source": "Agentic Shiksha Platform/Frontend"
+    },
+    {
+      "id": "slides",
+      "name": "shiksha-slides-tutorial",
+      "title": "Explore an interactive slide deck",
+      "role": "Learner",
+      "duration": 31.666666666666668,
+      "width": 1360,
+      "height": 928,
+      "note": "The deck and tool response are synthetic. The slide viewer, navigation and presentation controls are the actual application's components.",
+      "chapters": [
+        {
+          "start": 0,
+          "end": 7.5,
+          "caption": "1. Open a course and request a concise lesson deck."
+        },
+        {
+          "start": 7.5,
+          "end": 12.333333333333334,
+          "caption": "2. Open the generated slides beside your conversation."
+        },
+        {
+          "start": 12.333333333333334,
+          "end": 17,
+          "caption": "3. Browse the lesson and reveal its speaker notes."
+        },
+        {
+          "start": 17,
+          "end": 21.666666666666668,
+          "caption": "4. Compare two resistances while voltage stays at 6 V."
+        },
+        {
+          "start": 21.666666666666668,
+          "end": 25.5,
+          "caption": "5. Start presentation mode for a focused walkthrough."
+        },
+        {
+          "start": 25.5,
+          "end": 31.666666666666668,
+          "caption": "6. Finish with the takeaway, then return to the same slide."
+        }
+      ],
+      "presentation": {
+        "configuredCourseStarters": 4,
+        "verifiedWelcomeScreens": 1,
+        "assetChecks": [
+          {
+            "event": "slides_start",
+            "atSeconds": 8.333333333333334,
+            "navigationCollapsed": true
+          },
+          {
+            "event": "slides",
+            "atSeconds": 9,
+            "navigationCollapsed": true
+          }
+        ]
+      },
+      "headerStyle": {
+        "background": "#EDE9FE",
+        "text": "#30264D",
+        "badge": false
+      },
+      "source": "Agentic Shiksha Platform/Frontend"
+    },
+    {
+      "id": "circuits",
+      "name": "shiksha-circuit-tutorial",
+      "title": "Experiment in the Circuit Lab",
+      "role": "Learner",
+      "duration": 29.5,
+      "width": 1360,
+      "height": 928,
+      "note": "Hypothetical low-voltage circuit practice in the actual Circuit Lab. Numeric results are local fixtures, not live ngspice output or physical wiring instructions.",
+      "chapters": [
+        {
+          "start": 0,
+          "end": 7.5,
+          "caption": "1. Request a hypothetical 6 V circuit; no physical wiring."
+        },
+        {
+          "start": 7.5,
+          "end": 11.833333333333334,
+          "caption": "2. Open Circuit Lab. These readings are mocked locally."
+        },
+        {
+          "start": 11.833333333333334,
+          "end": 15.833333333333334,
+          "caption": "3. Inspect the 6 V supply and the 1,000 ohm resistor."
+        },
+        {
+          "start": 15.833333333333334,
+          "end": 19.666666666666668,
+          "caption": "4. Mock baseline: 6 V / 1,000 ohms = 6 mA."
+        },
+        {
+          "start": 19.666666666666668,
+          "end": 25,
+          "caption": "5. Double R1 to 2,000 ohms, then run the local mock again."
+        },
+        {
+          "start": 25,
+          "end": 29.5,
+          "caption": "6. Mock result: 6 V / 2,000 ohms = 3 mA, half the current."
+        }
+      ],
+      "presentation": {
+        "configuredCourseStarters": 4,
+        "verifiedWelcomeScreens": 1,
+        "assetChecks": [
+          {
+            "event": "circuit_start",
+            "atSeconds": 8.333333333333334,
+            "navigationCollapsed": true
+          },
+          {
+            "event": "circuit",
+            "atSeconds": 9,
+            "navigationCollapsed": true
+          }
+        ]
+      },
+      "headerStyle": {
+        "background": "#EDE9FE",
+        "text": "#30264D",
+        "badge": false
+      },
+      "source": "Agentic Shiksha Platform/Frontend"
+    },
+    {
+      "id": "preferences",
+      "name": "shiksha-learning-preferences-tutorial",
+      "title": "Personalize your learning preferences",
+      "role": "Learner",
+      "duration": 29.666666666666668,
+      "width": 1360,
+      "height": 928,
+      "note": "Custom instructions are saved to an isolated in-memory API and verified on the next chat request. No real learner profile is changed.",
+      "chapters": [
+        {
+          "start": 0,
+          "end": 8.416666666666666,
+          "caption": "01  Open Learner profile from the course's TA actions menu."
+        },
+        {
+          "start": 8.416666666666666,
+          "end": 13.916666666666666,
+          "caption": "02  Tell the tutor how you prefer explanations and practice to be presented."
+        },
+        {
+          "start": 13.916666666666666,
+          "end": 17,
+          "caption": "03  Save the instructions and return to your course conversation."
+        },
+        {
+          "start": 17,
+          "end": 24.666666666666668,
+          "caption": "04  Your next teaching turn carries the saved instructions."
+        },
+        {
+          "start": 24.666666666666668,
+          "end": 29.666666666666668,
+          "caption": "05  Reopen the profile to confirm the preference is saved, not just typed."
+        }
+      ],
+      "presentation": {
+        "configuredCourseStarters": 4,
+        "starterRuleApplicable": true,
+        "verifiedWelcomeScreens": 1,
+        "assetChecks": []
+      },
+      "layout": "single-screen",
+      "headerStyle": {
+        "background": "#EDE9FE",
+        "text": "#30264D",
+        "badge": false
+      },
+      "source": "Agentic Shiksha Platform/Frontend"
+    },
+    {
+      "id": "companion-review",
+      "name": "shiksha-companion-review-tutorial",
+      "title": "Review and undo Course Companion edits",
+      "role": "Teacher",
+      "duration": 31.75,
+      "width": 1360,
+      "height": 928,
+      "note": "Chat only, Allow editing and Undo are exercised in the real builder. No course is created and no remote agent is changed.",
+      "chapters": [
+        {
+          "start": 0,
+          "end": 8.833333333333334,
+          "caption": "01  Start a course draft with your own title, code and description."
+        },
+        {
+          "start": 8.833333333333334,
+          "end": 17.666666666666668,
+          "caption": "02  Choose Chat only when you want advice without changing the form."
+        },
+        {
+          "start": 17.666666666666668,
+          "end": 25.333333333333332,
+          "caption": "03  Enable editing, then explicitly ask the Companion to apply the proposal."
+        },
+        {
+          "start": 25.333333333333332,
+          "end": 28.333333333333332,
+          "caption": "04  Inspect the highlighted changes before deciding whether to keep them."
+        },
+        {
+          "start": 28.333333333333332,
+          "end": 31.75,
+          "caption": "05  Undo restores your original values. No Create submission is made."
+        }
+      ],
+      "presentation": {
+        "configuredCourseStarters": 4,
+        "verifiedWelcomeScreens": 0,
+        "assetChecks": []
+      },
+      "headerStyle": {
+        "background": "#EDE9FE",
+        "text": "#30264D",
+        "badge": false
+      },
+      "source": "Agentic Shiksha Platform/Frontend"
+    }
+  ]
+}

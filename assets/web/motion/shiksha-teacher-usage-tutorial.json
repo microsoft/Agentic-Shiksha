@@ -1,0 +1,117 @@
+{
+  "name": "shiksha-teacher-usage-tutorial",
+  "title": "Explore course usage and activity",
+  "duration": 31.416666666666668,
+  "frames": 377,
+  "width": 1360,
+  "height": 928,
+  "gifFrames": 314,
+  "gifBytes": 1834395,
+  "chapters": [
+    {
+      "start": 0,
+      "end": 6.666666666666667,
+      "caption": "01  Open Dashboard, then find Learning activity for the selected course."
+    },
+    {
+      "start": 6.666666666666667,
+      "end": 10.666666666666666,
+      "caption": "02  Review tracked tokens and responses; the calendar spans the rolling six months."
+    },
+    {
+      "start": 10.666666666666666,
+      "end": 16.333333333333332,
+      "caption": "03  Set From and To to focus on a two-week window of course activity."
+    },
+    {
+      "start": 16.333333333333332,
+      "end": 20.666666666666668,
+      "caption": "04  Group by week to compare periods without changing the selected course or dates."
+    },
+    {
+      "start": 20.666666666666668,
+      "end": 27.083333333333332,
+      "caption": "05  Switch to Assets and daily grouping to inspect when saved work was created."
+    },
+    {
+      "start": 27.083333333333332,
+      "end": 31.416666666666668,
+      "caption": "06  Small-cohort distributions stay hidden. Activity counts do not prove mastery."
+    }
+  ],
+  "headerStyle": {
+    "background": "#EDE9FE",
+    "text": "#30264D",
+    "badge": false
+  },
+  "layout": "single-screen",
+  "presentation": {
+    "configuredCourseStarters": 4,
+    "starterRuleApplicable": true,
+    "verifiedWelcomeScreens": 0,
+    "assetChecks": []
+  },
+  "projectName": "Agentic Shiksha",
+  "demoId": "teacher-usage",
+  "description": "Use the real Dashboard Learning activity controls to filter dates, group tracked token usage, and compare saved-asset activity with small-cohort privacy suppression.",
+  "verification": {
+    "synthetic": true,
+    "courseId": "course-Electricity-Basics",
+    "enrolledLearners": 3,
+    "conceptsCrossed": 0,
+    "readOnly": true,
+    "endpoints": [
+      "/api/teacher-dashboard/activity/analytics",
+      "/api/teacher-dashboard/agents",
+      "/api/teacher-dashboard/agents/course-Electricity-Basics/overview",
+      "/api/teacher-dashboard/summary",
+      "/api/teacher-dashboard/usage/analytics"
+    ],
+    "selectedRange": {
+      "from": "2026-09-15",
+      "to": "2026-09-28"
+    },
+    "groupedTokens": 7100,
+    "assetEvents": 1,
+    "distributionSuppressed": true,
+    "analyticsQueries": [
+      {
+        "metric": "tokens",
+        "query": "?start_date=2026-09-01&end_date=2026-09-30&granularity=day&agent_id=course-Electricity-Basics"
+      },
+      {
+        "metric": "tokens",
+        "query": "?start_date=2026-03-30&end_date=2026-09-30&granularity=day&agent_id=course-Electricity-Basics"
+      },
+      {
+        "metric": "tokens",
+        "query": "?start_date=2026-09-15&end_date=2026-09-30&granularity=day&agent_id=course-Electricity-Basics"
+      },
+      {
+        "metric": "tokens",
+        "query": "?start_date=2026-09-15&end_date=2026-09-28&granularity=day&agent_id=course-Electricity-Basics"
+      },
+      {
+        "metric": "tokens",
+        "query": "?start_date=2026-09-15&end_date=2026-09-28&granularity=week&agent_id=course-Electricity-Basics"
+      },
+      {
+        "metric": "assets_created",
+        "query": "?metric=assets_created&start_date=2026-09-15&end_date=2026-09-28&granularity=week&agent_id=course-Electricity-Basics"
+      },
+      {
+        "metric": "assets_created",
+        "query": "?metric=assets_created&start_date=2026-03-30&end_date=2026-09-30&granularity=day&agent_id=course-Electricity-Basics"
+      },
+      {
+        "metric": "assets_created",
+        "query": "?metric=assets_created&start_date=2026-09-15&end_date=2026-09-28&granularity=day&agent_id=course-Electricity-Basics"
+      }
+    ]
+  },
+  "capture": "Actual unchanged React frontend; scripted interactions, synthetic course data and in-memory API responses.",
+  "timing": "Captured frames are paced for readability, not a performance benchmark.",
+  "isolation": "Fresh browser context. External services blocked; all API calls simulated. No remote course creation.",
+  "source": "Agentic Shiksha Platform/Frontend",
+  "recordedOn": "2026-09-30"
+}

@@ -1,0 +1,1008 @@
+{
+  "sourceSnapshot": "2026-09-30",
+  "description": "Original source-grounded Agentic Shiksha research artwork with unmodified official Microsoft service icons; no live inventory or user data.",
+  "regenerationCommand": "node assets\\web\\research\\generate.mjs --png",
+  "font": "'Segoe UI', Arial, sans-serif",
+  "serviceIconProvenance": "assets/images/azure-icons/README.md",
+  "serviceIconTerms": "assets/images/azure-icons/Microsoft_Terms_of_Use.pdf",
+  "embeddedAssetVerification": [
+    {
+      "id": "shiksha-research-banner",
+      "embeddedImages": 1,
+      "officialServiceIcons": 0,
+      "originals": [
+        {
+          "source": "assets/images/branding/agentic-shiksha-logo.png",
+          "sha256": "451f43b09fc7b542fcf9eba66d6dcd655c01bfd066e68410e9aa015b1d88f5b2",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "id": "shiksha-research-banner-dark",
+      "embeddedImages": 1,
+      "officialServiceIcons": 0,
+      "originals": [
+        {
+          "source": "assets/images/branding/agentic-shiksha-logo.png",
+          "sha256": "451f43b09fc7b542fcf9eba66d6dcd655c01bfd066e68410e9aa015b1d88f5b2",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "id": "01-course-creation",
+      "embeddedImages": 5,
+      "officialServiceIcons": 5,
+      "originals": [
+        {
+          "source": "assets/images/azure-icons/azure-blob-storage.svg",
+          "sha256": "649cdb593d0c7f56a227e4c28df40a3e5c489e303867d32502af2ee4b4865ea3",
+          "occurrences": 2
+        },
+        {
+          "source": "assets/images/azure-icons/azure-ai-search.svg",
+          "sha256": "f7af1213ce089236593835cb5564d6d3f01358cba6488fe562aa8bbc8adc3b38",
+          "occurrences": 1
+        },
+        {
+          "source": "assets/images/azure-icons/microsoft-foundry.svg",
+          "sha256": "fab039a771f72780ae34e59065d61c66a02d3c347d50923ef2956f34912ea02c",
+          "occurrences": 1
+        },
+        {
+          "source": "assets/images/azure-icons/azure-cosmos-db.svg",
+          "sha256": "b6f1f2afac15762d1de44366d34984c5a3e6e58f94d9e81407ac01565212e8e3",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "id": "02-evidence-lifecycle",
+      "embeddedImages": 0,
+      "officialServiceIcons": 0,
+      "originals": []
+    },
+    {
+      "id": "03-platform-topology",
+      "embeddedImages": 4,
+      "officialServiceIcons": 4,
+      "originals": [
+        {
+          "source": "assets/images/azure-icons/microsoft-foundry.svg",
+          "sha256": "fab039a771f72780ae34e59065d61c66a02d3c347d50923ef2956f34912ea02c",
+          "occurrences": 1
+        },
+        {
+          "source": "assets/images/azure-icons/azure-ai-search.svg",
+          "sha256": "f7af1213ce089236593835cb5564d6d3f01358cba6488fe562aa8bbc8adc3b38",
+          "occurrences": 1
+        },
+        {
+          "source": "assets/images/azure-icons/azure-cosmos-db.svg",
+          "sha256": "b6f1f2afac15762d1de44366d34984c5a3e6e58f94d9e81407ac01565212e8e3",
+          "occurrences": 1
+        },
+        {
+          "source": "assets/images/azure-icons/azure-blob-storage.svg",
+          "sha256": "649cdb593d0c7f56a227e4c28df40a3e5c489e303867d32502af2ee4b4865ea3",
+          "occurrences": 1
+        }
+      ]
+    },
+    {
+      "id": "04-conceptual-loop",
+      "embeddedImages": 0,
+      "officialServiceIcons": 0,
+      "originals": []
+    },
+    {
+      "id": "05-learner-memory",
+      "embeddedImages": 0,
+      "officialServiceIcons": 0,
+      "originals": []
+    },
+    {
+      "id": "06-see-it-think",
+      "embeddedImages": 0,
+      "officialServiceIcons": 0,
+      "originals": []
+    },
+    {
+      "id": "07-ekalaiva-pillars",
+      "embeddedImages": 0,
+      "officialServiceIcons": 0,
+      "originals": []
+    },
+    {
+      "id": "00-research-overview",
+      "embeddedImages": 11,
+      "officialServiceIcons": 9,
+      "originals": [
+        {
+          "source": "assets/images/branding/agentic-shiksha-logo.png",
+          "sha256": "451f43b09fc7b542fcf9eba66d6dcd655c01bfd066e68410e9aa015b1d88f5b2",
+          "occurrences": 2
+        },
+        {
+          "source": "assets/images/azure-icons/azure-blob-storage.svg",
+          "sha256": "649cdb593d0c7f56a227e4c28df40a3e5c489e303867d32502af2ee4b4865ea3",
+          "occurrences": 3
+        },
+        {
+          "source": "assets/images/azure-icons/azure-ai-search.svg",
+          "sha256": "f7af1213ce089236593835cb5564d6d3f01358cba6488fe562aa8bbc8adc3b38",
+          "occurrences": 2
+        },
+        {
+          "source": "assets/images/azure-icons/microsoft-foundry.svg",
+          "sha256": "fab039a771f72780ae34e59065d61c66a02d3c347d50923ef2956f34912ea02c",
+          "occurrences": 2
+        },
+        {
+          "source": "assets/images/azure-icons/azure-cosmos-db.svg",
+          "sha256": "b6f1f2afac15762d1de44366d34984c5a3e6e58f94d9e81407ac01565212e8e3",
+          "occurrences": 2
+        }
+      ]
+    }
+  ],
+  "factsChecked": [
+    "Course Companion operates on the draft",
+    "Creation uses a named agent reference",
+    "Specification is schema validated",
+    "Creation binds the shared Search index",
+    "Material worker stays in main backend lifespan",
+    "Curriculum worker stays in main backend lifespan",
+    "Material readiness verifies indexed files",
+    "Common material pipeline is implemented",
+    "Layout skill is source-backed",
+    "Embedding skill is source-backed",
+    "Course retrieval combines scoped filters",
+    "Graph memory is disabled by default",
+    "Graph worker is independently disabled by default",
+    "Observations are validated before use",
+    "State uses a deterministic reducer",
+    "Learner publication is a single repository batch",
+    "Profile is a projection",
+    "Runtime uses named Foundry references",
+    "Runtime uses conversations",
+    "Runtime dispatches local tools",
+    "Admin UI distinguishes dashboard and main API origins",
+    "Admin API directly constructs a Cosmos client",
+    "Publication is distinct from activation",
+    "Shadow mode is not a no-write dry run",
+    "Graph does not require a separate graph database",
+    "Architecture does not claim universal route enforcement",
+    "The decision-record example is an explicit synthetic projection",
+    "The displayed extraction confidence is documented",
+    "The next-probe reason is implemented",
+    "Six teaching cards do not invent a new constitution"
+  ],
+  "sourceFiles": [
+    {
+      "path": "Admin-Dashboard/backend/cosmos_queries.py",
+      "sha256": "ab70b2709a352b5e0aeabc718374adf5c255f0ece5e625d9e10969b21c421685"
+    },
+    {
+      "path": "Admin-Dashboard/backend/groundedness_evaluator.py",
+      "sha256": "1ad6846c649a8251c2b56f79feb6a486583323887d094fb6387c3caa5e38d5a8"
+    },
+    {
+      "path": "Admin-Dashboard/backend/requirements.txt",
+      "sha256": "cf479ccbdd605406319a3975f03a039f48fbd11f64d216a02a87355660c9b7f2"
+    },
+    {
+      "path": "Admin-Dashboard/backend/research_storage.py",
+      "sha256": "95d05077323341ea04d18a6349a1a647a1f3bc0df5fb67dd33ece3bed45525b2"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/package.json",
+      "sha256": "6d193c43e232aedc292e73acd732c4d31b11066620de76384300b1455e3a2e89"
+    },
+    {
+      "path": "Admin-Dashboard/frontend/src/lib/config.ts",
+      "sha256": "10c342ce6a82d512ff43d196c18d813af0a90bc35bd70a533e6344468598a2b5"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/azure_services/tools/search/course_index_manager.py",
+      "sha256": "30c993fad14779a17dd2a2e8d1f015d74f6e61ecc7f7b7acccab89d960fa1ec2"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/course_materials.py",
+      "sha256": "bfebeeb986e1ef6971b25c63064ec6d11f6e0080723541bf5de40fafcbb240f3"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/backend/routers/learner_memory.py",
+      "sha256": "b9b5ad05ec9e386a884d590df2465878bda94415ba3026320b532b730afa9f1f"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/harness/runtime.py",
+      "sha256": "addaa0edb66855fd4ba24b1ddd248927d30484063dea53024de1aa02648556ba"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/learner_memory/curriculum.py",
+      "sha256": "38f03c203ee49b77799f0a74ce2de4d42a05af896ada2dd691d9880814d1d1b0"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/learner_memory/events.py",
+      "sha256": "a2777072c5f6365e7ea9b5b4b23e55ce899145c5c9ecc03de6ff718d4c7da880"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/learner_memory/observations.py",
+      "sha256": "1acf8bf5a970ba658414281d0032b5c74a0da05e0b6b9a419cd70bd801f14797"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/learner_memory/processor.py",
+      "sha256": "0ca8f4e444775bb209b919707342c85b17f1dc97675a52758db23e5efd985c86"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/learner_memory/profile.py",
+      "sha256": "9434dd873ccfc444e4b067161f727008b518a209435974984b6bcf39d00ebf72"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/learner_memory/settings.py",
+      "sha256": "e78cb128e6d95ef7e011eacf41a06110ea765eff7a1147747cf6ca688de733c4"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/learner_memory/state.py",
+      "sha256": "efeeecbae0c3a361c5ce5a91347ee6ed6177eddc267785d9766bd03a2c12b0bd"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/requirements.txt",
+      "sha256": "8bcfdac76f53ae70901ea3e238492f8a27bceba3d4620a422f1ef5f85bd1b238"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py",
+      "sha256": "e664ad77df33d9894faf4016243668a1ce370fe208f4b1d8078c4ee65864b766"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/utils/course_creation.py",
+      "sha256": "6c4acdaa75f92b214900a012a1fecf6fba03bdc39ee917f4bb8e2488123510b6"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/utils/course_materials.py",
+      "sha256": "4efaea46db62fee639019b20ea54f11e09f2925c63a5aa2c7d7fca30be51f519"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Backend/utils/material_jobs.py",
+      "sha256": "6dd6cf4d42ac78dd3650fe3c608687bbec12cbb23dc50f3ed087df28b97ad4d3"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/package.json",
+      "sha256": "70e40f0e5004d31e01e64b04e087dcc3696771092edf194416547cb59822d43a"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/create/FormAssistant.tsx",
+      "sha256": "45d1e357c2ce6024e3906f25e7e11984089d656b9ddd40c7d6ebdbfe8891324f"
+    },
+    {
+      "path": "Agentic Shiksha Platform/Frontend/src/features/memory/GraphMemoryPanel.tsx",
+      "sha256": "ababd6b3e6c3d00c3b2dee843c601c351edd7b2b0438a0e85f333229c45d49e8"
+    },
+    {
+      "path": "README.md",
+      "sha256": "a29959b373f289eacb5a99ca19f0c2bf4d2904bf824476638b8b2ccb07de0aaa"
+    },
+    {
+      "path": "docs/agents/course-ta.md",
+      "sha256": "73cda24dd91fce07c48c87a90077e8faec6d2cf06ea188961903706ca15e767a"
+    },
+    {
+      "path": "docs/architecture.md",
+      "sha256": "612a864086e20ec5b19ef640a4264b0c655cc7e6eb95c6122b99217af702760e"
+    },
+    {
+      "path": "docs/memory/evidence-model.md",
+      "sha256": "6cc4bfd82f9e4d020f2ec8035d773a8b33d376cb5edbb84373f1e47dde2e8609"
+    },
+    {
+      "path": "docs/memory/misconception-state.md",
+      "sha256": "36f1fb5313b89434a1d80e50badab3b5c027e8c76c97f6ba7992d8a461b30b70"
+    },
+    {
+      "path": "docs/memory/overview.md",
+      "sha256": "e7cf4eb8b4d1edd2f099004f8a742c93d90a457d1caa46c9fb45ec87bddc594f"
+    },
+    {
+      "path": "docs/memory/see-it-think.md",
+      "sha256": "0c72ae9b1962e0086605807247fe3213d03d7525f249c3530040c88b6e8a4e7d"
+    },
+    {
+      "path": "docs/pedagogy/README.md",
+      "sha256": "b2378fbe44a26e0cfd9207c8f6aa87972ebafd428c7a06d46f3bb949c4c94db3"
+    },
+    {
+      "path": "docs/pedagogy/ekalaiva.md",
+      "sha256": "0617e67c39f68a5a2271a45996efaee5c7dd29de94378f8fc39c167c114ee003"
+    },
+    {
+      "path": "assets/images/azure-icons/Microsoft_Terms_of_Use.pdf",
+      "sha256": "983e83cef1a8f85164760b076a96df54cb50af345861cb1d8344040037d0531c"
+    },
+    {
+      "path": "assets/images/azure-icons/README.md",
+      "sha256": "614384dce5247967cdb441ab61a904292f0f5e55a1a8c1b7b1d953678307c742"
+    },
+    {
+      "path": "assets/images/azure-icons/azure-ai-search.svg",
+      "sha256": "f7af1213ce089236593835cb5564d6d3f01358cba6488fe562aa8bbc8adc3b38"
+    },
+    {
+      "path": "assets/images/azure-icons/azure-blob-storage.svg",
+      "sha256": "649cdb593d0c7f56a227e4c28df40a3e5c489e303867d32502af2ee4b4865ea3"
+    },
+    {
+      "path": "assets/images/azure-icons/azure-cosmos-db.svg",
+      "sha256": "b6f1f2afac15762d1de44366d34984c5a3e6e58f94d9e81407ac01565212e8e3"
+    },
+    {
+      "path": "assets/images/azure-icons/microsoft-foundry.svg",
+      "sha256": "fab039a771f72780ae34e59065d61c66a02d3c347d50923ef2956f34912ea02c"
+    },
+    {
+      "path": "assets/images/branding/agentic-shiksha-logo.png",
+      "sha256": "451f43b09fc7b542fcf9eba66d6dcd655c01bfd066e68410e9aa015b1d88f5b2"
+    },
+    {
+      "path": "assets/web/azure-icons/diagram-icons.mjs",
+      "sha256": "2b03e864c5ed2547f3b700626d882a5ecdca477847c9c5e1f184a8db45c07084"
+    }
+  ],
+  "assets": [
+    {
+      "id": "shiksha-research-banner",
+      "width": 2400,
+      "height": 600,
+      "pngWidth": 4800,
+      "pngHeight": 1200,
+      "sources": [
+        [
+          "Project logo",
+          "assets/images/branding/agentic-shiksha-logo.png"
+        ],
+        [
+          "Project positioning",
+          "README.md"
+        ],
+        [
+          "Pedagogical intent",
+          "docs/pedagogy/ekalaiva.md"
+        ]
+      ]
+    },
+    {
+      "id": "shiksha-research-banner-dark",
+      "width": 2400,
+      "height": 600,
+      "pngWidth": 4800,
+      "pngHeight": 1200,
+      "sources": [
+        [
+          "Project logo",
+          "assets/images/branding/agentic-shiksha-logo.png"
+        ],
+        [
+          "Project positioning",
+          "README.md"
+        ],
+        [
+          "Pedagogical intent",
+          "docs/pedagogy/ekalaiva.md"
+        ]
+      ]
+    },
+    {
+      "id": "01-course-creation",
+      "width": 2640,
+      "height": 1700,
+      "pngWidth": 5280,
+      "pngHeight": 3400,
+      "sources": [
+        [
+          "Architecture source snapshot",
+          "docs/architecture.md"
+        ],
+        [
+          "Draft-only Course Companion",
+          "Agentic Shiksha Platform/Frontend/src/features/create/FormAssistant.tsx"
+        ],
+        [
+          "Creation + curriculum jobs",
+          "Agentic Shiksha Platform/Backend/utils/course_creation.py"
+        ],
+        [
+          "Material worker checkpoints",
+          "Agentic Shiksha Platform/Backend/utils/material_jobs.py"
+        ],
+        [
+          "Router / worker lifetime",
+          "Agentic Shiksha Platform/Backend/backend/routers/course_materials.py"
+        ],
+        [
+          "Common index + skillset",
+          "Agentic Shiksha Platform/Backend/azure_services/tools/search/course_index_manager.py"
+        ],
+        [
+          "Scoped course retrieval",
+          "Agentic Shiksha Platform/Backend/utils/course_materials.py"
+        ]
+      ]
+    },
+    {
+      "id": "02-evidence-lifecycle",
+      "width": 2640,
+      "height": 1780,
+      "pngWidth": 5280,
+      "pngHeight": 3560,
+      "sources": [
+        [
+          "Memory overview and opt-in contract",
+          "docs/memory/overview.md"
+        ],
+        [
+          "Disabled-by-default settings",
+          "Agentic Shiksha Platform/Backend/learner_memory/settings.py"
+        ],
+        [
+          "Graph validation / publication",
+          "Agentic Shiksha Platform/Backend/learner_memory/curriculum.py"
+        ],
+        [
+          "Durable event receipt",
+          "Agentic Shiksha Platform/Backend/learner_memory/events.py"
+        ],
+        [
+          "Observation validation",
+          "Agentic Shiksha Platform/Backend/learner_memory/observations.py"
+        ],
+        [
+          "Reducer",
+          "Agentic Shiksha Platform/Backend/learner_memory/state.py"
+        ],
+        [
+          "Atomic processor publication",
+          "Agentic Shiksha Platform/Backend/learner_memory/processor.py"
+        ],
+        [
+          "Derived LearningProfile",
+          "Agentic Shiksha Platform/Backend/learner_memory/profile.py"
+        ],
+        [
+          "Scoped activation routes",
+          "Agentic Shiksha Platform/Backend/backend/routers/learner_memory.py"
+        ]
+      ]
+    },
+    {
+      "id": "03-platform-topology",
+      "width": 2640,
+      "height": 1990,
+      "pngWidth": 5280,
+      "pngHeight": 3980,
+      "sources": [
+        [
+          "Four-service ownership and limits",
+          "docs/architecture.md"
+        ],
+        [
+          "Main TA runtime",
+          "Agentic Shiksha Platform/Backend/harness/runtime.py"
+        ],
+        [
+          "Embedded teacher API",
+          "Agentic Shiksha Platform/Backend/teacher_dashboard/routes.py"
+        ],
+        [
+          "Material / curriculum worker lifetime",
+          "Agentic Shiksha Platform/Backend/backend/routers/course_materials.py"
+        ],
+        [
+          "Admin frontend API ownership",
+          "Admin-Dashboard/frontend/src/lib/config.ts"
+        ],
+        [
+          "Direct admin Cosmos queries",
+          "Admin-Dashboard/backend/cosmos_queries.py"
+        ],
+        [
+          "Admin Blob research persistence",
+          "Admin-Dashboard/backend/research_storage.py"
+        ],
+        [
+          "Admin Foundry / Search evaluation",
+          "Admin-Dashboard/backend/groundedness_evaluator.py"
+        ]
+      ]
+    },
+    {
+      "id": "04-conceptual-loop",
+      "width": 1460,
+      "height": 652,
+      "pngWidth": 2920,
+      "pngHeight": 1304,
+      "sources": [
+        [
+          "Conceptual architecture and component links",
+          "docs/architecture.md"
+        ],
+        [
+          "Pedagogical intent",
+          "docs/pedagogy/ekalaiva.md"
+        ],
+        [
+          "Learner model and authority",
+          "docs/memory/overview.md"
+        ],
+        [
+          "Course Teaching Assistant runtime",
+          "docs/agents/course-ta.md"
+        ]
+      ]
+    },
+    {
+      "id": "05-learner-memory",
+      "width": 1460,
+      "height": 910,
+      "pngWidth": 2920,
+      "pngHeight": 1820,
+      "sources": [
+        [
+          "Synthetic example and explicit assumptions",
+          "docs/memory/see-it-think.md"
+        ],
+        [
+          "Memory boundaries",
+          "docs/memory/overview.md"
+        ],
+        [
+          "Misconception, threshold, and trend meanings",
+          "docs/memory/misconception-state.md"
+        ],
+        [
+          "Deterministic state reducer",
+          "Agentic Shiksha Platform/Backend/learner_memory/state.py"
+        ]
+      ]
+    },
+    {
+      "id": "06-see-it-think",
+      "width": 1460,
+      "height": 824,
+      "pngWidth": 2920,
+      "pngHeight": 1648,
+      "sources": [
+        [
+          "Observable record and current UI boundaries",
+          "docs/memory/see-it-think.md"
+        ],
+        [
+          "Evidence and confidence contract",
+          "docs/memory/evidence-model.md"
+        ],
+        [
+          "Profile and next-probe projection",
+          "Agentic Shiksha Platform/Backend/learner_memory/profile.py"
+        ],
+        [
+          "Current Graph Memory UI",
+          "Agentic Shiksha Platform/Frontend/src/features/memory/GraphMemoryPanel.tsx"
+        ]
+      ]
+    },
+    {
+      "id": "07-ekalaiva-pillars",
+      "width": 1460,
+      "height": 706,
+      "pngWidth": 2920,
+      "pngHeight": 1412,
+      "sources": [
+        [
+          "Six teaching ideas and source mapping",
+          "docs/pedagogy/ekalaiva.md"
+        ],
+        [
+          "Pedagogy guide",
+          "docs/pedagogy/README.md"
+        ]
+      ]
+    }
+  ],
+  "generatedFiles": [
+    {
+      "file": "../../images/research/shiksha-research-banner.svg",
+      "bytes": 939813,
+      "sha256": "3c1ac4a93d2fca5f96614e01924d25a90102710af26a6327e6c312516539de65"
+    },
+    {
+      "file": "../../images/research/shiksha-research-banner.png",
+      "bytes": 1851449,
+      "sha256": "3879885618e484069004a046ecc8bb4197027667f4edadbe818c85856827ad15"
+    },
+    {
+      "file": "../../images/research/shiksha-research-banner-dark.svg",
+      "bytes": 939934,
+      "sha256": "182478e70c7aba3cc7ec79edf163569b8fd8c2996342d62e1771009413762c2c"
+    },
+    {
+      "file": "../../images/research/shiksha-research-banner-dark.png",
+      "bytes": 1808441,
+      "sha256": "f74e369c68fead5d6727ea5c2bea59a9da017bdc19367277a5377208b9295c5d"
+    },
+    {
+      "file": "../../images/research/01-course-creation.svg",
+      "bytes": 38632,
+      "sha256": "ff7c0f2a8100349b458fcb20a1b6e2af36e701065772e49db1489f4839a75fa6"
+    },
+    {
+      "file": "../../images/research/01-course-creation.png",
+      "bytes": 846532,
+      "sha256": "dc99c146b787d2583860a239e5d38520303ec7893455044965fc4abfdd91864f"
+    },
+    {
+      "file": "../../images/research/02-evidence-lifecycle.svg",
+      "bytes": 23943,
+      "sha256": "528c97c91a7715bf5c79b3dce65ca93737df772ec79e9094a67e4ad5f347947d"
+    },
+    {
+      "file": "../../images/research/02-evidence-lifecycle.png",
+      "bytes": 808594,
+      "sha256": "54d56b42a1bed2ea385e2e1a8eab361271dfc516535337c32c404cc56ee97b55"
+    },
+    {
+      "file": "../../images/research/03-platform-topology.svg",
+      "bytes": 35925,
+      "sha256": "ab4740cc1682d0b96ca80458c40bd31fcab6f674a252e6d082067308e94dc3fd"
+    },
+    {
+      "file": "../../images/research/03-platform-topology.png",
+      "bytes": 859076,
+      "sha256": "9681133b37c921164280b155d41cd1e2eb707b45bd0c11831e12a30bce683020"
+    },
+    {
+      "file": "../../images/research/04-conceptual-loop.svg",
+      "bytes": 10905,
+      "sha256": "5ddc9de880660484a0c93fcfe74748621d0e6ccebcad50835bfba9c8a9d01d0f"
+    },
+    {
+      "file": "../../images/research/04-conceptual-loop.png",
+      "bytes": 207911,
+      "sha256": "a2f5d60216e561a1e12cdbc4fdd80ae4cb54a585dc3523094b8773eb956574fb"
+    },
+    {
+      "file": "../../images/research/05-learner-memory.svg",
+      "bytes": 9834,
+      "sha256": "deab2eeae5f1766c859558ed57a6356ee100f182caf60dac1f328727436d075e"
+    },
+    {
+      "file": "../../images/research/05-learner-memory.png",
+      "bytes": 291766,
+      "sha256": "43d8d47b3b7a7a713c0df969f769fd6f358f782cef37900edb09b1380e7b5612"
+    },
+    {
+      "file": "../../images/research/06-see-it-think.svg",
+      "bytes": 7843,
+      "sha256": "945e01426ea9b5e159cf6c3453898b0366939c2a8387a092500212fa1a591ab4"
+    },
+    {
+      "file": "../../images/research/06-see-it-think.png",
+      "bytes": 314689,
+      "sha256": "a3d0ced3866fe8638b5b36b94ae2dd99cf86a44b7c32dcdd181dd4c488f8026e"
+    },
+    {
+      "file": "../../images/research/07-ekalaiva-pillars.svg",
+      "bytes": 9514,
+      "sha256": "cd9578c85293effd13c9a7bf320be8b769abd2f88c88912d3d11c006772f3034"
+    },
+    {
+      "file": "../../images/research/07-ekalaiva-pillars.png",
+      "bytes": 224647,
+      "sha256": "b0994a6aab073139be0555238ce8a712fff0d8e42907cb5d789337826f8effdf"
+    },
+    {
+      "file": "../../images/research/00-research-overview.svg",
+      "bytes": 2020726,
+      "sha256": "8a099563885a8547879e0b289cd3b95873d46555422b518d88d8b8d6567d211c"
+    },
+    {
+      "file": "../../images/research/00-research-overview.png",
+      "bytes": 1261140,
+      "sha256": "42a04b046bb960b61f4a5adfc8ddfecb879f667b5325135e67933bcdab2759df"
+    },
+    {
+      "file": "index.html",
+      "bytes": 40355,
+      "sha256": "0ab5973666da37f73633ad1b3085ec77034c7d368b750a74205444c6bf470cf1"
+    },
+    {
+      "file": "artwork.mjs",
+      "bytes": 62849,
+      "sha256": "cc1fe826da4885b1bb3e5f9d500ec2e9f1c598f51db10f86542c254a688698d3"
+    },
+    {
+      "file": "generate.mjs",
+      "bytes": 46997,
+      "sha256": "5f5acba0eba693c19b91d7f39c4289ba28b57c6a057e8feda4f6e23d546acf21"
+    },
+    {
+      "file": "../../images/research/README.md",
+      "bytes": 3605,
+      "sha256": "3b4b1d25e836618f6218261ad61a390f531012efb2fe05e49de193de71cf6926"
+    }
+  ],
+  "validation": {
+    "assets": [
+      {
+        "id": "shiksha-research-banner",
+        "errors": [],
+        "textLabels": 1,
+        "nodes": 0,
+        "connectors": 0,
+        "minimumFontSize": 58,
+        "officialServiceIcons": 0,
+        "officialIconPlacements": [],
+        "pngWidth": 4800,
+        "pngHeight": 1200
+      },
+      {
+        "id": "shiksha-research-banner-dark",
+        "errors": [],
+        "textLabels": 1,
+        "nodes": 0,
+        "connectors": 0,
+        "minimumFontSize": 58,
+        "officialServiceIcons": 0,
+        "officialIconPlacements": [],
+        "pngWidth": 4800,
+        "pngHeight": 1200
+      },
+      {
+        "id": "01-course-creation",
+        "errors": [],
+        "textLabels": 78,
+        "nodes": 16,
+        "connectors": 15,
+        "minimumFontSize": 22,
+        "officialServiceIcons": 5,
+        "officialIconPlacements": [
+          {
+            "service": "blob",
+            "node": "Blob material storage",
+            "x": 2050,
+            "y": 351,
+            "size": 40
+          },
+          {
+            "service": "search",
+            "node": "Common material search index",
+            "x": 2050,
+            "y": 616,
+            "size": 40
+          },
+          {
+            "service": "foundry",
+            "node": "Named Foundry agent",
+            "x": 2050,
+            "y": 882,
+            "size": 40
+          },
+          {
+            "service": "cosmos",
+            "node": "Application and curriculum records",
+            "x": 2050,
+            "y": 1173,
+            "size": 40
+          },
+          {
+            "service": "blob",
+            "node": "Application and curriculum records",
+            "x": 2098,
+            "y": 1173,
+            "size": 40
+          }
+        ],
+        "pngWidth": 5280,
+        "pngHeight": 3400
+      },
+      {
+        "id": "02-evidence-lifecycle",
+        "errors": [],
+        "textLabels": 74,
+        "nodes": 14,
+        "connectors": 15,
+        "minimumFontSize": 22,
+        "officialServiceIcons": 0,
+        "officialIconPlacements": [],
+        "pngWidth": 5280,
+        "pngHeight": 3560
+      },
+      {
+        "id": "03-platform-topology",
+        "errors": [],
+        "textLabels": 85,
+        "nodes": 12,
+        "connectors": 9,
+        "minimumFontSize": 22,
+        "officialServiceIcons": 4,
+        "officialIconPlacements": [
+          {
+            "service": "foundry",
+            "node": "Microsoft Foundry service",
+            "x": 129,
+            "y": 1363,
+            "size": 40
+          },
+          {
+            "service": "search",
+            "node": "Azure AI Search service",
+            "x": 739,
+            "y": 1363,
+            "size": 40
+          },
+          {
+            "service": "cosmos",
+            "node": "Cosmos application and graph documents",
+            "x": 1349,
+            "y": 1363,
+            "size": 40
+          },
+          {
+            "service": "blob",
+            "node": "Blob materials and artifacts",
+            "x": 1959,
+            "y": 1363,
+            "size": 40
+          }
+        ],
+        "pngWidth": 5280,
+        "pngHeight": 3980
+      },
+      {
+        "id": "04-conceptual-loop",
+        "errors": [],
+        "textLabels": 26,
+        "nodes": 6,
+        "connectors": 7,
+        "minimumFontSize": 22,
+        "officialServiceIcons": 0,
+        "officialIconPlacements": [],
+        "pngWidth": 2920,
+        "pngHeight": 1304
+      },
+      {
+        "id": "05-learner-memory",
+        "errors": [],
+        "textLabels": 26,
+        "nodes": 6,
+        "connectors": 7,
+        "minimumFontSize": 22,
+        "officialServiceIcons": 0,
+        "officialIconPlacements": [],
+        "pngWidth": 2920,
+        "pngHeight": 1820
+      },
+      {
+        "id": "06-see-it-think",
+        "errors": [],
+        "textLabels": 22,
+        "nodes": 5,
+        "connectors": 2,
+        "minimumFontSize": 23,
+        "officialServiceIcons": 0,
+        "officialIconPlacements": [],
+        "pngWidth": 2920,
+        "pngHeight": 1648
+      },
+      {
+        "id": "07-ekalaiva-pillars",
+        "errors": [],
+        "textLabels": 27,
+        "nodes": 6,
+        "connectors": 0,
+        "minimumFontSize": 22,
+        "officialServiceIcons": 0,
+        "officialIconPlacements": [],
+        "pngWidth": 2920,
+        "pngHeight": 1412
+      }
+    ],
+    "contactSheet": {
+      "width": 2640,
+      "height": 4456,
+      "errors": [],
+      "officialServiceIcons": 9,
+      "officialIconPlacements": [
+        {
+          "service": "blob",
+          "node": "Blob material storage",
+          "x": 2050,
+          "y": 351,
+          "size": 40
+        },
+        {
+          "service": "search",
+          "node": "Common material search index",
+          "x": 2050,
+          "y": 616,
+          "size": 40
+        },
+        {
+          "service": "foundry",
+          "node": "Named Foundry agent",
+          "x": 2050,
+          "y": 882,
+          "size": 40
+        },
+        {
+          "service": "cosmos",
+          "node": "Application and curriculum records",
+          "x": 2050,
+          "y": 1173,
+          "size": 40
+        },
+        {
+          "service": "blob",
+          "node": "Application and curriculum records",
+          "x": 2098,
+          "y": 1173,
+          "size": 40
+        },
+        {
+          "service": "foundry",
+          "node": "Microsoft Foundry service",
+          "x": 129,
+          "y": 1363,
+          "size": 40
+        },
+        {
+          "service": "search",
+          "node": "Azure AI Search service",
+          "x": 739,
+          "y": 1363,
+          "size": 40
+        },
+        {
+          "service": "cosmos",
+          "node": "Cosmos application and graph documents",
+          "x": 1349,
+          "y": 1363,
+          "size": 40
+        },
+        {
+          "service": "blob",
+          "node": "Blob materials and artifacts",
+          "x": 1959,
+          "y": 1363,
+          "size": 40
+        }
+      ]
+    },
+    "gallery": [
+      {
+        "width": 1440,
+        "overflow": false,
+        "images": true,
+        "figures": 9,
+        "brokenAnchors": []
+      },
+      {
+        "width": 768,
+        "overflow": false,
+        "images": true,
+        "figures": 9,
+        "brokenAnchors": []
+      },
+      {
+        "width": 390,
+        "overflow": false,
+        "images": true,
+        "figures": 9,
+        "brokenAnchors": []
+      }
+    ],
+    "localLinks": 112,
+    "networkRequests": 0,
+    "browserErrors": [],
+    "browserVersion": "153.0.8010.12"
+  }
+}

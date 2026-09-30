@@ -1,0 +1,158 @@
+.....................................................................FF
+================================== FAILURES ===================================
+________ test_sse_endpoint_forwards_presentation_and_completion[None] _________
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\connection.py:204: in _new_conn
+    sock = connection.create_connection(
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\util\connection.py:60: in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   OSError: External DNS disabled for offline presentation tests
+
+The above exception was the direct cause of the following exception:
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\connectionpool.py:787: in urlopen
+    response = self._make_request(
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\connectionpool.py:488: in _make_request
+    raise new_e
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\connectionpool.py:464: in _make_request
+    self._validate_conn(conn)
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\connectionpool.py:1093: in _validate_conn
+    conn.connect()
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\connection.py:759: in connect
+    self.sock = sock = self._new_conn()
+                       ^^^^^^^^^^^^^^^^
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\connection.py:219: in _new_conn
+    raise NewConnectionError(
+E   urllib3.exceptions.NewConnectionError: HTTPSConnection(host='login.microsoftonline.com', port=443): Failed to establish a new connection: External DNS disabled for offline presentation tests
+
+The above exception was the direct cause of the following exception:
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\requests\adapters.py:644: in send
+    resp = conn.urlopen(
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\connectionpool.py:871: in urlopen
+    return self.urlopen(
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\connectionpool.py:841: in urlopen
+    retries = retries.increment(
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\util\retry.py:519: in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='login.microsoftonline.com', port=443): Max retries exceeded with url: /common/v2.0/.well-known/openid-configuration (Caused by NewConnectionError("HTTPSConnection(host='login.microsoftonline.com', port=443): Failed to establish a new connection: External DNS disabled for offline presentation tests"))
+
+During handling of the above exception, another exception occurred:
+tests\test_slides.py:586: in test_sse_endpoint_forwards_presentation_and_completion
+    from backend import main
+backend\main.py:153: in <module>
+    entra_auth = EntraAuth(
+auth.py:44: in __init__
+    self.app = msal.PublicClientApplication(
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\msal\application.py:2046: in __init__
+    super(PublicClientApplication, self).__init__(
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\msal\application.py:645: in __init__
+    self.authority = Authority(
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\msal\authority.py:79: in __init__
+    openid_config = tenant_discovery(
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\msal\authority.py:210: in tenant_discovery
+    resp = http_client.get(tenant_discovery_endpoint, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\msal\individual_cache.py:273: in wrapper
+    value = function(*args, **kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\msal\throttled_http_client.py:99: in get
+    return NormalizedResponse(self.http_client.get(*args, **kwargs))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\requests\sessions.py:602: in get
+    return self.request("GET", url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\requests\sessions.py:589: in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\requests\sessions.py:703: in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\requests\adapters.py:677: in send
+    raise ConnectionError(e, request=request)
+E   requests.exceptions.ConnectionError: HTTPSConnectionPool(host='login.microsoftonline.com', port=443): Max retries exceeded with url: /common/v2.0/.well-known/openid-configuration (Caused by NewConnectionError("HTTPSConnection(host='login.microsoftonline.com', port=443): Failed to establish a new connection: External DNS disabled for offline presentation tests"))
+------------------------------ Captured log call ------------------------------
+WARNING  urllib3.connectionpool:connectionpool.py:868 Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError("HTTPSConnection(host='login.microsoftonline.com', port=443): Failed to establish a new connection: External DNS disabled for offline presentation tests")': /common/v2.0/.well-known/openid-configuration
+___ test_sse_endpoint_forwards_presentation_and_completion[conversation-1] ____
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\connection.py:204: in _new_conn
+    sock = connection.create_connection(
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\util\connection.py:60: in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   OSError: External DNS disabled for offline presentation tests
+
+The above exception was the direct cause of the following exception:
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\connectionpool.py:787: in urlopen
+    response = self._make_request(
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\connectionpool.py:488: in _make_request
+    raise new_e
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\connectionpool.py:464: in _make_request
+    self._validate_conn(conn)
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\connectionpool.py:1093: in _validate_conn
+    conn.connect()
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\connection.py:759: in connect
+    self.sock = sock = self._new_conn()
+                       ^^^^^^^^^^^^^^^^
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\connection.py:219: in _new_conn
+    raise NewConnectionError(
+E   urllib3.exceptions.NewConnectionError: HTTPSConnection(host='login.microsoftonline.com', port=443): Failed to establish a new connection: External DNS disabled for offline presentation tests
+
+The above exception was the direct cause of the following exception:
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\requests\adapters.py:644: in send
+    resp = conn.urlopen(
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\connectionpool.py:871: in urlopen
+    return self.urlopen(
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\connectionpool.py:841: in urlopen
+    retries = retries.increment(
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\urllib3\util\retry.py:519: in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='login.microsoftonline.com', port=443): Max retries exceeded with url: /common/v2.0/.well-known/openid-configuration (Caused by NewConnectionError("HTTPSConnection(host='login.microsoftonline.com', port=443): Failed to establish a new connection: External DNS disabled for offline presentation tests"))
+
+During handling of the above exception, another exception occurred:
+tests\test_slides.py:586: in test_sse_endpoint_forwards_presentation_and_completion
+    from backend import main
+backend\main.py:153: in <module>
+    entra_auth = EntraAuth(
+auth.py:44: in __init__
+    self.app = msal.PublicClientApplication(
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\msal\application.py:2046: in __init__
+    super(PublicClientApplication, self).__init__(
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\msal\application.py:645: in __init__
+    self.authority = Authority(
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\msal\authority.py:79: in __init__
+    openid_config = tenant_discovery(
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\msal\authority.py:210: in tenant_discovery
+    resp = http_client.get(tenant_discovery_endpoint, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\msal\individual_cache.py:273: in wrapper
+    value = function(*args, **kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\msal\throttled_http_client.py:99: in get
+    return NormalizedResponse(self.http_client.get(*args, **kwargs))
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\requests\sessions.py:602: in get
+    return self.request("GET", url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\requests\sessions.py:589: in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\requests\sessions.py:703: in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\v-vswapnik\AppData\Local\anaconda3\envs\agentic_shiksha_v1\Lib\site-packages\requests\adapters.py:677: in send
+    raise ConnectionError(e, request=request)
+E   requests.exceptions.ConnectionError: HTTPSConnectionPool(host='login.microsoftonline.com', port=443): Max retries exceeded with url: /common/v2.0/.well-known/openid-configuration (Caused by NewConnectionError("HTTPSConnection(host='login.microsoftonline.com', port=443): Failed to establish a new connection: External DNS disabled for offline presentation tests"))
+------------------------------ Captured log call ------------------------------
+WARNING  urllib3.connectionpool:connectionpool.py:868 Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError("HTTPSConnection(host='login.microsoftonline.com', port=443): Failed to establish a new connection: External DNS disabled for offline presentation tests")': /common/v2.0/.well-known/openid-configuration
+============================== warnings summary ===============================
+tests/test_slides.py::test_save_creates_new_private_assets_without_overwriting_original
+tests/test_slides.py::test_save_creates_new_private_assets_without_overwriting_original
+  C:\Users\v-vswapnik\OneDrive - Microsoft\Documents\MSR Projects\Remote\EKALAIVA\Agentic-Shiksha\Agentic Shiksha Platform\Backend\azure_services\persistence\cosmos_db.py:3847: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow().isoformat() + "Z"
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_slides.py::test_sse_endpoint_forwards_presentation_and_completion[None]
+FAILED tests/test_slides.py::test_sse_endpoint_forwards_presentation_and_completion[conversation-1]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 2 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+2 failed, 69 passed, 2 warnings in 34.98s

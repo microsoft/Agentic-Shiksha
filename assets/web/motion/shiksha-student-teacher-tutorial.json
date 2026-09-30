@@ -1,0 +1,94 @@
+{
+  "name": "shiksha-student-teacher-tutorial",
+  "title": "Learning and teaching, side by side",
+  "duration": 41.5,
+  "frames": 498,
+  "width": 2656,
+  "height": 976,
+  "gifFrames": 415,
+  "gifBytes": 5606363,
+  "chapters": [
+    {
+      "start": 0,
+      "end": 5.5,
+      "caption": "01  Two separate accounts: the learner opens a course while the teacher views the class."
+    },
+    {
+      "start": 5.5,
+      "end": 14.75,
+      "caption": "02  The learner asks a question; the teacher opens Insights and scopes it to that learner."
+    },
+    {
+      "start": 14.75,
+      "end": 23,
+      "caption": "03  While the course answer arrives, the teacher asks about the learner's current activity."
+    },
+    {
+      "start": 23,
+      "end": 30.333333333333332,
+      "caption": "04  The learner opens the check, chooses an answer and explains the reasoning."
+    },
+    {
+      "start": 30.333333333333332,
+      "end": 38.333333333333336,
+      "caption": "05  The teacher asks what changed; the response uses the submitted demo attempt."
+    },
+    {
+      "start": 38.333333333333336,
+      "end": 41.5,
+      "caption": "06  Both views remain visible: learner feedback and a scoped teaching next step."
+    }
+  ],
+  "headerStyle": {
+    "background": "#EDE9FE",
+    "text": "#30264D",
+    "badge": false
+  },
+  "layout": "side-by-side",
+  "presentation": {
+    "configuredCourseStarters": 4,
+    "verifiedWelcomeScreens": 1,
+    "assetChecks": [
+      {
+        "event": "quiz_start",
+        "atSeconds": 19.333333333333332,
+        "navigationCollapsed": true
+      },
+      {
+        "event": "quiz",
+        "atSeconds": 19.333333333333332,
+        "navigationCollapsed": true
+      }
+    ]
+  },
+  "projectName": "Agentic Shiksha",
+  "demoId": "student-teacher",
+  "description": "Two simultaneous actual UI views: a learner completes a concept check while a teacher queries the Insights agent about that same demo activity.",
+  "capture": "Separate student and teacher browser contexts captured together at every frame; both use the real React frontend.",
+  "timing": "Frames are paced for clarity, not a performance or real-time telemetry benchmark.",
+  "isolation": "Synthetic accounts and local shared fixtures only. Teacher replies are composed from the learner's actual intercepted demo messages and submitted quiz receipt, not live cloud inference.",
+  "linkedUsage": [
+    {
+      "learnerId": "tutorial-student",
+      "learnerName": "Demo Learner",
+      "questionCount": 1,
+      "conversationCount": 1,
+      "submittedChecks": 0,
+      "correctAnswers": 0,
+      "totalQuestions": 0,
+      "question": "At a fixed 12 V, how does doubling resistance affect current? Give me a concept check."
+    },
+    {
+      "learnerId": "tutorial-student",
+      "learnerName": "Demo Learner",
+      "questionCount": 1,
+      "conversationCount": 1,
+      "submittedChecks": 1,
+      "correctAnswers": 1,
+      "totalQuestions": 1,
+      "question": "At a fixed 12 V, how does doubling resistance affect current? Give me a concept check."
+    }
+  ],
+  "source": "Agentic Shiksha Platform/Frontend",
+  "recordedOn": "2026-09-30"
+}

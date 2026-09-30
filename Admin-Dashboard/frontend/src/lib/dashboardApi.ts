@@ -4,16 +4,24 @@
  */
 
 import { DASHBOARD_API_URL } from "./config";
+import { useUserStore } from "./userStore";
+import { cachedDashboardRequest, clearDashboardRequests } from "./dashboardRequestCache";
+import type { LearningProgressAvailability } from "./types";
 
 const BASE = `${DASHBOARD_API_URL}/api/dashboard`;
 
 async function get<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE}/${path.replace(/^\/+/, "")}`);
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(`Dashboard API ${res.status}: ${body}`);
-  }
-  return res.json() as Promise<T>;
+  const account = useUserStore.getState();
+  const scope = account.isAuthenticated && account.userId ? `${account.userId}:${account.role}` : "";
+  return cachedDashboardRequest(scope, path, async () => {
+    const res = await fetch(`${BASE}/${path.replace(/^\/+/, "")}`, { credentials: "include" });
+    if (!res.ok) throw new Error(`Dashboard request failed (${res.status}). Please retry.`);
+    const value = await res.json() as T;
+    const current = useUserStore.getState();
+    const currentScope = current.isAuthenticated && current.userId ? `${current.userId}:${current.role}` : "";
+    if (currentScope !== scope) throw new Error("Account changed. Reload the dashboard.");
+    return value;
+  });
 }
 
 // ── Types ──────────────────────────────────────────────────────────
@@ -29,6 +37,20 @@ export interface DashboardAgent {
   createdByName?: string;
   courseName?: string;
   courseLevel?: string;
+  courseAffiliations?: { institute: string; department: string }[];
+}
+
+export function filterDashboardAgents(
+  agents: DashboardAgent[],
+  institute: string,
+  department: string,
+): DashboardAgent[] {
+  const inst = institute.trim().toLowerCase();
+  const dept = department.trim().toLowerCase();
+  if (!inst || !dept) return [];
+  return agents.filter(agent => agent.courseAffiliations?.some(affiliation =>
+    affiliation.institute.trim().toLowerCase() === inst
+    && affiliation.department.trim().toLowerCase() === dept));
 }
 
 export interface AgentListResponse {
@@ -152,6 +174,7 @@ export async function transferAgentOwnership(
     const body = await res.json().catch(() => ({}));
     throw new Error(body.detail || `Failed to transfer ownership: ${res.status}`);
   }
+  clearDashboardRequests();
   return res.json();
 }
 
@@ -166,8 +189,9 @@ export interface AgentTeacher {
 
 export async function getAgentTeachers(
   agentId: string,
+  signal?: AbortSignal,
 ): Promise<{ agent_id: string; owner_id: string; teachers: AgentTeacher[] }> {
-  const res = await fetch(`${BASE}/agents/${encodeURIComponent(agentId)}/teachers`);
+  const res = await fetch(`${BASE}/agents/${encodeURIComponent(agentId)}/teachers`, { signal });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.detail || `Failed to load teachers: ${res.status}`);
@@ -188,6 +212,7 @@ export async function setAgentTeachers(
     const body = await res.json().catch(() => ({}));
     throw new Error(body.detail || `Failed to save teachers: ${res.status}`);
   }
+  clearDashboardRequests();
   return res.json();
 }
 
@@ -278,7 +303,7 @@ export async function getAllGroundednessEvaluations(
 
 // ── Courses Overview ───────────────────────────────────────────────
 
-export interface CourseOverviewItem {
+export interface CourseOverviewItem extends LearningProgressAvailability {
   agentId: string;
   course: string;
   institute: string;
@@ -289,6 +314,9 @@ export interface CourseOverviewItem {
   conversations: number;
   rounds: number;
   totalTokens: number;
+  attributedTokens?: number;
+  attributedRounds?: number;
+  attributedStudents?: number;
 }
 
 export interface TokenStats {

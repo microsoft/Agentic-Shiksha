@@ -1,0 +1,109 @@
+{
+  "name": "shiksha-admin-overview-tutorial",
+  "title": "Explore platform and course analytics",
+  "duration": 35,
+  "frames": 420,
+  "width": 1360,
+  "height": 928,
+  "gifFrames": 350,
+  "gifBytes": 2472889,
+  "chapters": [
+    {
+      "start": 0,
+      "end": 4.333333333333333,
+      "caption": "01  Explore synthetic platform usage across three courses."
+    },
+    {
+      "start": 4.333333333333333,
+      "end": 10.5,
+      "caption": "02  Change Today to This Week to compare the reporting period."
+    },
+    {
+      "start": 10.5,
+      "end": 15.333333333333334,
+      "caption": "03  Open Total Tokens to compare each course's share."
+    },
+    {
+      "start": 15.333333333333334,
+      "end": 21.666666666666668,
+      "caption": "04  Search for Electricity Basics; overall totals stay unchanged."
+    },
+    {
+      "start": 21.666666666666668,
+      "end": 28.333333333333332,
+      "caption": "05  Inspect per-student token usage from the course row."
+    },
+    {
+      "start": 28.333333333333332,
+      "end": 35,
+      "caption": "06  Compare rounds per student without changing course settings."
+    }
+  ],
+  "headerStyle": {
+    "background": "#EDE9FE",
+    "text": "#30264D",
+    "badge": false
+  },
+  "layout": "single-screen",
+  "presentation": {
+    "configuredCourseStarters": 0,
+    "starterRuleApplicable": false,
+    "verifiedWelcomeScreens": 0,
+    "assetChecks": []
+  },
+  "projectName": "Agentic Shiksha",
+  "demoId": "admin-overview",
+  "description": "Explore the native admin overview with synthetic institution data: change the reporting period, filter course token usage, and inspect per-student tokens and rounds. Read-only; no live sign-in or model calls.",
+  "verification": {
+    "source": "Admin-Dashboard/frontend",
+    "nativeUI": true,
+    "syntheticData": true,
+    "liveSignIn": false,
+    "productionSecurity": "Not assessed; authentication and APIs are local browser-test fixtures.",
+    "courseChatStarters": {
+      "applicable": false,
+      "reason": "The native admin dashboard does not have course-chat starters."
+    },
+    "navigationCollapsedBeforeDialogs": true,
+    "durationSeconds": 35,
+    "readOnly": true,
+    "institution": "Demo Technical Institute",
+    "courseId": "tutorial-admin-electricity",
+    "courseName": "Electricity Basics",
+    "reportingPeriods": [
+      {
+        "startDate": "2026-09-23",
+        "endDate": "2026-09-23",
+        "activeStudents": 1,
+        "tokens": 12000,
+        "rounds": 6,
+        "newConversations": 2
+      },
+      {
+        "startDate": "2026-09-20",
+        "endDate": "2026-09-23",
+        "activeStudents": 2,
+        "tokens": 63000,
+        "rounds": 30,
+        "newConversations": 5
+      }
+    ],
+    "search": {
+      "query": "Electricity",
+      "matchingCourses": 1,
+      "allCourses": 3,
+      "totalTokens": 90000,
+      "shareUnchanged": true
+    },
+    "studentUsage": {
+      "students": 2,
+      "tokens": 48000,
+      "rounds": 24
+    }
+  },
+  "capture": "Actual unchanged React frontend; scripted interactions, synthetic course data and in-memory API responses.",
+  "timing": "Captured frames are paced for readability, not a performance benchmark.",
+  "isolation": "Fresh browser context. External services blocked; all API calls simulated. No remote course creation.",
+  "source": "Admin-Dashboard/frontend",
+  "recordedOn": "2026-09-30"
+}

@@ -9,9 +9,11 @@
  * All code is self-contained — no external dashboard component imports.
  */
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, type ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { UnifiedChatContainer } from "@/components/chat/UnifiedChatContainer";
+import { StudentAssignmentsDialog } from "@/components/StudentAssignmentsDialog";
+import { CoursePlacementDialog } from "@/components/CoursePlacementDialog";
 import OverviewContent from "@/pages/OverviewPage";
 import { DASHBOARD_API_URL } from "@/lib/config";
 import { applyNameGuard } from "@/lib/nameGuard";
@@ -29,6 +31,8 @@ import {
 import type { ChatMsg } from "@/lib/types";
 import { useAuth } from "@/lib/useAuth";
 import { useUserStore } from "@/lib/userStore";
+import { useStudentAssignmentAccess } from "@/lib/useStudentAssignmentAccess";
+import { getStudentRoster } from "@/lib/studentAssignmentsApi";
 import {
   BarChart3,
   Users,
@@ -70,6 +74,7 @@ import {
 } from "lucide-react";
 import {
   listDashboardAgents,
+  filterDashboardAgents,
   getAgentOverview,
   getStudentDetail,
   transferAgentOwnership,
@@ -94,7 +99,10 @@ import {
   getAllInstitutes,
   getAllDepartments,
   groupByInstituteDept,
+  groupByCourse,
+  type DirectoryCourse,
   addUser,
+  assignUserToCourse,
   removeUser,
   updateUser,
   addInstitute,
@@ -283,11 +291,18 @@ export function DashboardView() {
     navigate(paths[tab], { replace: true });
   };
   const { user } = useAuth();
+  const assignmentAccess = useStudentAssignmentAccess(dashboardTab === "directory" || dashboardTab === "analytics");
 
   // ── Data state ──
   const [agents, setAgents] = useState<DashboardAgent[]>([]);
   const [loadingAgents, setLoadingAgents] = useState(true);
+  const [agentsError, setAgentsError] = useState<string | null>(null);
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
+  const overviewRequest = useRef(0);
+  const [studentAssignmentsOpen, setStudentAssignmentsOpen] = useState(false);
+  const [coursePlacementOpen, setCoursePlacementOpen] = useState(false);
+  const [studentAssignmentAgentId, setStudentAssignmentAgentId] = useState<string | null>(null);
+  const [directoryCourseRevision, setDirectoryCourseRevision] = useState(0);
   const [overview, setOverview] = useState<AgentOverview | null>(null);
   const [loadingOverview, setLoadingOverview] = useState(false);
   const [students, setStudents] = useState<StudentSummary[]>([]);
@@ -329,12 +344,43 @@ export function DashboardView() {
   // ── Analytics filter state ──
   const [analyticsInstFilter, setAnalyticsInstFilter] = useState<string>("");
   const [analyticsDeptFilter, setAnalyticsDeptFilter] = useState<string>("");
-  const analyticsInstitutes = getAllInstitutes();
-  const analyticsDepartments = getAllDepartments(analyticsInstFilter || undefined);
+  const courseAffiliations = agents.flatMap(agent => agent.courseAffiliations ?? []);
+  const analyticsInstitutes = [...new Set([
+    ...getAllInstitutes(), ...courseAffiliations.map(affiliation => affiliation.institute),
+  ])].sort();
+  const analyticsDepartments = analyticsInstFilter ? [...new Set([
+    ...getAllDepartments(analyticsInstFilter),
+    ...courseAffiliations.filter(affiliation => affiliation.institute.trim().toLowerCase() === analyticsInstFilter.trim().toLowerCase())
+      .map(affiliation => affiliation.department),
+  ])].sort() : [];
+  const analyticsAgents = filterDashboardAgents(agents, analyticsInstFilter, analyticsDeptFilter);
+  const clearAnalyticsSelection = useCallback(() => {
+    overviewRequest.current++;
+    setSelectedAgent(null);
+    setOverview(null);
+    setStudents([]);
+    setExpandedStudent(null);
+    setStudentDetail(null);
+    setLoadingOverview(false);
+    setLoadingStudents(false);
+    setLoadingDetail(false);
+    setChatOpen(false);
+    setError(null);
+  }, []);
   const handleAnalyticsInstChange = (val: string) => {
+    clearAnalyticsSelection();
     setAnalyticsInstFilter(val);
     setAnalyticsDeptFilter("");
   };
+  const handleAnalyticsDeptChange = (val: string) => {
+    clearAnalyticsSelection();
+    setAnalyticsDeptFilter(val);
+  };
+  useEffect(() => {
+    if (selectedAgent && !analyticsAgents.some(agent => (agent.agentId || agent.id) === selectedAgent)) {
+      clearAnalyticsSelection();
+    }
+  }, [selectedAgent, analyticsAgents, clearAnalyticsSelection]);
 
   // ── Chat state ──
   const { messages, send, stop, isStreaming, isWaitingForResponse } = useLoggingChat();
@@ -347,18 +393,23 @@ export function DashboardView() {
   }, [chatInput, send]);
 
   // ── Fetch agents ──
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await listDashboardAgents();
-        setAgents(data.agents);
-      } catch (e: any) {
-        setError(e.message);
-      } finally {
-        setLoadingAgents(false);
-      }
-    })();
+  const fetchAgents = useCallback(async () => {
+    setLoadingAgents(true);
+    setAgentsError(null);
+    setError(null);
+    try {
+      const data = await listDashboardAgents();
+      setAgents(data.agents);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Courses could not be loaded.";
+      setAgentsError(message);
+      setError(message);
+    } finally {
+      setLoadingAgents(false);
+    }
   }, []);
+
+  useEffect(() => { void fetchAgents(); }, [fetchAgents]);
 
   // ── Fetch groundedness evaluations (disabled) ──
   const fetchGroundedness = useCallback(async () => {
@@ -372,7 +423,14 @@ export function DashboardView() {
 
   // ── Select agent ──
   const selectAgent = useCallback(async (agentId: string) => {
+    if (!analyticsAgents.some(agent => (agent.agentId || agent.id) === agentId)) {
+      setError("Select a course from the current institution and department.");
+      return;
+    }
+    const request = ++overviewRequest.current;
     setSelectedAgent(agentId);
+    setOverview(null);
+    setStudents([]);
     setExpandedStudent(null);
     setStudentDetail(null);
     setError(null);
@@ -380,15 +438,18 @@ export function DashboardView() {
     setLoadingStudents(true);
     try {
       const ov = await getAgentOverview(agentId);
+      if (request !== overviewRequest.current) return;
       setOverview(ov);
       setStudents(ov.students ?? []);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      if (request === overviewRequest.current) setError(e instanceof Error ? e.message : "Could not load course analytics.");
     } finally {
-      setLoadingOverview(false);
-      setLoadingStudents(false);
+      if (request === overviewRequest.current) {
+        setLoadingOverview(false);
+        setLoadingStudents(false);
+      }
     }
-  }, []);
+  }, [analyticsAgents]);
 
   // ── Toggle student detail ──
   const toggleStudent = useCallback(
@@ -401,19 +462,49 @@ export function DashboardView() {
       setExpandedStudent(userId);
       setStudentDetail(null);
       setLoadingDetail(true);
+      const request = overviewRequest.current;
       try {
         const d = await getStudentDetail(selectedAgent!, userId);
-        setStudentDetail(d);
-      } catch (e: any) {
-        setError(e.message);
+        if (request === overviewRequest.current) setStudentDetail(d);
+      } catch (e: unknown) {
+        if (request === overviewRequest.current) setError(e instanceof Error ? e.message : "Could not load student details.");
       } finally {
-        setLoadingDetail(false);
+        if (request === overviewRequest.current) setLoadingDetail(false);
       }
     },
     [selectedAgent, expandedStudent],
   );
 
   /* ════════════════════════  Render  ════════════════════════ */
+
+  const studentAssignmentControl = assignmentAccess.allowed ? (
+    <div className="flex flex-wrap items-center gap-2">
+    <button type="button" onClick={() => setCoursePlacementOpen(true)}
+      className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-violet-500/40 bg-neutral-800 px-3 py-1.5 text-xs font-medium text-violet-200 hover:bg-neutral-700">
+      <BookOpen className="h-3.5 w-3.5" aria-hidden="true" />Assign TA to department
+    </button>
+    <button
+      type="button"
+      onClick={() => {
+        setStudentAssignmentAgentId(dashboardTab === "analytics" ? selectedAgent : null);
+        setStudentAssignmentsOpen(true);
+      }}
+      className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-violet-500/50 bg-violet-600/80 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-violet-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+    >
+      <GraduationCap className="h-3.5 w-3.5" aria-hidden="true" />
+      Assign Students
+    </button>
+    </div>
+  ) : assignmentAccess.error ? (
+    <div role="alert" className="flex flex-wrap items-center gap-2 text-xs text-red-300">
+      <span>Could not verify student-assignment permissions.</span>
+      <button type="button" onClick={assignmentAccess.retry} className="rounded px-2 py-1 underline focus-visible:ring-2 focus-visible:ring-violet-400">
+        Retry permissions
+      </button>
+    </div>
+  ) : assignmentAccess.loading ? (
+    <span role="status" className="text-xs text-neutral-400">Checking assignment permissions…</span>
+  ) : null;
 
   const userInitials = (() => {
     const displayName = user?.displayName || "User";
@@ -633,7 +724,7 @@ export function DashboardView() {
                 <div className="grid grid-cols-3 gap-2.5 -mt-1">
                   {/* Institute filter */}
                   <Select value={analyticsInstFilter || undefined} onValueChange={handleAnalyticsInstChange}>
-                    <SelectTrigger className="h-8 w-full !bg-neutral-800/80 !border text-xs text-neutral-300 !ring-0 focus:!ring-1 focus-visible:!ring-0 focus-visible:!outline-none !border-neutral-700/50 focus:!border-neutral-600 focus:!ring-neutral-600">
+                    <SelectTrigger aria-label="Analytics institution" className="h-8 w-full !bg-neutral-800/80 !border text-xs text-neutral-300 !ring-0 focus:!ring-1 focus-visible:!ring-0 focus-visible:!outline-none !border-neutral-700/50 focus:!border-neutral-600 focus:!ring-neutral-600">
                       <SelectValue placeholder="Select institute…" />
                     </SelectTrigger>
                     <SelectContent>
@@ -643,8 +734,8 @@ export function DashboardView() {
                     </SelectContent>
                   </Select>
                   {/* Department filter */}
-                  <Select value={analyticsDeptFilter || undefined} onValueChange={setAnalyticsDeptFilter}>
-                    <SelectTrigger className="h-8 w-full !bg-neutral-800/80 !border text-xs text-neutral-300 !ring-0 focus:!ring-1 focus-visible:!ring-0 focus-visible:!outline-none !border-neutral-700/50 focus:!border-neutral-600 focus:!ring-neutral-600">
+                  <Select value={analyticsDeptFilter} onValueChange={handleAnalyticsDeptChange} disabled={!analyticsInstFilter}>
+                    <SelectTrigger aria-label="Analytics department" className="h-8 w-full !bg-neutral-800/80 !border text-xs text-neutral-300 !ring-0 focus:!ring-1 focus-visible:!ring-0 focus-visible:!outline-none !border-neutral-700/50 focus:!border-neutral-600 focus:!ring-neutral-600">
                       <SelectValue placeholder="Select department…" />
                     </SelectTrigger>
                     <SelectContent>
@@ -659,21 +750,27 @@ export function DashboardView() {
                       <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading courses…
                     </div>
                   ) : (
-                    <Select value={selectedAgent ?? undefined} onValueChange={selectAgent}>
-                      <SelectTrigger className="h-8 w-full !bg-neutral-800/80 !border text-xs text-neutral-300 !ring-0 focus:!ring-1 focus-visible:!ring-0 focus-visible:!outline-none !border-neutral-700/50 focus:!border-neutral-600 focus:!ring-neutral-600">
+                    <Select value={selectedAgent ?? ""} onValueChange={selectAgent}
+                      disabled={!analyticsInstFilter || !analyticsDeptFilter || !!agentsError || analyticsAgents.length === 0}>
+                      <SelectTrigger aria-label="Analytics course" className="h-8 w-full !bg-neutral-800/80 !border text-xs text-neutral-300 !ring-0 focus:!ring-1 focus-visible:!ring-0 focus-visible:!outline-none !border-neutral-700/50 focus:!border-neutral-600 focus:!ring-neutral-600">
                         <SelectValue placeholder="Select course…" />
                       </SelectTrigger>
                       <SelectContent>
-                        {agents.map((a) => {
+                        {analyticsAgents.map((a) => {
                           const id = a.agentId || a.id;
                           return (
                             <SelectItem key={id} value={id}>
-                              {getCourseName(a.name || id)}
+                              {a.courseName || getCourseName(a.name || id)}
                             </SelectItem>
                           );
                         })}
                       </SelectContent>
                     </Select>
+                  )}
+                  {!!analyticsInstFilter && !!analyticsDeptFilter && !loadingAgents && !agentsError && analyticsAgents.length === 0 && (
+                    <p role="status" className="col-span-3 text-xs text-neutral-400">
+                      No courses match this institution and department.
+                    </p>
                   )}
                   {/* Transfer Ownership button */}
                   {selectedAgent && (
@@ -697,7 +794,39 @@ export function DashboardView() {
                       Teachers
                     </button>
                   )}
+                  {selectedAgent && studentAssignmentControl}
                 </div>
+              )}
+
+              {studentAssignmentsOpen && assignmentAccess.allowed && (
+                <StudentAssignmentsDialog
+                  agents={dashboardTab === "analytics" ? analyticsAgents : agents}
+                  courseAffiliations={courseAffiliations}
+                  loadingAgents={loadingAgents}
+                  agentsError={agentsError}
+                  initialAgentId={studentAssignmentAgentId}
+                  onRetryAgents={fetchAgents}
+                  onClose={() => {
+                    setStudentAssignmentsOpen(false);
+                    setDirectoryCourseRevision(revision => revision + 1);
+                  }}
+                />
+              )}
+              {coursePlacementOpen && assignmentAccess.allowed && (
+                <CoursePlacementDialog
+                  agents={agents}
+                  loadingAgents={loadingAgents}
+                  agentsError={agentsError}
+                  initialAgentId={dashboardTab === "analytics" ? selectedAgent : null}
+                  onRetryAgents={fetchAgents}
+                  onClose={() => setCoursePlacementOpen(false)}
+                  onSaved={placement => {
+                    setAgents(current => current.map(agent => (agent.agentId || agent.id) === placement.agent_id
+                      ? { ...agent, courseAffiliations: placement.institute ? [{ institute: placement.institute, department: placement.department }] : [] }
+                      : agent));
+                    setDirectoryCourseRevision(revision => revision + 1);
+                  }}
+                />
               )}
 
               {/* ── Assign Teachers Dialog ── */}
@@ -829,7 +958,15 @@ export function DashboardView() {
               {dashboardTab === "overview" ? (
                 <OverviewContent />
               ) : dashboardTab === "directory" ? (
-                <UserDirectorySection />
+                <UserDirectorySection
+                  studentAssignmentControl={studentAssignmentControl}
+                  agents={agents}
+                  loadingAgents={loadingAgents}
+                  agentsError={agentsError}
+                  canReadCourseAssignments={assignmentAccess.allowed}
+                  courseRevision={directoryCourseRevision}
+                  onRetryAgents={fetchAgents}
+                />
               ) : dashboardTab === "feedback" ? (
                 <FeedbackSection />
               ) : !selectedAgent ? (
@@ -1293,9 +1430,21 @@ function FeedbackSection() {
 
 /* ════════════════════════  Sub-components  ════════════════════════ */
 
-function UserDirectorySection() {
+function UserDirectorySection({
+  studentAssignmentControl, agents, loadingAgents, agentsError,
+  canReadCourseAssignments, courseRevision, onRetryAgents,
+}: {
+  studentAssignmentControl: ReactNode;
+  agents: DashboardAgent[];
+  loadingAgents: boolean;
+  agentsError: string | null;
+  canReadCourseAssignments: boolean;
+  courseRevision: number;
+  onRetryAgents: () => void;
+}) {
   const storeEmail = useUserStore((s) => s.email);
   const callerEmail = (storeEmail || "").toLowerCase();
+  const courseAccount = useUserStore(state => `${state.userId}:${state.role}:${state.isAuthenticated}`);
   // Dashboard is an admin-only tool — always grant super-admin privileges
   const isSuperAdmin = true;
   const isAdmin = true;
@@ -1307,6 +1456,54 @@ function UserDirectorySection() {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
   const [dirLoading, setDirLoading] = useState(!isDirectoryLoaded());
   const [dirError, setDirError] = useState<string | null>(null);
+  const [courseAttempt, setCourseAttempt] = useState(0);
+  const [courseData, setCourseData] = useState<{
+    key: string; courses: DirectoryCourse[]; error: string | null;
+  } | null>(null);
+  const courseRequestKey = JSON.stringify([courseAccount, courseRevision, courseAttempt, agents]);
+  const courseSnapshot = courseData?.key === courseRequestKey ? courseData : null;
+  const courseError = canReadCourseAssignments ? agentsError || courseSnapshot?.error : null;
+  const coursesReady = canReadCourseAssignments && !loadingAgents && !courseError && !!courseSnapshot;
+
+  useEffect(() => {
+    if (!canReadCourseAssignments || loadingAgents || agentsError) return;
+    const controller = new AbortController();
+    const pending = [...agents];
+    const courses: DirectoryCourse[] = [];
+    const loadNext = async () => {
+      while (pending.length > 0 && !controller.signal.aborted) {
+        const agent = pending.shift()!;
+        const agentId = agent.agentId || agent.id;
+        const [teacherRoster, studentRoster] = await Promise.all([
+          getAgentTeachers(agentId, controller.signal),
+          getStudentRoster(agentId, controller.signal),
+        ]);
+        const teachers = teacherRoster.teachers.map(teacher => ({ userId: teacher.user_id, email: teacher.email }));
+        if (teacherRoster.owner_id && !teachers.some(teacher => teacher.userId === teacherRoster.owner_id)) {
+          teachers.push({ userId: teacherRoster.owner_id, email: "" });
+        }
+        const selectedStudents = new Set(studentRoster.student_ids);
+        courses.push({
+          id: agentId,
+          name: agent.courseName || getCourseName(agent.name || agentId),
+          teachers,
+          students: studentRoster.students.filter(student => selectedStudents.has(student.user_id))
+            .map(student => ({ userId: student.user_id, email: student.email })),
+        });
+      }
+    };
+    Promise.all(Array.from({ length: Math.min(4, pending.length) }, loadNext))
+      .then(() => {
+        if (!controller.signal.aborted) setCourseData({ key: courseRequestKey, courses, error: null });
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          setCourseData({ key: courseRequestKey, courses: [], error: "Course assignments could not be loaded." });
+          controller.abort();
+        }
+      });
+    return () => controller.abort();
+  }, [agents, loadingAgents, agentsError, canReadCourseAssignments, courseRequestKey]);
 
   // Load directory from backend on mount
   useEffect(() => {
@@ -1330,7 +1527,46 @@ function UserDirectorySection() {
   const [newRole, setNewRole] = useState<UserRole>("student");
   const [newInstitute, setNewInstitute] = useState("");
   const [newDepartment, setNewDepartment] = useState("");
+  const [newCourseId, setNewCourseId] = useState("");
+  const [csvInstitute, setCsvInstitute] = useState("");
+  const [csvDepartment, setCsvDepartment] = useState("");
+  const [csvCourseId, setCsvCourseId] = useState("");
+  const [savedUser, setSavedUser] = useState<Awaited<ReturnType<typeof addUser>> | null>(null);
+  const [addingUser, setAddingUser] = useState(false);
+  const [csvImporting, setCsvImporting] = useState(false);
+  const userMutationRef = useRef(false);
+  const userCreationBusy = addingUser || csvImporting;
   const [_refreshTick, forceRefresh] = useState(0);
+  const formAffiliations = agents.flatMap(agent => agent.courseAffiliations ?? []);
+  const departmentsForInstitute = (institute: string) => institute ? [...new Set([
+    ...getAllDepartments(institute),
+    ...formAffiliations.filter(affiliation => affiliation.institute.trim().toLowerCase() === institute.trim().toLowerCase())
+      .map(affiliation => affiliation.department),
+  ])].sort() : [];
+  const coursesForScope = (institute: string, department: string) => filterDashboardAgents(agents, institute, department).map(agent => ({
+    id: agent.agentId || agent.id,
+    name: agent.courseName || getCourseName(agent.name || agent.agentId || agent.id),
+  }));
+  const newDepartments = departmentsForInstitute(newInstitute);
+  const courseOptions = coursesForScope(newInstitute, newDepartment);
+  const csvDepartments = departmentsForInstitute(csvInstitute);
+  const csvCourseOptions = coursesForScope(csvInstitute, csvDepartment);
+  const csvScopeReady = canReadCourseAssignments && !!csvInstitute && !!csvDepartment
+    && (!csvCourseId || (!loadingAgents && !agentsError && csvCourseOptions.some(course => course.id === csvCourseId)));
+
+  const resolveCourseChoice = (value: string, institute: string, department: string): string | undefined => {
+    const course = value.trim();
+    if (!course) return undefined;
+    if (!canReadCourseAssignments) {
+      throw new Error("Course assignment is unavailable. Enable assignments and sign in as an active administrator.");
+    }
+    if (loadingAgents || agentsError) {
+      throw new Error("Courses are unavailable. Retry loading courses before assigning a user.");
+    }
+    const exactId = coursesForScope(institute, department).find(option => option.id === course);
+    if (exactId) return exactId.id;
+    throw new Error("Select an available Course/TA for the chosen institution and department.");
+  };
 
   // ── Edit user dialog state ──
   const [editOpen, setEditOpen] = useState(false);
@@ -1459,14 +1695,16 @@ function UserDirectorySection() {
 
   // ── CSV Import state ──
   type CsvMode = "users" | "institutions" | "departments";
-  const [csvResult, setCsvResult] = useState<{ added: number; skipped: number; errors: string[] } | null>(null);
+  const [csvResult, setCsvResult] = useState<{
+    added: number; skipped: number; assigned: number; directoryOnly: number; assignmentFailed: number; errors: string[];
+  } | null>(null);
   const [csvPreview, setCsvPreview] = useState<CsvMode | null>(null);
 
   // ── CSV parsing helpers ──
   const CSV_TEMPLATES: Record<CsvMode, { columns: string[]; example: string }> = {
     users: {
-      columns: ["name", "email", "role", "institute", "department"],
-      example: "Dr. Priya Sharma,ravi@example.com,teacher,IIT Bombay,Computer Science",
+      columns: ["name", "email", "role"],
+      example: "Example Student,student@example.com,student",
     },
     institutions: {
       columns: ["name"],
@@ -1521,51 +1759,89 @@ function UserDirectorySection() {
             }
           }
         }
+        if (inQuotes) throw new Error("CSV contains an unterminated quoted field. Use one record per line.");
         cells.push(cur.trim());
         return cells;
       });
   };
 
-  const handleCsvImport = (file: File, mode: CsvMode) => {
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const text = e.target?.result as string;
-      if (!text) return;
-      const rows = parseCsvText(text);
-      const template = CSV_TEMPLATES[mode];
-      let dataRows = rows;
-      if (
-        rows.length > 0 &&
-        rows[0].length === template.columns.length &&
-        rows[0].every((cell, i) => cell.toLowerCase() === template.columns[i].toLowerCase())
-      ) {
-        dataRows = rows.slice(1);
+  const handleCsvImport = async (file: File, mode: CsvMode) => {
+    if (userMutationRef.current) return;
+    userMutationRef.current = true;
+    setCsvImporting(true);
+    setCsvResult(null);
+    let added = 0;
+    let skipped = 0;
+    let assigned = 0;
+    let directoryOnly = 0;
+    let assignmentFailed = 0;
+    const errors: string[] = [];
+    try {
+      let courseId: string | undefined;
+      const institute = csvInstitute.trim();
+      const department = csvDepartment.trim();
+      if (mode === "users") {
+        if (!canReadCourseAssignments) {
+          throw new Error("Course assignment is unavailable. Sign in as an active administrator with assignments enabled before importing users.");
+        }
+        if (!institute || !department) {
+          throw new Error("Select college and department in the CSV import section before uploading. TA assignment is optional.");
+        }
+        courseId = resolveCourseChoice(csvCourseId, institute, department);
       }
-
-      let added = 0;
-      let skipped = 0;
-      const errors: string[] = [];
+      const rows = parseCsvText(await file.text());
+      if (!rows.length) throw new Error("The CSV file is empty.");
+      const template = CSV_TEMPLATES[mode];
+      const header = rows[0].map(cell => cell.toLowerCase());
+      if (mode === "users") {
+        if (header[0] === "user name") header[0] = "name";
+        if (header[1] === "user email id") header[1] = "email";
+      }
+      let hasHeader = header.length === template.columns.length
+        && header.every((cell, i) => cell === template.columns[i]);
+      if (mode === "users" && header[0] === "name" && header[1] === "email") {
+        if (header.length !== 3 || !hasHeader) {
+          throw new Error("Use only name,email,role in the CSV. Select college, department and an optional TA in the CSV import section, not the file.");
+        }
+        hasHeader = true;
+      }
+      const dataRows = hasHeader ? rows.slice(1) : rows;
+      if (!dataRows.length) throw new Error("The CSV file has a header but no user or directory rows.");
 
       for (let i = 0; i < dataRows.length; i++) {
         const row = dataRows[i];
-        const rowNum = i + 1;
+        const rowNum = i + (hasHeader ? 2 : 1);
 
         if (mode === "users") {
-          if (row.length < 5) { errors.push(`Row ${rowNum}: expected 5 columns (name, email, role, institute, department), got ${row.length}`); skipped++; continue; }
-          const [name, email, role, institute, department] = row;
-          if (!email) { errors.push(`Row ${rowNum}: email is required`); skipped++; continue; }
-          const validRoles: UserRole[] = ["student", "teacher", "admin"];
-          const normalRole = role.toLowerCase() as UserRole;
-          if (!validRoles.includes(normalRole)) { errors.push(`Row ${rowNum}: invalid role "${role}" (use student/teacher/admin)`); skipped++; continue; }
+          if (row.length !== 3) {
+            errors.push(`Row ${rowNum}: expected only 3 columns (name, email, role), got ${row.length}. Institution, department and Course/TA come from the form.`);
+            skipped++;
+            continue;
+          }
+          const [name, email, role] = row;
+          if (!email) {
+            errors.push(`Row ${rowNum}: email is required`);
+            skipped++;
+            continue;
+          }
+          const normalRole = ALL_ROLES.find(value => value === role.toLowerCase());
+          if (!normalRole) { errors.push(`Row ${rowNum}: invalid role "${role}" (use student/teacher/admin)`); skipped++; continue; }
           try {
-            // The backend decides whether this is a duplicate; the in-memory
-            // directory goes stale after deletes made elsewhere.
             const result = await addUser({ name: name || (normalRole === "student" ? "student_name" : ""), email, role: normalRole, institute, department });
-            if (result.alreadyExists) {
+            if (!result.alreadyExists) added++;
+            if (courseId && normalRole !== "admin") {
+              try {
+                await assignUserToCourse(result.user, courseId, normalRole);
+                assigned++;
+              } catch (err) {
+                assignmentFailed++;
+                errors.push(`Row ${rowNum}: user "${email}" is saved, but the course assignment could not be confirmed. ${err instanceof Error ? err.message : "Assignment failed."} Re-import this row to retry.`);
+              }
+            } else if (result.alreadyExists) {
               errors.push(`Row ${rowNum}: email "${email}" already exists`);
               skipped++;
             } else {
-              added++;
+              directoryOnly++;
             }
           } catch (err) {
             errors.push(`Row ${rowNum}: ${err instanceof Error ? err.message : "failed to invite"}`);
@@ -1584,17 +1860,24 @@ function UserDirectorySection() {
         }
       }
 
-      setCsvResult({ added, skipped, errors });
-      if (added > 0) forceRefresh((n) => n + 1);
-    };
-    reader.readAsText(file);
+    } catch (err) {
+      errors.push(err instanceof Error ? err.message : "The CSV file could not be read.");
+    } finally {
+      setCsvResult({ added, skipped, assigned, directoryOnly, assignmentFailed, errors });
+      forceRefresh((n) => n + 1);
+      if (assigned || assignmentFailed) setCourseAttempt(value => value + 1);
+      setCsvImporting(false);
+      userMutationRef.current = false;
+    }
   };
 
   // Simple toast state for add-user feedback
   const [addUserToastMsg, setAddUserToastMsg] = useState<{ text: string; type: "success" | "error" | "info" } | null>(null);
   const addUserToast = (text: string, type: "success" | "error" | "info") => {
     setAddUserToastMsg({ text, type });
-    setTimeout(() => setAddUserToastMsg(null), 4000);
+    if (type !== "error") {
+      setTimeout(() => setAddUserToastMsg(current => current?.text === text ? null : current), 4000);
+    }
   };
 
   const resetForm = () => {
@@ -1603,6 +1886,13 @@ function UserDirectorySection() {
     setNewRole("student");
     setNewInstitute("");
     setNewDepartment("");
+    setNewCourseId("");
+    setCsvInstitute("");
+    setCsvDepartment("");
+    setCsvCourseId("");
+    setCsvResult(null);
+    setSavedUser(null);
+    setAddUserToastMsg(null);
   };
 
   const handleAddInstitute = () => {
@@ -1843,27 +2133,37 @@ function UserDirectorySection() {
     setResearchPromptInstructions("");
   };
 
-  const [addingUser, setAddingUser] = useState(false);
-
   const handleAddUser = async () => {
-    if (!newEmail.trim() || !newInstitute.trim() || !newDepartment.trim()) return;
-    // Capture values before reset
+    if (userMutationRef.current) return;
+    if (!newEmail.trim() || !newInstitute.trim() || !newDepartment.trim()) {
+      addUserToast("Email, institute and department are required.", "error");
+      return;
+    }
     const email = newEmail.trim();
     const institute = newInstitute.trim();
+    userMutationRef.current = true;
     setAddingUser(true);
+    setAddUserToastMsg(null);
+    let result = savedUser;
     try {
-      const result = await addUser({
-        name: newName.trim() || (newRole === "student" ? "student_name" : ""),
-        email,
-        role: newRole,
-        institute,
-        department: newDepartment.trim(),
-      });
+      const courseId = newRole === "admin" ? undefined : resolveCourseChoice(newCourseId, newInstitute, newDepartment);
+      if (!result) {
+        result = await addUser({
+          name: newName.trim() || (newRole === "student" ? "student_name" : ""),
+          email,
+          role: newRole,
+          institute,
+          department: newDepartment.trim(),
+        });
+        setSavedUser(result);
+      }
+      if (courseId) await assignUserToCourse(result.user, courseId, newRole);
       resetForm();
       setAddOpen(false);
-      forceRefresh((n) => n + 1);
-      if (result.alreadyExists) {
-        addUserToast(`${email} already has access at ${institute} — can use all courses there`, "info");
+      if (courseId) {
+        addUserToast(`Saved ${email} and assigned ${courseOptions.find(course => course.id === courseId)?.name || courseId}`, "success");
+      } else if (result.alreadyExists) {
+        addUserToast(`${email} is already in the directory at ${institute}. Course assignments are unchanged.`, "info");
       } else if (result.affiliationAdded) {
         addUserToast(`Added ${institute} affiliation for existing user`, "info");
       } else {
@@ -1871,13 +2171,22 @@ function UserDirectorySection() {
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to add user";
-      addUserToast(msg, "error");
+      addUserToast(result
+        ? `The user is saved in the directory, but the course assignment could not be confirmed. ${msg} Retry the assignment without creating another invitation.`
+        : msg, "error");
     } finally {
+      if (result) {
+        forceRefresh((n) => n + 1);
+        if (newCourseId) setCourseAttempt(value => value + 1);
+      }
       setAddingUser(false);
+      userMutationRef.current = false;
     }
   };
 
-  const institutes = getAllInstitutes();
+  const institutes = [...new Set([
+    ...getAllInstitutes(), ...formAffiliations.map(affiliation => affiliation.institute),
+  ])].sort();
   const departments = getAllDepartments(instFilter !== "all" ? instFilter : undefined);
 
   // When institute changes, reset department filter
@@ -1886,23 +2195,13 @@ function UserDirectorySection() {
     setDeptFilter("all");
   };
 
-  const filtered = USER_DIRECTORY.filter((u) => {
-    if (roleFilter !== "all" && u.role !== roleFilter) return false;
-    if (instFilter !== "all" && u.institute !== instFilter) return false;
-    if (deptFilter !== "all" && u.department !== deptFilter) return false;
-    if (search) {
-      const q = search.toLowerCase();
-      return (
-        u.name.toLowerCase().includes(q) ||
-        u.email.toLowerCase().includes(q) ||
-        u.institute.toLowerCase().includes(q) ||
-        u.department.toLowerCase().includes(q)
-      );
-    }
-    return true;
+  const grouped = groupByInstituteDept(USER_DIRECTORY.filter(user => roleFilter === "all" || user.role === roleFilter), {
+    institute: instFilter === "all" ? undefined : instFilter,
+    department: deptFilter === "all" ? undefined : deptFilter,
+    search,
   });
-
-  const grouped = groupByInstituteDept(filtered.filter((u) => u.institute && u.department));
+  const filteredCount = new Set(Object.values(grouped).flatMap(departments => Object.values(departments).flat())
+    .map(user => user.userId || user.id)).size;
   const toggleGroup = (key: string) =>
     setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }));
 
@@ -1910,13 +2209,14 @@ function UserDirectorySection() {
     <div className="bg-neutral-900/70 border border-neutral-800/60 rounded-2xl overflow-hidden">
       {/* Header */}
       <div className="px-5 py-4 border-b border-neutral-800/60 flex flex-col gap-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <Users className="w-5 h-5 text-neutral-400" />
             <h3 className="text-sm font-semibold text-neutral-200 tracking-tight">User Directory</h3>
-            <span className="text-[11px] text-neutral-500 ml-1">({filtered.length})</span>
+            <span className="text-[11px] text-neutral-500 ml-1">({filteredCount})</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {studentAssignmentControl}
             {isSuperAdmin && (<>
             <button
               onClick={() => setAddInstOpen(true)}
@@ -1933,7 +2233,7 @@ function UserDirectorySection() {
               Add Department
             </button>
             <button
-              onClick={() => setAddOpen(true)}
+              onClick={() => { setCsvResult(null); setAddOpen(true); }}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-violet-600/80 hover:bg-violet-600 text-white border border-violet-500/50 transition-colors"
             >
               <UserPlus className="w-3.5 h-3.5" />
@@ -1949,13 +2249,14 @@ function UserDirectorySection() {
           <input
             type="text"
             placeholder="Search…"
+            aria-label="Search directory"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="bg-neutral-800/80 text-xs text-neutral-300 placeholder-neutral-600 border border-neutral-700/50 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-neutral-600"
           />
           {/* Institute filter */}
           <Select value={instFilter} onValueChange={handleInstChange}>
-            <SelectTrigger className="h-8 w-full !bg-neutral-800/80 !border text-xs text-neutral-300 !ring-0 focus:!ring-1 focus-visible:!ring-0 focus-visible:!outline-none !border-neutral-700/50 focus:!border-neutral-600 focus:!ring-neutral-600">
+            <SelectTrigger aria-label="Directory institution" className="h-8 w-full !bg-neutral-800/80 !border text-xs text-neutral-300 !ring-0 focus:!ring-1 focus-visible:!ring-0 focus-visible:!outline-none !border-neutral-700/50 focus:!border-neutral-600 focus:!ring-neutral-600">
               <SelectValue placeholder="All institutes" />
             </SelectTrigger>
             <SelectContent>
@@ -1967,7 +2268,7 @@ function UserDirectorySection() {
           </Select>
           {/* Department filter */}
           <Select value={deptFilter} onValueChange={setDeptFilter}>
-            <SelectTrigger className="h-8 w-full !bg-neutral-800/80 !border text-xs text-neutral-300 !ring-0 focus:!ring-1 focus-visible:!ring-0 focus-visible:!outline-none !border-neutral-700/50 focus:!border-neutral-600 focus:!ring-neutral-600">
+            <SelectTrigger aria-label="Directory department" className="h-8 w-full !bg-neutral-800/80 !border text-xs text-neutral-300 !ring-0 focus:!ring-1 focus-visible:!ring-0 focus-visible:!outline-none !border-neutral-700/50 focus:!border-neutral-600 focus:!ring-neutral-600">
               <SelectValue placeholder="All departments" />
             </SelectTrigger>
             <SelectContent>
@@ -1979,7 +2280,7 @@ function UserDirectorySection() {
           </Select>
           {/* Role filter */}
           <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v as UserRole | "all")}>
-            <SelectTrigger className="h-8 w-full !bg-neutral-800/80 !border text-xs text-neutral-300 !ring-0 focus:!ring-1 focus-visible:!ring-0 focus-visible:!outline-none !border-neutral-700/50 focus:!border-neutral-600 focus:!ring-neutral-600">
+            <SelectTrigger aria-label="Directory role" className="h-8 w-full !bg-neutral-800/80 !border text-xs text-neutral-300 !ring-0 focus:!ring-1 focus-visible:!ring-0 focus-visible:!outline-none !border-neutral-700/50 focus:!border-neutral-600 focus:!ring-neutral-600">
               <SelectValue placeholder="All roles" />
             </SelectTrigger>
             <SelectContent>
@@ -2153,8 +2454,18 @@ function UserDirectorySection() {
       </Dialog>
 
       {/* ── Add User Dialog ── */}
-      <Dialog open={addOpen} onOpenChange={setAddOpen}>
-        <DialogContent className="bg-neutral-900 border-neutral-700/60 text-white sm:max-w-xl">
+      <Dialog open={addOpen} onOpenChange={open => {
+        if (!userCreationBusy) {
+          setAddOpen(open);
+          if (!open) resetForm();
+        }
+      }}>
+        <DialogContent
+          className="max-h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] overflow-y-auto border-neutral-700/60 bg-neutral-900 p-4 text-white sm:max-w-xl sm:p-6"
+          aria-busy={userCreationBusy}
+          onEscapeKeyDown={event => { if (userCreationBusy) event.preventDefault(); }}
+          onPointerDownOutside={event => { if (userCreationBusy) event.preventDefault(); }}
+        >
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-base">
               <UserPlus className="w-4.5 h-4.5 text-violet-400" />
@@ -2162,36 +2473,41 @@ function UserDirectorySection() {
             </DialogTitle>
             <DialogDescription className="text-neutral-400 text-xs">
               Fill in the details below to add a user to the directory.
+              {canReadCourseAssignments && " Optionally assign a student or teacher to one Course/TA."}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid grid-cols-2 gap-x-4 gap-y-3.5 py-3">
+          <div className="grid grid-cols-1 gap-x-4 gap-y-3.5 py-3 sm:grid-cols-2">
             {/* Name */}
-            <div className="grid gap-1.5">
-              <label className="text-[11px] font-medium text-neutral-400 uppercase tracking-wide">Name</label>
+            <div className="grid min-w-0 gap-1.5">
+              <label htmlFor="new-user-name" className="text-[11px] font-medium text-neutral-400 uppercase tracking-wide">Name</label>
               <input
+                id="new-user-name"
                 type="text"
+                disabled={userCreationBusy || !!savedUser}
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder={newRole === "student" ? "student_name" : "e.g. Dr. Priya Sharma"}
-                className="bg-neutral-800/80 text-sm text-neutral-200 placeholder-neutral-600 border border-neutral-700/50 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-violet-500/60 focus:border-violet-500/40"
+                className="min-w-0 bg-neutral-800/80 text-sm text-neutral-200 placeholder-neutral-600 border border-neutral-700/50 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-violet-500/60 focus:border-violet-500/40 disabled:opacity-50"
               />
             </div>
             {/* Email */}
-            <div className="grid gap-1.5">
-              <label className="text-[11px] font-medium text-neutral-400 uppercase tracking-wide">Email</label>
+            <div className="grid min-w-0 gap-1.5">
+              <label htmlFor="new-user-email" className="text-[11px] font-medium text-neutral-400 uppercase tracking-wide">Email</label>
               <input
+                id="new-user-email"
                 type="email"
+                disabled={userCreationBusy || !!savedUser}
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
                 placeholder="e.g. ravi@ekalaiva.com"
-                className="bg-neutral-800/80 text-sm text-neutral-200 placeholder-neutral-600 border border-neutral-700/50 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-violet-500/60 focus:border-violet-500/40"
+                className="min-w-0 bg-neutral-800/80 text-sm text-neutral-200 placeholder-neutral-600 border border-neutral-700/50 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-violet-500/60 focus:border-violet-500/40 disabled:opacity-50"
               />
             </div>
             {/* Role */}
-            <div className="grid gap-1.5">
-              <label className="text-[11px] font-medium text-neutral-400 uppercase tracking-wide">Role</label>
-              <Select value={newRole} onValueChange={(v) => {
+            <div className="grid min-w-0 gap-1.5">
+              <label htmlFor="new-user-role" className="text-[11px] font-medium text-neutral-400 uppercase tracking-wide">Role</label>
+              <Select value={newRole} disabled={userCreationBusy || !!savedUser} onValueChange={(v) => {
                 const role = v as UserRole;
                 setNewRole(role);
                 if (role === "student" && !newName.trim()) {
@@ -2199,12 +2515,8 @@ function UserDirectorySection() {
                 } else if (role !== "student" && newName === "student_name") {
                   setNewName("");
                 }
-                if (role === "admin") {
-                  setNewInstitute("Microsoft");
-                  setNewDepartment("MSR");
-                }
               }}>
-                <SelectTrigger className="h-9 !bg-neutral-800/80 !border text-sm text-neutral-200 !ring-0 focus:!ring-1 focus-visible:!ring-0 focus-visible:!outline-none !border-neutral-700/50 focus:!border-violet-500/40 focus:!ring-violet-500/60">
+                <SelectTrigger id="new-user-role" className="h-9 !bg-neutral-800/80 !border text-sm text-neutral-200 !ring-0 focus:!ring-1 focus-visible:!ring-0 focus-visible:!outline-none !border-neutral-700/50 focus:!border-violet-500/40 focus:!ring-violet-500/60">
                   <SelectValue placeholder="Select role…" />
                 </SelectTrigger>
                 <SelectContent>
@@ -2215,10 +2527,14 @@ function UserDirectorySection() {
               </Select>
             </div>
             {/* Institute */}
-            <div className="grid gap-1.5">
-              <label className="text-[11px] font-medium text-neutral-400 uppercase tracking-wide">Institute</label>
-              <Select value={newInstitute || "__none"} onValueChange={(v) => { setNewInstitute(v === "__none" ? "" : v); setNewDepartment(""); }}>
-                <SelectTrigger className="h-9 !bg-neutral-800/80 !border text-sm text-neutral-200 !ring-0 focus:!ring-1 focus-visible:!ring-0 focus-visible:!outline-none !border-neutral-700/50 focus:!border-violet-500/40 focus:!ring-violet-500/60 truncate">
+            <div className="grid min-w-0 gap-1.5">
+              <label htmlFor="new-user-institute" className="text-[11px] font-medium text-neutral-400 uppercase tracking-wide">Institute</label>
+              <Select value={newInstitute || "__none"} disabled={userCreationBusy || !!savedUser} onValueChange={(v) => {
+                setNewInstitute(v === "__none" ? "" : v);
+                setNewDepartment("");
+                setNewCourseId("");
+              }}>
+                <SelectTrigger id="new-user-institute" className="h-9 !bg-neutral-800/80 !border text-sm text-neutral-200 !ring-0 focus:!ring-1 focus-visible:!ring-0 focus-visible:!outline-none !border-neutral-700/50 focus:!border-violet-500/40 focus:!ring-violet-500/60 truncate">
                   <SelectValue placeholder="Select institute…" />
                 </SelectTrigger>
                 <SelectContent>
@@ -2230,75 +2546,212 @@ function UserDirectorySection() {
               </Select>
             </div>
             {/* Department */}
-            <div className="grid gap-1.5">
-              <label className="text-[11px] font-medium text-neutral-400 uppercase tracking-wide">Department</label>
-              <Select value={newDepartment || "__none"} onValueChange={(v) => setNewDepartment(v === "__none" ? "" : v)}>
-                <SelectTrigger className="h-9 !bg-neutral-800/80 !border text-sm text-neutral-200 !ring-0 focus:!ring-1 focus-visible:!ring-0 focus-visible:!outline-none !border-neutral-700/50 focus:!border-violet-500/40 focus:!ring-violet-500/60 truncate">
+            <div className="grid min-w-0 gap-1.5">
+              <label htmlFor="new-user-department" className="text-[11px] font-medium text-neutral-400 uppercase tracking-wide">Department</label>
+              <Select value={newDepartment || "__none"} disabled={userCreationBusy || !!savedUser || !newInstitute} onValueChange={(v) => {
+                setNewDepartment(v === "__none" ? "" : v);
+                setNewCourseId("");
+              }}>
+                <SelectTrigger id="new-user-department" className="h-9 !bg-neutral-800/80 !border text-sm text-neutral-200 !ring-0 focus:!ring-1 focus-visible:!ring-0 focus-visible:!outline-none !border-neutral-700/50 focus:!border-violet-500/40 focus:!ring-violet-500/60 truncate">
                   <SelectValue placeholder="Select department…" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__none" className="text-neutral-500">Select department…</SelectItem>
-                  {getAllDepartments(newInstitute || undefined).map((d) => (
+                  {newDepartments.map((d) => (
                     <SelectItem key={d} value={d}>{d}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
+            {canReadCourseAssignments && (
+              <div className="grid min-w-0 gap-1.5">
+                <label htmlFor="new-user-course" className="text-[11px] font-medium text-neutral-400 uppercase tracking-wide">
+                  Course / TA
+                </label>
+                <Select value={newCourseId || "__none"} onValueChange={value => setNewCourseId(value === "__none" ? "" : value)}
+                  disabled={userCreationBusy || loadingAgents || !!agentsError || !newInstitute || !newDepartment || courseOptions.length === 0}>
+                  <SelectTrigger id="new-user-course" className="h-9 min-w-0 border-neutral-700/50 bg-neutral-800/80 text-sm text-neutral-200 [&>span]:truncate">
+                    <SelectValue placeholder="Select course..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none">Select course...</SelectItem>
+                    {courseOptions.map(course => (
+                      <SelectItem key={course.id} value={course.id}>{course.name} ({course.id})</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            {canReadCourseAssignments && (
+              <div className="text-xs text-neutral-400 sm:col-span-2">
+                {loadingAgents ? <p role="status">Loading courses...</p> : agentsError ? (
+                  <div role="alert" className="text-red-300">
+                    Courses could not be loaded.{" "}
+                    <button type="button" onClick={onRetryAgents} disabled={userCreationBusy} className="underline">Retry loading courses</button>
+                  </div>
+                ) : !newInstitute || !newDepartment ? <p>Select an institution and department to see matching courses.</p>
+                  : courseOptions.length === 0 ? <p>No courses match this institution and department. You can still add a single user without an assignment.</p> : (
+                  <p>Course selection is optional for this user. CSV imports have their own college, department and TA selections below.</p>
+                )}
+              </div>
+            )}
           </div>
 
+          {savedUser && (
+            <p role="status" className="text-xs text-amber-300">
+              This user is already saved. Retrying only adds the course assignment; it does not create another invitation.
+            </p>
+          )}
           <DialogFooter className="gap-2 sm:gap-2">
             <button
               onClick={() => { resetForm(); setAddOpen(false); }}
-              className="px-4 py-2 text-xs font-medium rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 border border-neutral-700/50 transition-colors"
+              disabled={userCreationBusy}
+              className="px-4 py-2 text-xs font-medium rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 border border-neutral-700/50 transition-colors disabled:opacity-40"
             >
-              Cancel
+              {savedUser ? "Close" : "Cancel"}
             </button>
             <button
               onClick={handleAddUser}
-              disabled={addingUser || !newEmail.trim() || !newInstitute.trim() || !newDepartment.trim()}
+              disabled={userCreationBusy || !newEmail.trim() || !newInstitute.trim() || !newDepartment.trim()
+                || (!!newCourseId && (loadingAgents || !!agentsError || !canReadCourseAssignments))}
               className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-lg bg-violet-600 hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors"
             >
               {addingUser ? (
-                <><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />Adding…</>
+                <><span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />Saving...</>
               ) : (
-                <><Plus className="w-3.5 h-3.5" />Add User</>
+                <><Plus className="w-3.5 h-3.5" />{savedUser ? (newCourseId ? "Retry assignment" : "Done") : "Add User"}</>
               )}
             </button>
           </DialogFooter>
 
           {/* CSV bulk import */}
-          <div className="mt-0">
+          <section aria-labelledby="csv-users-heading" className="mt-0">
             <div className="flex items-center gap-3 my-1.5">
               <div className="flex-1 h-px bg-neutral-700/50" />
               <span className="text-[11px] font-medium text-neutral-500 uppercase tracking-wider">or</span>
               <div className="flex-1 h-px bg-neutral-700/50" />
             </div>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-[11px] font-medium text-neutral-400 uppercase tracking-wide">Import from CSV</p>
-              <button type="button" onClick={() => setCsvPreview("users")} className="flex items-center gap-1 text-[10px] text-neutral-500 hover:text-violet-400 transition-colors">
+              <h3 id="csv-users-heading" className="text-[11px] font-medium text-neutral-400 uppercase tracking-wide">Import from CSV</h3>
+              <button type="button" onClick={() => setCsvPreview("users")} disabled={userCreationBusy} className="flex items-center gap-1 text-[10px] text-neutral-500 hover:text-violet-400 transition-colors">
                 <Eye className="w-3 h-3" />View Template
               </button>
             </div>
-            <label className="group flex flex-col items-center gap-2 py-4 px-4 rounded-lg border border-dashed border-neutral-700/60 hover:border-violet-500/40 hover:bg-violet-500/[0.03] cursor-pointer transition-colors">
-              <Upload className="w-5 h-5 text-neutral-600 group-hover:text-violet-400 transition-colors" />
-              <span className="text-xs text-neutral-500 group-hover:text-neutral-400 transition-colors">Click to upload <span className="font-mono text-neutral-600">.csv</span></span>
-              <span className="text-[10px] text-neutral-600">Columns: <span className="text-neutral-500">name, email, role, institute, department</span></span>
-              <input type="file" accept=".csv,text/csv" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) { setCsvResult(null); handleCsvImport(f, "users"); } e.target.value = ""; }} />
-            </label>
-            {csvResult && (
-              <div className="mt-2.5 bg-neutral-800/60 border border-neutral-700/40 rounded-lg p-2.5 space-y-1.5">
-                <div className="flex items-center gap-3 text-xs">
-                  {csvResult.added > 0 && <span className="flex items-center gap-1 text-emerald-400"><CheckCircle className="w-3 h-3" />{csvResult.added} added</span>}
-                  {csvResult.skipped > 0 && <span className="flex items-center gap-1 text-amber-400"><AlertTriangle className="w-3 h-3" />{csvResult.skipped} skipped</span>}
-                </div>
-                {csvResult.errors.length > 0 && <div className="max-h-20 overflow-y-auto space-y-0.5">{csvResult.errors.map((err, i) => <p key={i} className="text-[10px] text-amber-400/80">{err}</p>)}</div>}
+            <p className="mb-3 text-xs text-neutral-400">
+              Choose where to add every user in this CSV. These selections are separate from the single-user form.
+            </p>
+            <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="grid min-w-0 gap-1.5">
+                <label htmlFor="csv-user-institute" className="text-[11px] font-medium text-neutral-400 uppercase tracking-wide">
+                  1. College / Institution
+                </label>
+                <Select value={csvInstitute || "__none"}
+                  disabled={userCreationBusy || dirLoading || !canReadCourseAssignments}
+                  onValueChange={value => {
+                    setCsvInstitute(value === "__none" ? "" : value);
+                    setCsvDepartment("");
+                    setCsvCourseId("");
+                    setCsvResult(null);
+                  }}>
+                  <SelectTrigger id="csv-user-institute" aria-label="CSV college" className="h-9 w-full min-w-0 border-neutral-700/50 bg-neutral-800/80 text-sm text-neutral-200 [&>span]:truncate">
+                    <SelectValue placeholder="Select college..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none">Select college...</SelectItem>
+                    {institutes.map(institute => <SelectItem key={institute} value={institute}>{institute}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid min-w-0 gap-1.5">
+                <label htmlFor="csv-user-department" className="text-[11px] font-medium text-neutral-400 uppercase tracking-wide">
+                  2. Department
+                </label>
+                <Select value={csvDepartment || "__none"}
+                  disabled={userCreationBusy || !canReadCourseAssignments || !csvInstitute || csvDepartments.length === 0}
+                  onValueChange={value => {
+                    setCsvDepartment(value === "__none" ? "" : value);
+                    setCsvCourseId("");
+                    setCsvResult(null);
+                  }}>
+                  <SelectTrigger id="csv-user-department" aria-label="CSV department" className="h-9 w-full min-w-0 border-neutral-700/50 bg-neutral-800/80 text-sm text-neutral-200 [&>span]:truncate">
+                    <SelectValue placeholder="Select department..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none">Select department...</SelectItem>
+                    {csvDepartments.map(department => <SelectItem key={department} value={department}>{department}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid min-w-0 gap-1.5 sm:col-span-2">
+                <label htmlFor="csv-user-course" className="text-[11px] font-medium text-neutral-400 uppercase tracking-wide">
+                  3. Teaching Assistant (TA) - optional
+                </label>
+                <Select value={csvCourseId || "__none"}
+                  disabled={userCreationBusy || !canReadCourseAssignments || loadingAgents || !!agentsError
+                    || !csvInstitute || !csvDepartment || csvCourseOptions.length === 0}
+                  onValueChange={value => {
+                    setCsvCourseId(value === "__none" ? "" : value);
+                    setCsvResult(null);
+                  }}>
+                  <SelectTrigger id="csv-user-course" aria-label="CSV TA" className="h-9 w-full min-w-0 border-neutral-700/50 bg-neutral-800/80 text-sm text-neutral-200 [&>span]:truncate">
+                    <SelectValue placeholder="No TA - add to directory only" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none">No TA - add to directory only</SelectItem>
+                    {csvCourseOptions.map(course => <SelectItem key={course.id} value={course.id}>{course.name} ({course.id})</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            {canReadCourseAssignments && (
+              <div className="mb-3 text-xs text-neutral-400">
+                {dirLoading ? <p role="status">Loading colleges...</p> : loadingAgents ? <p role="status">Loading CSV courses...</p>
+                  : agentsError ? (
+                    <div role="alert" className="text-red-300">
+                      Courses could not be loaded.{" "}
+                      <button type="button" onClick={onRetryAgents} disabled={userCreationBusy} className="underline">Retry CSV courses</button>
+                    </div>
+                  ) : !csvInstitute ? <p>Select a college to choose its department and TA.</p>
+                  : csvDepartments.length === 0 ? <p>No departments are available for this college.</p>
+                  : !csvDepartment ? <p>Select a department to see its TAs.</p>
+                  : csvCourseOptions.length === 0 ? <p role="status">No TAs match this college and department. You can import users now without course access, then use Assign TA to department.</p>
+                  : !csvCourseId ? <p role="status">Ready to import directory-only users. Select a TA only if you also want to assign course access.</p>
+                  : <p role="status" className="text-violet-300">Ready to import into the selected college, department and TA.</p>}
               </div>
             )}
-          </div>
+            <label className={`group flex flex-col items-center gap-2 py-4 px-4 rounded-lg border border-dashed border-neutral-700/60 transition-colors ${
+              !csvScopeReady || userCreationBusy ? "cursor-not-allowed opacity-50" : "hover:border-violet-500/40 hover:bg-violet-500/[0.03] cursor-pointer"
+            }`}>
+              <Upload className="w-5 h-5 text-neutral-600 group-hover:text-violet-400 transition-colors" />
+              <span className="text-xs text-neutral-500 group-hover:text-neutral-400 transition-colors">Click to upload <span className="font-mono text-neutral-600">.csv</span></span>
+              <span className="text-center text-[10px] text-neutral-600">Columns: <span className="text-neutral-500">{CSV_TEMPLATES.users.columns.join(", ")}</span></span>
+              <input aria-label="Import users CSV" type="file" accept=".csv,text/csv" className="hidden" disabled={userCreationBusy || !csvScopeReady} onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCsvImport(f, "users"); e.target.value = ""; }} />
+            </label>
+            <p className="mt-2 text-[11px] text-neutral-400">
+              College and department apply to every row; TA assignment is optional. You do not need to fill in the single-user form.
+              Without a TA, users are added to the directory only and gain no course access. Include only name, email and role in the CSV.
+            </p>
+            {!canReadCourseAssignments && <p role="status" className="mt-2 text-xs text-amber-300">
+              CSV import requires course assignments to be enabled and an active administrator session.
+            </p>}
+            {csvImporting && <p role="status" className="mt-2 text-xs text-violet-300">Importing users and course assignments...</p>}
+            {csvResult && (
+              <div role="status" className="mt-2.5 bg-neutral-800/60 border border-neutral-700/40 rounded-lg p-2.5 space-y-1.5">
+                <div className="flex flex-wrap items-center gap-3 text-xs">
+                  {csvResult.added > 0 && <span className="flex items-center gap-1 text-emerald-400"><CheckCircle className="w-3 h-3" />{csvResult.added} added</span>}
+                  {csvResult.assigned > 0 && <span className="text-emerald-400">{csvResult.assigned} course assignments confirmed</span>}
+                  {csvResult.directoryOnly > 0 && <span className="text-neutral-300">{csvResult.directoryOnly} directory-only users</span>}
+                  {csvResult.assignmentFailed > 0 && <span className="text-red-300">{csvResult.assignmentFailed} course assignments need retry</span>}
+                  {csvResult.skipped > 0 && <span className="flex items-center gap-1 text-amber-400"><AlertTriangle className="w-3 h-3" />{csvResult.skipped} skipped</span>}
+                </div>
+                {csvResult.errors.length > 0 && <div role="alert" className="max-h-32 overflow-y-auto space-y-0.5">{csvResult.errors.map((err, i) => <p key={i} className="break-words text-[11px] text-amber-400/80">{err}</p>)}</div>}
+              </div>
+            )}
+          </section>
 
           {/* Inline error toast (shown inside dialog when it stays open) */}
           {addUserToastMsg && addUserToastMsg.type === "error" && (
-            <div className="mt-2 px-3 py-2 rounded-lg text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
+            <div role="alert" className="mt-2 px-3 py-2 rounded-lg text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
               {addUserToastMsg.text}
             </div>
           )}
@@ -2357,6 +2810,13 @@ function UserDirectorySection() {
                     </tbody>
                   </table>
                 </div>
+                {csvPreview === "users" && (
+                  <p className="text-xs text-neutral-400">
+                    Select college and department in the Import from CSV section before uploading; selecting a TA is optional.
+                    The same selection applies to every row. Student and teacher rows receive a course assignment only when a TA is selected;
+                    admin rows are directory-only. Existing memberships are never replaced.
+                  </p>
+                )}
                 <div className="flex justify-end">
                   <button type="button" onClick={() => { downloadCsvTemplate(csvPreview); setCsvPreview(null); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-xs font-medium transition-colors">
                     <FileDown className="w-3.5 h-3.5" />Download Template
@@ -2369,12 +2829,26 @@ function UserDirectorySection() {
       </Dialog>
 
       {/* Grouped content */}
+      {courseError && (
+        <div role="alert" className="flex flex-wrap items-center gap-2 px-5 py-3 text-xs text-red-300">
+          <span>{courseError}</span>
+          <button type="button" onClick={() => {
+            if (agentsError) onRetryAgents();
+            setCourseAttempt(attempt => attempt + 1);
+          }} className="inline-flex items-center gap-1 rounded px-2 py-1 text-neutral-200 hover:bg-neutral-800">
+            <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" /> Retry course assignments
+          </button>
+        </div>
+      )}
+      {canReadCourseAssignments && !courseError && !coursesReady && (
+        <div role="status" className="px-5 py-3 text-xs text-neutral-400">Loading course assignments...</div>
+      )}
       <div className="divide-y divide-neutral-800/50">
         {dirLoading ? (
           <div className="text-center text-neutral-500 text-xs py-8">Loading directory…</div>
         ) : dirError ? (
           <div className="text-center text-red-400 text-xs py-8">Failed to load directory: {dirError}</div>
-        ) : filtered.length === 0 ? (
+        ) : filteredCount === 0 ? (
           <div className="text-center text-neutral-600 text-xs py-8">
             No users match your filters.
           </div>
@@ -2384,10 +2858,10 @@ function UserDirectorySection() {
             .map(([institute, depts]) => {
               const instKey = `inst-${institute}`;
               const instCollapsed = collapsed[instKey];
-              const instUserCount = Object.values(depts).flat().length;
+              const instUserCount = new Set(Object.values(depts).flat().map(user => user.userId || user.id)).size;
 
               return (
-                <div key={institute}>
+                <div key={institute} data-testid="directory-institute" data-institute={institute}>
                   {/* Institute header */}
                   <div className="group/inst flex items-center">
                     <button
@@ -2481,9 +2955,15 @@ function UserDirectorySection() {
                         .map(([dept, users]) => {
                           const deptKey = `${institute}::${dept}`;
                           const deptCollapsed = collapsed[deptKey];
+                          const departmentCourseIds = new Set(
+                            filterDashboardAgents(agents, institute, dept).map(agent => agent.agentId || agent.id),
+                          );
+                          const courseGroups = coursesReady
+                            ? groupByCourse(users, courseSnapshot!.courses.filter(course => departmentCourseIds.has(course.id)))
+                            : [{ id: null, name: canReadCourseAssignments && !courseError ? "Loading course assignments..." : "Course assignments unavailable", users }];
 
                           return (
-                            <div key={dept}>
+                            <div key={dept} data-testid="directory-department" data-department={dept}>
                               {/* Department header */}
                               <div className="group/dept flex items-center">
                                 <button
@@ -2571,18 +3051,35 @@ function UserDirectorySection() {
                               </div>
 
                               {!deptCollapsed && (
-                                <div className="pl-4">
+                                <div className="pl-2 sm:pl-4">
+                                  {courseGroups.map(course => {
+                                    const courseKey = JSON.stringify([institute, dept, course.id]);
+                                    const courseCollapsed = collapsed[courseKey];
+                                    const courseUsers = course.users;
+                                    return (
+                                      <section key={courseKey} aria-label={course.name} data-testid="directory-course" data-course-id={course.id ?? "unassigned"}>
+                                        <button type="button" onClick={() => toggleGroup(courseKey)} aria-expanded={!courseCollapsed}
+                                          className="flex w-full min-w-0 items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-neutral-800/20 sm:px-5">
+                                          {courseCollapsed ? <ChevronRight className="h-3 w-3 shrink-0 text-neutral-500" /> : <ChevronDown className="h-3 w-3 shrink-0 text-neutral-500" />}
+                                          <BookOpen className="h-3.5 w-3.5 shrink-0 text-neutral-400" aria-hidden="true" />
+                                          <span className="min-w-0 break-words text-xs font-medium text-neutral-200" title={course.name}>
+                                            {course.name} <span className="ml-1.5 text-[10px] font-normal text-neutral-500">({courseUsers.length})</span>
+                                          </span>
+                                        </button>
+                                        {!courseCollapsed && <div className="pl-2 sm:pl-3">
                                   {/* Role branches: super-admins → admins → teachers → students */}
                                   {(() => {
-                                    const superAdmins = users.filter((u) => u.role === "admin" && u.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase());
-                                    const regularAdmins = users.filter((u) => u.role === "admin" && u.email.toLowerCase() !== SUPER_ADMIN_EMAIL.toLowerCase());
+                                    const superAdmins = course.id === null ? courseUsers.filter((u) => u.role === "admin" && u.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) : [];
+                                    const regularAdmins = course.id === null ? courseUsers.filter((u) => u.role === "admin" && u.email.toLowerCase() !== SUPER_ADMIN_EMAIL.toLowerCase()) : [];
+                                    const teachers = courseUsers.filter(user => course.id === null ? user.role === "teacher" : user.role !== "student");
+                                    const students = courseUsers.filter(user => user.role === "student");
                                     const branches: { key: string; label: string; Icon: typeof Crown; color: string; items: typeof users }[] = [];
                                     if (superAdmins.length > 0) branches.push({ key: "super-admin", label: "Super Admin", Icon: Shield, color: "text-amber-400/80", items: superAdmins });
                                     if (regularAdmins.length > 0) branches.push({ key: "admin", label: "Admins", Icon: Crown, color: "text-rose-400/80", items: regularAdmins });
-                                    if (users.some((u) => u.role === "teacher")) branches.push({ key: "teacher", label: "Teachers", Icon: UserCog, color: "text-amber-400/80", items: users.filter((u) => u.role === "teacher") });
-                                    if (users.some((u) => u.role === "student")) branches.push({ key: "student", label: "Students", Icon: GraduationCap, color: "text-sky-400/80", items: users.filter((u) => u.role === "student") });
+                                    if (course.id !== null || teachers.length > 0) branches.push({ key: "teacher", label: "Teachers", Icon: UserCog, color: "text-amber-400/80", items: teachers });
+                                    if (course.id !== null || students.length > 0) branches.push({ key: "student", label: "Students", Icon: GraduationCap, color: "text-sky-400/80", items: students });
                                     return branches.map(({ key, label, Icon: BranchIcon, color, items }) => {
-                                      const roleKey = `${institute}::${dept}::${key}`;
+                                      const roleKey = `${courseKey}::${key}`;
                                       const roleCollapsed = collapsed[roleKey];
 
                                       return (
@@ -2604,20 +3101,21 @@ function UserDirectorySection() {
                                           </button>
 
                                           {!roleCollapsed && (
-                                            <table className="w-full text-left">
+                                            <table className="w-full table-fixed text-left">
                                               <tbody>
                                                 {items.map((u) => (
                                                   <tr
                                                     key={u.id}
                                                     className="border-b border-neutral-800/30 hover:bg-neutral-800/20 transition-colors group/row"
                                                   >
-                                                    <td className="pl-[4.5rem] pr-4 py-2 text-xs text-neutral-200 font-medium w-[30%]">
-                                                      {u.name}
+                                                    <td className="pl-3 pr-2 py-2 text-xs text-neutral-200 font-medium w-[55%] break-words sm:pl-[4.5rem] sm:pr-4 sm:w-[30%]">
+                                                      <span>{u.name}</span>
+                                                      <div className="mt-1 break-all text-[11px] font-normal text-neutral-400 sm:hidden">{u.email}</div>
                                                     </td>
-                                                    <td className="px-4 py-2 text-xs text-neutral-400 w-[35%]">
+                                                    <td className="hidden px-4 py-2 text-xs text-neutral-400 w-[35%] break-all sm:table-cell">
                                                       {u.email}
                                                     </td>
-                                                    <td className="px-2 py-2 text-xs text-neutral-500 w-[10%]">
+                                                    <td className="px-2 py-2 text-xs text-neutral-500 w-[20%] sm:w-[10%]">
                                                       {(() => {
                                                         const isActive = u.status === "active" || u.email.toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
                                                         return (
@@ -2629,8 +3127,8 @@ function UserDirectorySection() {
                                                         );
                                                       })()}
                                                     </td>
-                                                    <td className="px-2 py-2 text-right w-[15%]">
-                                                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover/row:opacity-100 transition-opacity">
+                                                    <td className="px-2 py-2 text-right w-[25%] sm:w-[15%]">
+                                                      <div className="flex flex-wrap items-center justify-end gap-1 sm:opacity-0 sm:group-hover/row:opacity-100 focus-within:opacity-100 transition-opacity">
                                                         {canEdit(u) && (
                                                           <button
                                                             onClick={() => openEditDialog(u)}
@@ -2660,6 +3158,10 @@ function UserDirectorySection() {
                                       );
                                     });
                                   })()}
+                                        </div>}
+                                      </section>
+                                    );
+                                  })}
                                 </div>
                               )}
                             </div>

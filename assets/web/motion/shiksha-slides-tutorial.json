@@ -1,0 +1,71 @@
+{
+  "name": "shiksha-slides-tutorial",
+  "title": "Explore an interactive slide deck",
+  "duration": 31.666666666666668,
+  "frames": 380,
+  "width": 1360,
+  "height": 928,
+  "gifFrames": 317,
+  "gifBytes": 2606474,
+  "chapters": [
+    {
+      "start": 0,
+      "end": 7.5,
+      "caption": "1. Open a course and request a concise lesson deck."
+    },
+    {
+      "start": 7.5,
+      "end": 12.333333333333334,
+      "caption": "2. Open the generated slides beside your conversation."
+    },
+    {
+      "start": 12.333333333333334,
+      "end": 17,
+      "caption": "3. Browse the lesson and reveal its speaker notes."
+    },
+    {
+      "start": 17,
+      "end": 21.666666666666668,
+      "caption": "4. Compare two resistances while voltage stays at 6 V."
+    },
+    {
+      "start": 21.666666666666668,
+      "end": 25.5,
+      "caption": "5. Start presentation mode for a focused walkthrough."
+    },
+    {
+      "start": 25.5,
+      "end": 31.666666666666668,
+      "caption": "6. Finish with the takeaway, then return to the same slide."
+    }
+  ],
+  "presentation": {
+    "configuredCourseStarters": 4,
+    "verifiedWelcomeScreens": 1,
+    "assetChecks": [
+      {
+        "event": "slides_start",
+        "atSeconds": 8.333333333333334,
+        "navigationCollapsed": true
+      },
+      {
+        "event": "slides",
+        "atSeconds": 9,
+        "navigationCollapsed": true
+      }
+    ]
+  },
+  "projectName": "Agentic Shiksha",
+  "demoId": "slides",
+  "description": "Request an original Ohm's-law deck, browse real slides and speaker notes, and present a worked comparison before returning to the course.",
+  "capture": "Actual unchanged React frontend; scripted interactions, synthetic course data and in-memory API responses.",
+  "timing": "Captured frames are paced for readability, not a performance benchmark.",
+  "isolation": "Fresh browser context. External services blocked; all API calls simulated. No remote course creation.",
+  "source": "Agentic Shiksha Platform/Frontend",
+  "recordedOn": "2026-09-30",
+  "headerStyle": {
+    "background": "#EDE9FE",
+    "text": "#30264D",
+    "badge": false
+  }
+}

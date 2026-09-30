@@ -38,58 +38,60 @@ for the coordinated disclosure process.
 
 | Path | Purpose |
 | --- | --- |
-| `Backend/` | FastAPI service. Entry point is `backend/main.py`, served as `uvicorn backend.main:app`. |
-| `Backend/agent_tools/` | Agent tools. `custom/` are function tools; `hosted/` wrap Foundry-hosted tools. |
-| `Backend/azure_services/` | Azure integrations: agents, persistence, storage, search, evaluation. |
-| `Backend/prompt_store/` | Agent instructions. Only `core_agent_prompts/` is loaded at runtime. |
-| `Frontend/` | React 19 + TypeScript + Vite client. |
-| `Dashboard/` | Teacher and admin dashboards (separate services). |
+| [Main platform](<Agentic Shiksha Platform/README.md>) | Main backend/frontend product boundary |
+| [Main backend](<Agentic Shiksha Platform/Backend/README.md>) | FastAPI, agent runtime, tools and Azure integrations |
+| [Main frontend](<Agentic Shiksha Platform/Frontend/README.md>) | React, TypeScript, Vite and embedded teacher dashboard |
+| [Admin Dashboard](Admin-Dashboard/README.md) | Independent admin API and frontend |
 
 ## Development Setup
 
-### Backend
-
-```bash
-cd Backend
-cp .env.example .env          # fill in your own Azure resources
-pip install -r requirements.txt
-PYTHONPATH=. uvicorn backend.main:app --reload
-```
-
-The 31 variables marked `[REQUIRED]` in `.env.example` are resolved at import time by
-`azure_services/config.py`, `backend/main.py` and `auth.py`. The app deliberately fails
-fast on startup if any are missing, rather than running with silent, wrong defaults.
-
-### Frontend
-
-```bash
-cd Frontend
-cp .env.example .env
-npm install
-npm run dev
-```
+Use [INSTALL.md](INSTALL.md) for supported runtime versions, separate Python
+environments, npm lockfile installation, public frontend settings and server-only
+configuration. Run commands from the service directory named in that guide; the
+repository root and `Agentic Shiksha Platform` are not installable applications.
 
 ## Running Tests
 
-```bash
-cd Backend
-PYTHONPATH=. python -m pytest tests/ -q
-```
+Use the [verification commands](INSTALL.md#verification) and the service-local test
+READMEs. Select the smallest tests covering the change. Browser regressions use
+intercepted synthetic APIs; application startup and integration scripts can contact
+Azure. Check test setup rather than assuming a whole service is offline.
 
-Note that the suite reports two independent counts, for example
-`63 passed, 79 subtests passed` — the second is not a subset of the first.
+For main-frontend changes, `npm run build` includes `tsc -b` and the production Vite
+build. A plain `vite build` does not perform the same TypeScript check. Backend
+pytest output may report ordinary tests and subtests separately.
 
-Several test modules import the Azure configuration chain, so they need the required
-environment variables to be set. Placeholder values are sufficient; no test makes a
-live Azure call.
+## Documentation maintenance
+
+- Every maintained source, configuration, script or reference-material directory
+  should have a `README.md`. Explain its purpose, real entry points, important
+  boundaries and how to test it; link to its parent and relevant neighboring guides.
+- Do not add README boilerplate inside dependencies, virtual environments, caches,
+  generated bundles, test reports or private runtime-data folders. Document those
+  outputs in the nearest maintained parent.
+- Put setup commands in [INSTALL.md](INSTALL.md), and link there from service guides.
+  Keep versions and commands aligned with manifests, lockfiles, Dockerfiles and CI.
+- Keep cross-service concepts in the [design and operations guides](docs/README.md).
+  Link agent and memory behavior to its current implementation, and distinguish
+  research intent, disabled-by-default paths, and verified rollout status.
+- Add user-visible changes to **Unreleased** in [CHANGELOG.md](CHANGELOG.md). Put
+  upgrade actions, compatibility and known limitations in [RELEASE_NOTES.md](RELEASE_NOTES.md).
+  Use actual release identifiers and dates only after a release is verified.
+- Update nearby READMEs when behavior, paths or ownership change. Use relative links;
+  wrap paths containing spaces in angle brackets. Verify both link targets and anchors.
+- Never put deployment secrets, real learner examples, local account paths or private
+  operational identifiers in documentation. Do not claim a build/test/deployment ran
+  unless there is evidence.
 
 ## Pull Requests
 
 1. Keep changes focused — one concern per pull request.
-2. Run the backend tests and `npx tsc -p tsconfig.app.json --noEmit` for frontend changes.
+2. Run relevant tests and the affected service's build/type check. For documentation-only
+   changes, verify commands, links and README coverage; application builds are not required.
 3. Never commit `.env` files, credentials, or personal data. Test fixtures should use
    example addresses such as `user@example.com`.
 4. Explain *why* in the PR description; the diff already shows *what*.
+5. Include documentation and an Unreleased changelog entry for behavior or setup changes.
 
 ## Trademarks
 

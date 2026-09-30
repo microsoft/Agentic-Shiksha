@@ -12,4 +12,5 @@ Community health files live at the repository root rather than here:
 [SECURITY.md](../SECURITY.md), [SUPPORT.md](../SUPPORT.md) and [FAQ.md](../FAQ.md).
 
 Backend-specific assistant instructions are in
-[Backend/.github/](../Backend/.github); that folder holds no workflows.
+[Agentic Shiksha Platform/Backend/.github/](<../Agentic Shiksha Platform/Backend/.github>);
+that folder holds no workflows.

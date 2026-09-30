@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1200" viewBox="0 0 1800 1200" role="img" aria-labelledby="05-shiksha-learner-memory-title 05-shiksha-learner-memory-desc">
+  <title id="05-shiksha-learner-memory-title">Agentic Shiksha: Learner memory and evidence</title>
+  <desc id="05-shiksha-learner-memory-desc">A reviewed curriculum graph and policies constrain event processing. Durable learner events produce evidence and validated observations, followed by a deterministic reducer, an atomic snapshot and derived learning views. Disabled by default. Course modes are off, shadow and authoritative. Shadow writes evidence without becoming progress authority; authoritative mode supplies TA context and learning-state authority. Cosmos stores graph documents; no separate graph database is required. Hosted memory and legacy progress are not the evidence ledger. Source snapshot: 30 SEP 2026. Not a live deployment inventory.</desc>
+  <defs>
+    <marker id="05-shiksha-learner-memory-ink" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#07183A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker><marker id="05-shiksha-learner-memory-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#033CF2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  </defs>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <rect width="1800" height="1200" fill="white"/>
+    <rect x="60" y="104" width="1680" height="1014" rx="12" fill="none" stroke="#07183A" stroke-width="1.4" stroke-dasharray="7 10"/>
+    <rect data-heading-mask="" x="96" y="57" width="444" height="89" fill="white"/>
+    <text x="112" y="101" font-size="41" font-weight="700" fill="#07183A" text-anchor="start" dominant-baseline="central" data-heading="">LEARNER MEMORY</text>
+    <text x="112" y="179" font-size="23" font-weight="400" fill="#07183A" text-anchor="start" dominant-baseline="central" >Opt-in graph memory: shared curriculum definitions, separate learner facts and evidence-backed state.</text>
+    <g data-section="CURRICULUM">
+    <rect x="116" y="246" width="378" height="790" rx="10" fill="none" stroke="#07183A" stroke-width="1.3" stroke-dasharray="7 9"/>
+    <rect x="193.5" y="224" width="223" height="44" fill="white"/>
+    <text x="305" y="246" font-size="29" font-weight="700" fill="#07183A" text-anchor="middle" dominant-baseline="central" >CURRICULUM</text>
+    <g data-card="Published graph">
+    <rect x="144" y="286" width="322" height="172" rx="13" fill="#033CF2"/>
+    <text x="305" y="339.2" font-size="30" font-weight="400" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" >Published graph</text><text x="305" y="381.09999999999997" font-size="21" font-weight="400" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" >Threshold concepts</text><text x="305" y="408.4" font-size="21" font-weight="400" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" >Misconceptions + probes</text>
+  </g><g data-card="Reviewed policies">
+    <rect x="144" y="516" width="322" height="155" rx="13" fill="#CEE7FD"/>
+    <text x="305" y="560.6999999999999" font-size="29" font-weight="400" fill="#07183A" text-anchor="middle" dominant-baseline="central" >Reviewed policies</text><text x="305" y="602.025" font-size="21" font-weight="400" fill="#07183A" text-anchor="middle" dominant-baseline="central" >Prerequisites / transfer</text><text x="305" y="629.325" font-size="21" font-weight="400" fill="#07183A" text-anchor="middle" dominant-baseline="central" >Required clearing tasks</text>
+  </g><g data-card="Course binding">
+    <rect x="144" y="712" width="322" height="123" rx="13" fill="#CEE7FD"/>
+    <text x="305" y="754.35" font-size="30" font-weight="400" fill="#07183A" text-anchor="middle" dominant-baseline="central" >Course binding</text><text x="305" y="796.25" font-size="21" font-weight="400" fill="#07183A" text-anchor="middle" dominant-baseline="central" >Version + learning epoch</text>
+  </g><g data-card="Opt-in only">
+    <rect x="144" y="876" width="322" height="120" rx="13" fill="#F0F6FB"/>
+    <text x="305" y="916.2" font-size="31" font-weight="400" fill="#07183A" text-anchor="middle" dominant-baseline="central" >Opt-in only</text><text x="305" y="959.3249999999999" font-size="22" font-weight="400" fill="#07183A" text-anchor="middle" dominant-baseline="central" >Disabled by default</text>
+  </g>
+  </g><g data-section="EVIDENCE TO LEARNING STATE">
+    <rect x="558" y="246" width="1122" height="790" rx="10" fill="none" stroke="#07183A" stroke-width="1.3" stroke-dasharray="7 9"/>
+    <rect x="861.1" y="224" width="515.8" height="44" fill="white"/>
+    <text x="1119" y="246" font-size="29" font-weight="700" fill="#07183A" text-anchor="middle" dominant-baseline="central" >EVIDENCE TO LEARNING STATE</text>
+    <g data-card="Learner events">
+    <rect x="586" y="286" width="500" height="138" rx="13" fill="#CEE7FD"/>
+    <text x="836" y="335.20000000000005" font-size="33" font-weight="400" fill="#07183A" text-anchor="middle" dominant-baseline="central" >Learner events</text><text x="836" y="379.475" font-size="22" font-weight="400" fill="#07183A" text-anchor="middle" dominant-baseline="central" >Scoped input + durable receipt</text>
+  </g><g data-card="Evidence + observations">
+    <rect x="1142" y="286" width="510" height="138" rx="13" fill="#CEE7FD"/>
+    <text x="1397" y="335.85" font-size="29" font-weight="400" fill="#07183A" text-anchor="middle" dominant-baseline="central" >Evidence + observations</text><text x="1397" y="377.17499999999995" font-size="21" font-weight="400" fill="#07183A" text-anchor="middle" dominant-baseline="central" >Quoted / validated / curriculum-bound</text>
+  </g><g data-card="Deterministic reducer">
+    <rect x="1142" y="515" width="510" height="138" rx="13" fill="#033CF2"/>
+    <text x="1397" y="564.1999999999999" font-size="32" font-weight="400" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" >Deterministic reducer</text><text x="1397" y="607.8999999999999" font-size="22" font-weight="400" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" >Misconception + concept policies</text>
+  </g><g data-card="Snapshot + history">
+    <rect x="586" y="515" width="500" height="138" rx="13" fill="#CEE7FD"/>
+    <text x="836" y="564.2" font-size="33" font-weight="400" fill="#07183A" text-anchor="middle" dominant-baseline="central" >Snapshot + history</text><text x="836" y="608.475" font-size="22" font-weight="400" fill="#07183A" text-anchor="middle" dominant-baseline="central" >Atomic state + completed receipt</text>
+  </g><g data-card="LearningProfile + bounded TA context">
+    <rect x="586" y="740" width="1066" height="128" rx="13" fill="#033CF2"/>
+    <text x="1119" y="783.55" font-size="34" font-weight="400" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" >LearningProfile + bounded TA context</text><text x="1119" y="829.0500000000001" font-size="23" font-weight="400" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central" >Authorized views; TA context and state authority in authoritative mode</text>
+  </g><g data-card="LLM proposes observations. Policy decides state.">
+    <rect x="586" y="919" width="1066" height="77" rx="13" fill="#F0F6FB"/>
+    <text x="1119" y="939" font-size="26" font-weight="400" fill="#07183A" text-anchor="middle" dominant-baseline="central" >LLM proposes observations. Policy decides state.</text><text x="1119" y="977.9499999999999" font-size="20" font-weight="400" fill="#07183A" text-anchor="middle" dominant-baseline="central" >Cosmos document storage / private evidence in Blob / no separate graph database</text>
+  </g>
+  </g><polyline points="1086,355 1142,355" fill="none" stroke="#07183A" stroke-width="2.3" stroke-linejoin="round"  marker-end="url(#05-shiksha-learner-memory-ink)" /><polyline points="1397,424 1397,515" fill="none" stroke="#07183A" stroke-width="2.3" stroke-linejoin="round"  marker-end="url(#05-shiksha-learner-memory-ink)" /><g><rect x="1422.85" y="452" width="190.3" height="34" fill="white"/><text x="1518" y="469" font-size="17" font-weight="400" fill="#07183A" text-anchor="middle" dominant-baseline="central" >Ordered processing</text></g><polyline points="1142,584 1086,584" fill="none" stroke="#033CF2" stroke-width="2.3" stroke-linejoin="round"  marker-end="url(#05-shiksha-learner-memory-blue)" /><polyline points="836,653 836,740" fill="none" stroke="#033CF2" stroke-width="2.3" stroke-linejoin="round"  marker-end="url(#05-shiksha-learner-memory-blue)" /><g><rect x="837.7" y="677" width="314.6" height="38" fill="white"/><text x="995" y="696" font-size="19" font-weight="400" fill="#07183A" text-anchor="middle" dominant-baseline="central" >Derived, not a new authority</text></g><polyline points="466,373 527,373 527,474 1258,474 1258,515" fill="none" stroke="#07183A" stroke-width="2.3" stroke-linejoin="round"  marker-end="url(#05-shiksha-learner-memory-ink)" /><path d="M 466 590 H 527 V 474" fill="none" stroke="#07183A" stroke-width="2.3"/><g><rect x="749.375" y="455" width="283.25" height="38" fill="white"/><text x="891" y="474" font-size="19" font-weight="400" fill="#07183A" text-anchor="middle" dominant-baseline="central" >Reviewed graph + policies</text></g>
+    <text x="112" y="1079" font-size="20" font-weight="400" fill="#07183A" text-anchor="start" dominant-baseline="central" >Modes: off / shadow / authoritative. Hosted recollections and legacy progress are not the evidence ledger.</text>
+  </g>
+</svg>

@@ -1,0 +1,70 @@
+{
+  "name": "shiksha-chat-tutorial",
+  "title": "Ask, practise and explain",
+  "duration": 36.25,
+  "frames": 435,
+  "width": 1360,
+  "height": 928,
+  "gifFrames": 363,
+  "gifBytes": 2740672,
+  "chapters": [
+    {
+      "start": 0,
+      "end": 6.333333333333333,
+      "caption": "01  Open a course from the Teaching Assistant library, then choose Start Chat."
+    },
+    {
+      "start": 6.333333333333333,
+      "end": 14.916666666666666,
+      "caption": "02  Choose an answer depth, then ask a focused question."
+    },
+    {
+      "start": 14.916666666666666,
+      "end": 23.916666666666668,
+      "caption": "03  Follow context preparation and the streamed course explanation."
+    },
+    {
+      "start": 23.916666666666668,
+      "end": 26.916666666666668,
+      "caption": "04  Open the generated concept inventory in the actual artifact pane."
+    },
+    {
+      "start": 26.916666666666668,
+      "end": 33.25,
+      "caption": "05  Select an answer and explain the reasoning before submitting."
+    },
+    {
+      "start": 33.25,
+      "end": 36.25,
+      "caption": "06  Review the result and tutor feedback. One answer is not proof of mastery."
+    }
+  ],
+  "presentation": {
+    "configuredCourseStarters": 4,
+    "verifiedWelcomeScreens": 1,
+    "assetChecks": [
+      {
+        "event": "quiz_start",
+        "atSeconds": 20.833333333333332,
+        "navigationCollapsed": true
+      },
+      {
+        "event": "quiz",
+        "atSeconds": 21.416666666666668,
+        "navigationCollapsed": true
+      }
+    ]
+  },
+  "projectName": "Agentic Shiksha",
+  "demoId": "learner",
+  "capture": "Actual unchanged React frontend; scripted interactions, synthetic course data and in-memory API responses.",
+  "timing": "Captured frames are paced for readability, not a performance benchmark.",
+  "isolation": "Fresh browser context. External services blocked; all API calls simulated. No remote course creation.",
+  "source": "Agentic Shiksha Platform/Frontend",
+  "recordedOn": "2026-09-30",
+  "headerStyle": {
+    "background": "#EDE9FE",
+    "text": "#30264D",
+    "badge": false
+  }
+}

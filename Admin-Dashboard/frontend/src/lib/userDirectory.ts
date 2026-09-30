@@ -2,6 +2,8 @@
 // Central registry of known users and their assigned roles.
 
 import { type UserRole } from "./roles";
+import { STUDENT_ASSIGNMENTS_ENABLED } from "./config";
+import { addCourseMember, getStudentAssignmentPermission, getStudentRoster } from "./studentAssignmentsApi";
 import {
   fetchDirectoryUsers,
   inviteDirectoryUser,
@@ -12,16 +14,20 @@ import {
   renameDirectoryDepartment as apiRenameDepartment,
   deleteDirectoryDepartment as apiDeleteDepartment,
   type DirectoryUser,
+  type DirectoryUserAffiliation,
 } from "./api";
 
 export interface UserEntry {
   id: string;
+  userId?: string;
   name: string;
   email: string;
   role: UserRole;
   institute: string;
   department: string;
   status?: "invited" | "active";
+  affiliations?: DirectoryUserAffiliation[];
+  activeAffiliation?: number;
 }
 
 export const USER_DIRECTORY: UserEntry[] = [];
@@ -32,12 +38,15 @@ let _loadPromise: Promise<UserEntry[]> | null = null;
 function toUserEntry(d: DirectoryUser): UserEntry {
   return {
     id: d.id || d.userId,
+    userId: d.userId,
     name: d.name,
     email: d.email,
     role: (d.role || "student") as UserRole,
     institute: d.institute || "",
     department: d.department || "",
     status: d.status,
+    affiliations: d.affiliations ?? [],
+    activeAffiliation: d.activeAffiliation,
   };
 }
 
@@ -100,15 +109,37 @@ export function addDepartment(institute: string, department: string): void {
   _extraDepartments.get(inst)!.add(dept);
 }
 
-export function getAllInstitutes(): string[] {
-  const fromUsers = USER_DIRECTORY.map((u) => u.institute).filter(Boolean);
+export function directoryAffiliations(
+  user: Partial<Pick<UserEntry, "institute" | "department" | "affiliations">>,
+): Pick<DirectoryUserAffiliation, "institute" | "department">[] {
+  const unique = new Map<string, { institute: string; department: string }>();
+  for (const affiliation of [
+    { institute: user.institute || "", department: user.department || "" },
+    ...(user.affiliations ?? []),
+  ]) {
+    const institute = affiliation.institute.trim();
+    const department = affiliation.department.trim();
+    const key = JSON.stringify([institute, department]);
+    if (!unique.has(key)) unique.set(key, { institute, department });
+  }
+  return [...unique.values()];
+}
+
+export function getAllInstitutes(
+  users: readonly Pick<UserEntry, "institute" | "affiliations">[] = USER_DIRECTORY,
+): string[] {
+  const fromUsers = users.flatMap(user => directoryAffiliations(user).map(affiliation => affiliation.institute));
   return [...new Set([...fromUsers, ..._extraInstitutes])].filter(Boolean).sort();
 }
 
-export function getAllDepartments(institute?: string): string[] {
+export function getAllDepartments(
+  institute?: string,
+  directory: readonly Pick<UserEntry, "institute" | "department" | "affiliations">[] = USER_DIRECTORY,
+): string[] {
+  const affiliations = directory.flatMap(directoryAffiliations);
   const users = institute
-    ? USER_DIRECTORY.filter((u) => u.institute === institute)
-    : USER_DIRECTORY;
+    ? affiliations.filter((u) => u.institute === institute)
+    : affiliations;
   const fromUsers = users.map((u) => u.department).filter(Boolean);
   let fromRegistry: string[] = [];
   if (institute) {
@@ -123,19 +154,61 @@ export function getAllDepartments(institute?: string): string[] {
 
 export function groupByInstituteDept(
   users: UserEntry[],
+  filters: { institute?: string; department?: string; search?: string } = {},
 ): Record<string, Record<string, UserEntry[]>> {
-  const grouped: Record<string, Record<string, UserEntry[]>> = {};
+  const grouped: Record<string, Record<string, UserEntry[]>> = Object.create(null);
+  const search = filters.search?.trim().toLowerCase();
   for (const u of users) {
-    if (!grouped[u.institute]) grouped[u.institute] = {};
-    if (!grouped[u.institute][u.department]) grouped[u.institute][u.department] = [];
-    grouped[u.institute][u.department].push(u);
+    for (const { institute, department } of directoryAffiliations(u)) {
+      if (!institute || !department) continue;
+      if (filters.institute && institute !== filters.institute) continue;
+      if (filters.department && department !== filters.department) continue;
+      if (search && ![u.name, u.email, institute, department].some(value => value.toLowerCase().includes(search))) continue;
+      if (!grouped[institute]) grouped[institute] = Object.create(null);
+      if (!grouped[institute][department]) grouped[institute][department] = [];
+      // Reuse the canonical user so editing a secondary row cannot switch its active affiliation.
+      grouped[institute][department].push(u);
+    }
   }
   return grouped;
 }
 
+export interface DirectoryCourse {
+  id: string;
+  name: string;
+  teachers: { userId: string; email: string }[];
+  students: { userId: string; email: string }[];
+}
+
+export function groupByCourse(
+  users: UserEntry[],
+  courses: DirectoryCourse[],
+): { id: string | null; name: string; users: UserEntry[] }[] {
+  const assigned = new Set<UserEntry>();
+  const groups = courses.map(course => {
+    const members = users.filter(user => {
+      const candidates = user.role === "student" ? course.students : course.teachers;
+      return candidates.some(member => member.userId === user.id
+        || (!!user.userId && member.userId === user.userId)
+        || (!!user.email.trim() && !!member.email.trim()
+          && member.email.trim().toLowerCase() === user.email.trim().toLowerCase()));
+    });
+    members.forEach(user => assigned.add(user));
+    return { id: course.id as string | null, name: course.name, users: members };
+  }).filter(course => course.users.length > 0)
+    .sort((first, second) => first.name.localeCompare(second.name));
+  const unassigned = users.filter(user => !assigned.has(user));
+  if (unassigned.length > 0) {
+    groups.push({ id: null, name: "Unassigned to a course", users: unassigned });
+  }
+  return groups;
+}
+
 // ─── Mutation helpers ────
 
-export async function addUser(entry: Omit<UserEntry, "id">): Promise<{ id: string; affiliationAdded?: boolean; alreadyExists?: boolean }> {
+export async function addUser(entry: Omit<UserEntry, "id">): Promise<{
+  id: string; user: UserEntry; affiliationAdded?: boolean; alreadyExists?: boolean;
+}> {
   const created = await inviteDirectoryUser({
     email: entry.email,
     name: entry.name,
@@ -150,7 +223,39 @@ export async function addUser(entry: Omit<UserEntry, "id">): Promise<{ id: strin
   } else {
     USER_DIRECTORY.push(newEntry);
   }
-  return { id: newEntry.id, affiliationAdded: created.affiliationAdded, alreadyExists: created.alreadyExists };
+  return { id: newEntry.id, user: newEntry, affiliationAdded: created.affiliationAdded, alreadyExists: created.alreadyExists };
+}
+
+export async function assignUserToCourse(user: UserEntry, courseId: string, role: UserRole): Promise<void> {
+  if (!STUDENT_ASSIGNMENTS_ENABLED) {
+    throw new Error("Course assignment is not enabled in this dashboard.");
+  }
+  if (role === "admin") {
+    throw new Error("Course assignments are for students and teachers, not administrators.");
+  }
+  if (user.role !== role) {
+    throw new Error(`This user's saved role is ${user.role}, not ${role}. Use the saved role when assigning a course.`);
+  }
+  const signal = new AbortController().signal;
+  if (!await getStudentAssignmentPermission(signal)) {
+    throw new Error("Sign in to the main application as an active administrator to assign courses.");
+  }
+  let userId = user.userId || user.id;
+  if (role === "student") {
+    const roster = await getStudentRoster(courseId, signal);
+    const available = roster.students.filter(student => student.status !== "unavailable");
+    const byId = available.filter(student => student.user_id === user.id || student.user_id === user.userId);
+    const matches = byId.length ? byId : available.filter(student =>
+      !!user.email.trim() && student.email.trim().toLowerCase() === user.email.trim().toLowerCase());
+    if (matches.length !== 1) {
+      throw new Error("The saved user could not be uniquely matched to an active or invited student. Reload the directory and retry.");
+    }
+    userId = matches[0].user_id;
+  }
+  if (!userId) {
+    throw new Error("The saved user has no assignment ID. Reload the directory and retry.");
+  }
+  await addCourseMember(courseId, userId, role);
 }
 
 export async function updateUser(
@@ -158,8 +263,17 @@ export async function updateUser(
   changes: { name?: string; role?: string; institute?: string; department?: string },
 ): Promise<UserEntry> {
   const raw = await apiUpdateUser(id, changes);
-  const updated = toUserEntry(raw);
   const idx = USER_DIRECTORY.findIndex((u) => u.id === id);
+  const previous = USER_DIRECTORY[idx];
+  const activeAffiliation = previous?.activeAffiliation ?? previous?.affiliations?.findIndex(affiliation =>
+    affiliation.institute === previous.institute && affiliation.department === previous.department);
+  const updated = toUserEntry({
+    ...raw,
+    affiliations: raw.affiliations ?? previous?.affiliations?.map((affiliation, index) => index === activeAffiliation
+      ? { ...affiliation, institute: raw.institute, department: raw.department, role: raw.role }
+      : affiliation),
+    activeAffiliation: raw.activeAffiliation ?? activeAffiliation,
+  });
   if (idx !== -1) USER_DIRECTORY[idx] = updated;
   return updated;
 }

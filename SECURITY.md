@@ -59,7 +59,8 @@ Microsoft follows the principle of
 This project is designed to run on Azure using Microsoft Entra ID (managed identity)
 for service-to-service authentication. When deploying your own instance:
 
-* **Never commit secrets.** All `.env` files are git-ignored, and `Backend/.dockerignore`
+* **Never commit secrets.** All `.env` files are git-ignored, and
+  `Agentic Shiksha Platform/Backend/.dockerignore`
   excludes them from container images. Supply configuration through App Service
   application settings or an equivalent secret store — real environment variables take
   precedence over `.env`.

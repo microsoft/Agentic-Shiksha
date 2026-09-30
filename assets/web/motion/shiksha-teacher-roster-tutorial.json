@@ -1,0 +1,88 @@
+{
+  "name": "shiksha-teacher-roster-tutorial",
+  "title": "Review learners and their work",
+  "duration": 33.416666666666664,
+  "frames": 401,
+  "width": 1360,
+  "height": 928,
+  "gifFrames": 334,
+  "gifBytes": 1623064,
+  "chapters": [
+    {
+      "start": 0,
+      "end": 6.5,
+      "caption": "01  Open Dashboard and confirm the course before reviewing its learners."
+    },
+    {
+      "start": 6.5,
+      "end": 10.333333333333334,
+      "caption": "02  My Students shows the roster and the course plan side by side."
+    },
+    {
+      "start": 10.333333333333334,
+      "end": 16.333333333333332,
+      "caption": "03  Select a learner and expand a concept. In progress is not a mastery claim."
+    },
+    {
+      "start": 16.333333333333332,
+      "end": 22,
+      "caption": "04  Switch to Topics to read the learner's recorded work against the syllabus."
+    },
+    {
+      "start": 22,
+      "end": 29.583333333333332,
+      "caption": "05  Open Assets to read the saved example, with navigation already collapsed."
+    },
+    {
+      "start": 29.583333333333332,
+      "end": 33.416666666666664,
+      "caption": "06  Close the preview to return to the same learner and their course work."
+    }
+  ],
+  "headerStyle": {
+    "background": "#EDE9FE",
+    "text": "#30264D",
+    "badge": false
+  },
+  "layout": "single-screen",
+  "presentation": {
+    "configuredCourseStarters": 4,
+    "starterRuleApplicable": true,
+    "verifiedWelcomeScreens": 0,
+    "assetChecks": [
+      {
+        "event": "teacher-document-preview",
+        "atSeconds": 24.416666666666668,
+        "navigationCollapsed": true
+      }
+    ]
+  },
+  "projectName": "Agentic Shiksha",
+  "demoId": "teacher-roster",
+  "description": "Open the real course dashboard, inspect a synthetic learner's concepts and syllabus topics, and review one saved document without claiming mastery.",
+  "verification": {
+    "synthetic": true,
+    "courseId": "course-Electricity-Basics",
+    "enrolledLearners": 3,
+    "conceptsCrossed": 0,
+    "readOnly": true,
+    "endpoints": [
+      "/api/teacher-dashboard/agents",
+      "/api/teacher-dashboard/agents/course-Electricity-Basics/curriculum",
+      "/api/teacher-dashboard/agents/course-Electricity-Basics/overview",
+      "/api/teacher-dashboard/agents/course-Electricity-Basics/students/tutorial-learner-a",
+      "/api/teacher-dashboard/agents/course-Electricity-Basics/students/tutorial-learner-a/assets",
+      "/api/teacher-dashboard/agents/course-Electricity-Basics/students/tutorial-learner-a/assets/tutorial-fixed-voltage-note",
+      "/api/teacher-dashboard/summary",
+      "/api/teacher-dashboard/usage/analytics"
+    ],
+    "learnerId": "tutorial-learner-a",
+    "openedAssetId": "tutorial-fixed-voltage-note",
+    "navigationCollapsedBeforeAsset": true
+  },
+  "capture": "Actual unchanged React frontend; scripted interactions, synthetic course data and in-memory API responses.",
+  "timing": "Captured frames are paced for readability, not a performance benchmark.",
+  "isolation": "Fresh browser context. External services blocked; all API calls simulated. No remote course creation.",
+  "source": "Agentic Shiksha Platform/Frontend",
+  "recordedOn": "2026-09-30"
+}

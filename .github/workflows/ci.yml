@@ -17,14 +17,36 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.11']
+        python-version: ['3.11', '3.13.5']
 
     # Placeholders only. azure_services/config.py resolves every required variable at
     # import time and raises if one is missing, so the suite cannot even be collected
     # without them. No test makes a live Azure call.
     env:
-      PYTHONPATH: ${{ github.workspace }}/Backend
+      PYTHONPATH: ${{ github.workspace }}/Agentic Shiksha Platform/Backend
+      UV_PYTHON: ${{ matrix.python-version }}
+      UV_PYTHON_DOWNLOADS: never
       AZURE_AI_PROJECT_ENDPOINT: https://example.services.ai.azure.com/api/projects/ci
+      AZURE_AI_MODEL_DEPLOYMENT_NAME: ci-chat
+      AZURE_AI_AGENT_MODEL_DEPLOYMENT: ci-agent
+      AZURE_ALLOWED_DEPLOYMENTS: ci-chat,ci-agent
+      AZURE_AUTH_TENANT_ID: 00000000-0000-0000-0000-000000000000
+      FRONTEND_URL: http://localhost:5173
+      BACKEND_URL: http://localhost:8000
+      AGENT_IMAGES_CONTAINER: ci-agent-images
+      BLOB_CONTAINER_NAME: ci-agent-files
+      AZURE_BING_CUSTOM_SEARCH_INSTANCE: ci-websearch
+      AZURE_IMAGE_MODEL: ci-image
+      GENERATED_IMAGES_CONTAINER: ci-generated-images
+      TIKZ_GENERATOR_MODEL: ci-diagram-generator
+      TIKZ_DISCRIMINATOR_MODEL: ci-diagram-discriminator
+      TIKZ_POLISHER_MODEL: ci-diagram-polisher
+      MEMORY_CHAT_MODEL: ci-memory-chat
+      MEMORY_EMBEDDING_MODEL: ci-memory-embedding
+      TEXTBOOK_RESEARCH_AGENT_NAME: ci-textbook-research
+      THRESHOLD_CONCEPT_RESEARCH_AGENT_NAME: ci-concept-research
+      TEACHER_ANALYTICS_AGENT_NAME: ci-teacher-analytics
+      PYTHON_DOTENV_DISABLED: '1'
       AZURE_AI_SEARCH_API_VERSION: 2025-11-01-preview
       AZURE_AI_SEARCH_BLOB_CONTAINER: ci-container
       AZURE_AI_SEARCH_CONNECTION_ID: /subscriptions/00000000-0000-0000-0000-000000000000/ci
@@ -68,19 +90,72 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: Backend/requirements.txt
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.12.18'
+          enable-cache: true
+          cache-dependency-glob: Agentic Shiksha Platform/Backend/uv.lock
 
       - name: Install dependencies
-        working-directory: Backend
+        working-directory: Agentic Shiksha Platform/Backend
+        run: uv sync --locked
+
+      - name: Check dependency export and critical lint
+        working-directory: Agentic Shiksha Platform/Backend
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest pytest-subtests
+          uv export --locked --no-dev --format requirements-txt --output-file requirements.txt --quiet
+          git diff --exit-code -- requirements.txt
+          uv run --frozen ruff check .
 
       - name: Run tests
-        working-directory: Backend
-        run: python -m pytest tests/ -q
+        working-directory: Agentic Shiksha Platform/Backend
+        run: uv run --frozen python -m pytest tests/ -q
+
+  admin-backend:
+    name: Admin backend (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.13.5']
+    env:
+      PYTHONPATH: ${{ github.workspace }}/Admin-Dashboard/backend
+      UV_PYTHON: ${{ matrix.python-version }}
+      UV_PYTHON_DOWNLOADS: never
+      PYTHON_DOTENV_DISABLED: '1'
+      APP_ENV: test
+      EVAL_ENABLED: 'false'
+      COSMOS_ENDPOINT: https://example.documents.azure.com:443/
+      COSMOS_DATABASE: ci-database
+      PROJECT_ENDPOINT: https://example.services.ai.azure.com/api/projects/ci
+      AZURE_AI_PROJECT_ENDPOINT: https://example.services.ai.azure.com/api/projects/ci
+      AZURE_FOUNDRY_ENDPOINT: https://example.services.ai.azure.com
+      AZURE_AI_SEARCH_ENDPOINT: https://example.search.windows.net
+      STORAGE_ACCOUNT_NAME: cistorageaccount
+      ALLOWED_ORIGINS: http://localhost:5174
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.12.18'
+          enable-cache: true
+          cache-dependency-glob: Admin-Dashboard/backend/uv.lock
+      - name: Install independent admin dependencies
+        working-directory: Admin-Dashboard/backend
+        run: uv sync --locked
+      - name: Check dependency export and critical lint
+        working-directory: Admin-Dashboard/backend
+        run: |
+          uv export --locked --no-dev --format requirements-txt --output-file requirements.txt --quiet
+          git diff --exit-code -- requirements.txt
+          uv run --frozen ruff check .
+      - name: Run independent admin tests
+        working-directory: Admin-Dashboard/backend
+        run: uv run --frozen python -m pytest tests/ -q
 
   frontend:
     name: Frontend
@@ -92,20 +167,48 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: Frontend/package-lock.json
+          cache-dependency-path: Agentic Shiksha Platform/Frontend/package-lock.json
 
       - name: Install dependencies
-        working-directory: Frontend
+        working-directory: Agentic Shiksha Platform/Frontend
         run: npm ci
 
-      # The real .env.production is not committed; build against the example.
-      - name: Seed build env
-        working-directory: Frontend
-        run: cp .env.production.example .env.production
-
       - name: Build
-        working-directory: Frontend
-        run: npx vite build --logLevel error
+        working-directory: Agentic Shiksha Platform/Frontend
+        env:
+          VITE_API_BASE_URL: http://localhost:8000
+        run: npm run build
+
+      - name: Install browser test runtime
+        working-directory: Agentic Shiksha Platform/Frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify chat and persistence contracts
+        working-directory: Agentic Shiksha Platform/Frontend
+        run: npx playwright test chat-response.spec.ts chat-persistence.spec.ts learner-profile.spec.ts
+
+  admin-frontend:
+    name: Admin frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: Admin-Dashboard/frontend/package-lock.json
+      - name: Install independent admin frontend dependencies
+        working-directory: Admin-Dashboard/frontend
+        run: npm ci
+      - name: Typecheck and build
+        working-directory: Admin-Dashboard/frontend
+        run: npm run build
+      - name: Install browser test runtime
+        working-directory: Admin-Dashboard/frontend
+        run: npx playwright install --with-deps chromium
+      - name: Verify admin workflows
+        working-directory: Admin-Dashboard/frontend
+        run: npx playwright test
 
   containers:
     name: Container builds
@@ -115,18 +218,25 @@ jobs:
 
       # Build context is the service directory, so .dockerignore keeps .env out.
       - name: Build backend image
-        run: docker build -t agentic-shiksha/backend:ci -f Backend/Dockerfile Backend
+        run: docker build -t agentic-shiksha/backend:ci -f "Agentic Shiksha Platform/Backend/Dockerfile" "Agentic Shiksha Platform/Backend"
 
       - name: Build frontend image
-        run: |
-          cp Frontend/.env.production.example Frontend/.env.production
-          docker build -t agentic-shiksha/frontend:ci -f Frontend/Dockerfile Frontend
+        run: docker build --build-arg VITE_API_BASE_URL=http://localhost:8000 -t agentic-shiksha/frontend:ci -f "Agentic Shiksha Platform/Frontend/Dockerfile" "Agentic Shiksha Platform/Frontend"
 
-      - name: Assert no .env leaked into the backend image
+      - name: Build independent admin images
         run: |
-          if docker run --rm --entrypoint sh agentic-shiksha/backend:ci \
-               -c 'ls -a /app | grep -qE "^\.env$"'; then
-            echo "::error::.env was copied into the backend image"
-            exit 1
-          fi
-          echo "No .env in backend image."
+          docker build -t agentic-shiksha/admin-backend:ci -f "Admin-Dashboard/backend/Dockerfile" "Admin-Dashboard/backend"
+          docker build -t agentic-shiksha/admin-frontend:ci -f "Admin-Dashboard/frontend/Dockerfile" "Admin-Dashboard/frontend"
+
+      - name: Assert no private environment files in API images
+        run: |
+          for image in agentic-shiksha/backend:ci agentic-shiksha/admin-backend:ci; do
+            docker run --rm --network none --entrypoint sh "$image" -ec \
+              'leaks="$(find /app -path /app/.venv -prune -o -type f -name ".env*" ! -name "*.example" -print)"; test -z "$leaks" || { echo "Private environment file in image"; exit 1; }'
+          done
+
+      - name: Check frontend image configuration
+        run: |
+          for image in agentic-shiksha/frontend:ci agentic-shiksha/admin-frontend:ci; do
+            docker run --rm --network none --entrypoint nginx "$image" -t
+          done

@@ -1,0 +1,71 @@
+{
+  "name": "shiksha-circuit-tutorial",
+  "title": "Experiment in the Circuit Lab",
+  "duration": 29.5,
+  "frames": 354,
+  "width": 1360,
+  "height": 928,
+  "gifFrames": 295,
+  "gifBytes": 4345643,
+  "chapters": [
+    {
+      "start": 0,
+      "end": 7.5,
+      "caption": "1. Request a hypothetical 6 V circuit; no physical wiring."
+    },
+    {
+      "start": 7.5,
+      "end": 11.833333333333334,
+      "caption": "2. Open Circuit Lab. These readings are mocked locally."
+    },
+    {
+      "start": 11.833333333333334,
+      "end": 15.833333333333334,
+      "caption": "3. Inspect the 6 V supply and the 1,000 ohm resistor."
+    },
+    {
+      "start": 15.833333333333334,
+      "end": 19.666666666666668,
+      "caption": "4. Mock baseline: 6 V / 1,000 ohms = 6 mA."
+    },
+    {
+      "start": 19.666666666666668,
+      "end": 25,
+      "caption": "5. Double R1 to 2,000 ohms, then run the local mock again."
+    },
+    {
+      "start": 25,
+      "end": 29.5,
+      "caption": "6. Mock result: 6 V / 2,000 ohms = 3 mA, half the current."
+    }
+  ],
+  "presentation": {
+    "configuredCourseStarters": 4,
+    "verifiedWelcomeScreens": 1,
+    "assetChecks": [
+      {
+        "event": "circuit_start",
+        "atSeconds": 8.333333333333334,
+        "navigationCollapsed": true
+      },
+      {
+        "event": "circuit",
+        "atSeconds": 9,
+        "navigationCollapsed": true
+      }
+    ]
+  },
+  "projectName": "Agentic Shiksha",
+  "demoId": "circuits",
+  "description": "Inspect a hypothetical 6 V resistor circuit, double its resistance, and compare explicitly mocked Ohm's-law readings: 6 mA becomes 3 mA.",
+  "capture": "Actual unchanged React frontend; scripted interactions, synthetic course data and in-memory API responses.",
+  "timing": "Captured frames are paced for readability, not a performance benchmark.",
+  "isolation": "Fresh browser context. External services blocked; all API calls simulated. No remote course creation.",
+  "source": "Agentic Shiksha Platform/Frontend",
+  "recordedOn": "2026-09-30",
+  "headerStyle": {
+    "background": "#EDE9FE",
+    "text": "#30264D",
+    "badge": false
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "name": "shiksha-onboarding-profile-tutorial",
+  "title": "Set up your learner profile",
+  "duration": 33.166666666666664,
+  "frames": 398,
+  "width": 1360,
+  "height": 928,
+  "gifFrames": 332,
+  "gifBytes": 2400585,
+  "chapters": [
+    {
+      "start": 0,
+      "end": 5,
+      "caption": "01  Begin after sign-in and choose the name you want your tutor to use."
+    },
+    {
+      "start": 5,
+      "end": 11,
+      "caption": "02  Add a hometown and a familiar language for a more personal profile."
+    },
+    {
+      "start": 11,
+      "end": 17.666666666666668,
+      "caption": "03  Share your interests and finish the first-run setup."
+    },
+    {
+      "start": 17.666666666666668,
+      "end": 21.666666666666668,
+      "caption": "04  Open Settings to review the profile saved during onboarding."
+    },
+    {
+      "start": 21.666666666666668,
+      "end": 27.25,
+      "caption": "05  Update a profile detail, then save and verify the confirmed value."
+    },
+    {
+      "start": 27.25,
+      "end": 33.166666666666664,
+      "caption": "06  Return to the library and begin learning with four course starters."
+    }
+  ],
+  "headerStyle": {
+    "background": "#EDE9FE",
+    "text": "#30264D",
+    "badge": false
+  },
+  "layout": "single-screen",
+  "presentation": {
+    "configuredCourseStarters": 4,
+    "verifiedWelcomeScreens": 1,
+    "assetChecks": []
+  },
+  "projectName": "Agentic Shiksha",
+  "demoId": "onboarding-profile",
+  "description": "Complete the actual first-run onboarding, review the saved profile in Settings, update a detail and begin a course.",
+  "verification": {
+    "feature": "onboarding-profile",
+    "completedOnboarding": true,
+    "savedProfile": {
+      "nickname": "Asha",
+      "language": "Kannada",
+      "currentLocation": "Bengaluru",
+      "passionateAbout": "Science puzzles, drawing and learning how things work."
+    },
+    "writesVerified": 2,
+    "provenance": "Fresh synthetic signed-in learner; onboarding and profile writes are intercepted in memory, not persisted to a real account."
+  },
+  "capture": "Actual unchanged React frontend; scripted interactions, synthetic course data and in-memory API responses.",
+  "timing": "Captured frames are paced for readability, not a performance benchmark.",
+  "isolation": "Fresh browser context. External services blocked; all API calls simulated. No remote course creation.",
+  "source": "Agentic Shiksha Platform/Frontend",
+  "recordedOn": "2026-09-30"
+}

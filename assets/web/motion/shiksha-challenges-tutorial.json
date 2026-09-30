@@ -1,0 +1,72 @@
+{
+  "name": "shiksha-challenges-tutorial",
+  "title": "Work through a guided challenge",
+  "duration": 34.666666666666664,
+  "frames": 416,
+  "width": 1360,
+  "height": 928,
+  "gifFrames": 347,
+  "gifBytes": 2771744,
+  "chapters": [
+    {
+      "start": 0,
+      "end": 7.666666666666667,
+      "caption": "01  Ask for a challenge that tests reasoning, not just recall."
+    },
+    {
+      "start": 7.666666666666667,
+      "end": 13,
+      "caption": "02  Open the challenge and predict before viewing any help."
+    },
+    {
+      "start": 13,
+      "end": 17.666666666666668,
+      "caption": "03  Choose Solution, then reveal just the first hint."
+    },
+    {
+      "start": 17.666666666666668,
+      "end": 21.5,
+      "caption": "04  Reveal the last hint and compare the ratios yourself."
+    },
+    {
+      "start": 21.5,
+      "end": 26.333333333333332,
+      "caption": "05  Reveal the worked solution: both currents are 4 mA."
+    },
+    {
+      "start": 26.333333333333332,
+      "end": 34.666666666666664,
+      "caption": "06  Put the solution away and explain the reasoning in chat."
+    }
+  ],
+  "headerStyle": {
+    "background": "#EDE9FE",
+    "text": "#30264D",
+    "badge": false
+  },
+  "layout": "single-screen",
+  "presentation": {
+    "configuredCourseStarters": 4,
+    "verifiedWelcomeScreens": 1,
+    "assetChecks": [
+      {
+        "event": "challenge_start",
+        "atSeconds": 8.5,
+        "navigationCollapsed": true
+      },
+      {
+        "event": "challenge",
+        "atSeconds": 9.166666666666666,
+        "navigationCollapsed": true
+      }
+    ]
+  },
+  "projectName": "Agentic Shiksha",
+  "demoId": "challenges",
+  "description": "Predict current in an original hypothetical resistor challenge, reveal two hints progressively, compare the worked answer, and explain the fixed-voltage condition in chat.",
+  "capture": "Actual unchanged React frontend; scripted interactions, synthetic course data and in-memory API responses.",
+  "timing": "Captured frames are paced for readability, not a performance benchmark.",
+  "isolation": "Fresh browser context. External services blocked; all API calls simulated. No remote course creation.",
+  "source": "Agentic Shiksha Platform/Frontend",
+  "recordedOn": "2026-09-30"
+}

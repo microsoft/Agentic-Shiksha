@@ -1,0 +1,55 @@
+{
+  "type": "function",
+  "name": "update_topic_progress",
+  "description": "Compatibility progress tool. In authoritative graph-memory courses this is READ-ONLY: no arguments can set concept mastery, clear misconceptions, mark transfer success or cross thresholds. The authenticated route durably captures learner input and server assessment submissions independently; a deterministic versioned policy publishes state. Read get_threshold_concepts for the actual committed verdict and pending/freshness information. Never fabricate evidence from your own explanation or claim a state change because this tool returned. For legacy courses only, topic/status/summary update the old display progress; learned there is not a verified graph crossing. Diagnostic labels and mappings remain private.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "topic": {
+        "type": "string",
+        "description": "The topic name to update progress for."
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "in_progress",
+          "learned"
+        ],
+        "description": "Legacy display hint only. For authoritative graph-memory courses this tool cannot change state, clear a misconception, or cross a threshold; the durable evidence processor owns those decisions."
+      },
+      "summary": {
+        "type": "string",
+        "description": "A brief description of what the student understands about this topic right now."
+      },
+      "threshold_concept": {
+        "type": "string",
+        "description": "The exact threshold-concept name from get_threshold_concepts. Supply this when recording concept-inventory outcomes so progress and misconceptions attach to the right concept instead of being fuzzy-matched from the topic name."
+      },
+      "misconceptions_addressed": {
+        "type": "array",
+        "description": "Misconceptions from this threshold concept's misconception bank that the student has now resolved. Leave empty unless you have direct evidence. This is teacher-only metadata: never name a misconception in student-visible text.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "misconception": {
+              "type": "string",
+              "description": "The exact misconception text from the threshold concept's misconception bank returned by get_threshold_concepts."
+            },
+            "note": {
+              "type": "string",
+              "description": "1-2 sentences recording the evidence that the student no longer holds this misconception — quote or paraphrase what they actually said or answered."
+            }
+          },
+          "required": [
+            "misconception",
+            "note"
+          ]
+        }
+      }
+    },
+    "required": [
+      "topic",
+      "status"
+    ]
+  }
+}

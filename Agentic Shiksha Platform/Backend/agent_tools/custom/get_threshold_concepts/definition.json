@@ -1,0 +1,15 @@
+{
+  "type": "function",
+  "name": "get_threshold_concepts",
+  "description": "Retrieve the current authorized learner's committed context before discussing progress, selecting a diagnostic or recommending the next learning step. For authoritative graph-memory courses, returns bounded concepts, explicit prerequisite edges, threshold verdicts, evidence references, freshness, uncertainty and recommendations, pinned to the published curriculum and policy versions. Missing evidence means unassessed, not failure; partial context cannot prove all crossing requirements. Only a fresh committed CROSSED verdict supports a crossing claim. Keep diagnostic mappings private. No arguments are required; optional tc_id selects an exact published concept. Never supply learner, tenant, institute or course IDs. Legacy courses retain the original topic-map response; legacy learned is not a verified graph crossing.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "tc_id": {
+        "type": "string",
+        "description": "Optional exact published TC ID for a bounded graph-memory view. Never pass a learner, tenant, institute, or course ID; the server fixes scope."
+      }
+    },
+    "required": []
+  }
+}

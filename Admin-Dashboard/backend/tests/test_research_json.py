@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from research_json import parse_research_json
+from admin_backend.services.research_json import parse_research_json
 
 
 def test_parses_fenced_json_and_trailing_comma():

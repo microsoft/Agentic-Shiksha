@@ -1,0 +1,199 @@
+.slides-presenter-overlay {
+  z-index: 110;
+  background: #000;
+  animation: none !important;
+}
+
+.slides-presenter {
+  position: fixed;
+  inset: 0;
+  z-index: 111;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: #090b10;
+  color: #f1f5f9;
+  outline: none;
+  padding-top: env(safe-area-inset-top);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+}
+
+.slides-presenter [hidden] { display: none; }
+.slides-presenter button { font: inherit; }
+.slides-presenter-header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 20px;
+  border-bottom: 1px solid #242936;
+}
+.slides-presenter-heading { flex: 1; min-width: 0; }
+.slides-presenter-kicker {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+.slides-presenter .slides-presenter-title {
+  margin: 0;
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.slides-presenter-timer {
+  flex-shrink: 0;
+  color: #a8b4c5;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.slides-presenter .slides-presenter-button {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid #343c4b;
+  border-radius: 8px;
+  background: #171c26;
+  color: #e2e8f0;
+  font-size: 12px;
+  line-height: 1.3;
+  cursor: pointer;
+}
+.slides-presenter-button svg { width: 18px; height: 18px; flex-shrink: 0; }
+.slides-presenter-button:not(:disabled):hover { background: #283344; color: #fff; }
+.slides-presenter-button:disabled { opacity: .4; cursor: not-allowed; }
+.slides-presenter-button[aria-expanded=true], .slides-presenter-button[aria-pressed=true] { border-color: #67d1df; background: #15313b; color: #b8f2fa; }
+.slides-presenter button:focus-visible, .slides-presenter a:focus-visible, .slides-presenter-notes:focus-visible, .slides-presenter-stage:focus-visible {
+  outline: 2px solid #67d1df;
+  outline-offset: -3px;
+}
+.slides-presenter-body { display: flex; flex: 1; min-width: 0; min-height: 0; }
+.slides-presenter-stage {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(8px, 2vw, 28px);
+  touch-action: pan-y pinch-zoom;
+}
+.slides-presenter-canvas-area {
+  display: grid;
+  place-items: center;
+  container-type: size;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+.slides-presenter-canvas-area .slides-canvas-shell { border-radius: 4px; box-shadow: 0 12px 50px rgb(0 0 0 / .28); }
+.slides-presenter-panels {
+  display: flex;
+  flex-direction: column;
+  width: clamp(260px, 26vw, 380px);
+  min-width: 0;
+  min-height: 0;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-left: 1px solid #343c4b;
+  background: #131923;
+}
+.slides-presenter-narration {
+  flex: 1 1 0;
+  min-height: 0;
+  padding: 12px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.slides-presenter-notes {
+  flex: 1 1 0;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: 18px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  overflow-wrap: anywhere;
+  background: #131923;
+  font-size: 13px;
+}
+.slides-presenter-notes section + section { margin-top: 24px; }
+.slides-presenter-notes h2 { margin: 0 0 10px; color: #f1f5f9; font-size: 13px; font-weight: 650; }
+.slides-presenter-notes p { margin: 0; line-height: 1.7; white-space: pre-wrap; color: #cbd5e1; }
+.slides-presenter-notes .slides-presenter-notes-warning {
+  margin: 0 0 20px;
+  padding: 8px 10px;
+  border: 1px solid #675126;
+  border-radius: 6px;
+  color: #fde68a;
+  background: #342b18;
+  font-size: 11px;
+}
+.slides-presenter-notes ul { margin: 0; padding-left: 18px; list-style: disc; line-height: 1.7; }
+.slides-presenter-notes li + li { margin-top: 8px; }
+.slides-presenter-notes a { color: #8fe3ed; text-decoration: underline; text-underline-offset: 3px; }
+.slides-presenter-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  flex-shrink: 0;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 20px;
+  border-top: 1px solid #242936;
+}
+.slides-presenter-shortcuts { font-size: 11px; color: #94a3b8; }
+.slides-presenter-navigation, .slides-presenter-tools { display: flex; align-items: center; gap: 8px; }
+.slides-presenter-tools { justify-content: flex-end; }
+.slides-presenter .slides-presenter-arrow { width: 44px; padding: 0; }
+.slides-presenter-count { min-width: 64px; text-align: center; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.slides-presenter-progress { height: 3px; flex-shrink: 0; background: #242936; }
+.slides-presenter-progress > span { display: block; height: 100%; background: #67d1df; }
+.slides-presenter-blank { background: #000; }
+.slides-presenter-blank .slides-presenter-stage:focus-visible { outline-color: #555; }
+
+@media (max-width: 1000px) {
+  .slides-presenter-shortcuts { display: none; }
+  .slides-presenter-controls { grid-template-columns: auto 1fr; gap: 12px; }
+}
+@media (max-width: 700px) {
+  .slides-presenter-body { flex-direction: column; }
+  .slides-presenter-panels {
+    width: 100%;
+    height: 50%;
+    max-height: 50%;
+    border-top: 1px solid #343c4b;
+    border-left: 0;
+  }
+  .slides-presenter-notes { padding: 12px 16px; }
+  .slides-presenter-header { gap: 8px; padding: 8px 12px; }
+  .slides-presenter-controls { padding: 8px 12px; }
+  .slides-presenter-stage { padding: 8px; }
+}
+@media (max-width: 440px) {
+  .slides-presenter-controls { grid-template-columns: 1fr; gap: 6px; }
+  .slides-presenter-navigation, .slides-presenter-tools { justify-content: center; }
+  .slides-presenter-timer { font-size: 11px; }
+  .slides-presenter .slides-presenter-title { font-size: 12px; }
+  .slides-presenter-tools { gap: 5px; }
+  .slides-presenter-tools .slides-presenter-button { gap: 5px; padding: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slides-presenter, .slides-presenter *, .slides-presenter-overlay { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

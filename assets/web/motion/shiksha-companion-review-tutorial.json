@@ -1,0 +1,55 @@
+{
+  "name": "shiksha-companion-review-tutorial",
+  "title": "Review and undo Course Companion edits",
+  "duration": 31.75,
+  "frames": 381,
+  "width": 1360,
+  "height": 928,
+  "gifFrames": 318,
+  "gifBytes": 1912715,
+  "chapters": [
+    {
+      "start": 0,
+      "end": 8.833333333333334,
+      "caption": "01  Start a course draft with your own title, code and description."
+    },
+    {
+      "start": 8.833333333333334,
+      "end": 17.666666666666668,
+      "caption": "02  Choose Chat only when you want advice without changing the form."
+    },
+    {
+      "start": 17.666666666666668,
+      "end": 25.333333333333332,
+      "caption": "03  Enable editing, then explicitly ask the Companion to apply the proposal."
+    },
+    {
+      "start": 25.333333333333332,
+      "end": 28.333333333333332,
+      "caption": "04  Inspect the highlighted changes before deciding whether to keep them."
+    },
+    {
+      "start": 28.333333333333332,
+      "end": 31.75,
+      "caption": "05  Undo restores your original values. No Create submission is made."
+    }
+  ],
+  "presentation": {
+    "configuredCourseStarters": 4,
+    "verifiedWelcomeScreens": 0,
+    "assetChecks": []
+  },
+  "projectName": "Agentic Shiksha",
+  "demoId": "companion-review",
+  "description": "Compare Chat only with Allow editing, review a proposed form patch and undo it without creating a course.",
+  "capture": "Actual unchanged React frontend; scripted interactions, synthetic course data and in-memory API responses.",
+  "timing": "Captured frames are paced for readability, not a performance benchmark.",
+  "isolation": "Fresh browser context. External services blocked; all API calls simulated. No remote course creation.",
+  "source": "Agentic Shiksha Platform/Frontend",
+  "recordedOn": "2026-09-30",
+  "headerStyle": {
+    "background": "#EDE9FE",
+    "text": "#30264D",
+    "badge": false
+  }
+}

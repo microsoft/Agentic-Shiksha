@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { type UserRole, DEFAULT_ROLE } from "./roles";
 import { randomToken } from "./secureId";
+import { clearDashboardRequests } from "./dashboardRequestCache";
 
 const TEMP_USER_KEY = "ekalaiva.temp.userId";
 
@@ -53,9 +54,10 @@ export const useUserStore = create<UserState>()(
 
       setDisplayName: (name) => set({ displayName: name }),
       setEmail: (email) => set({ email }),
-      setRole: (role) => set({ role }),
+      setRole: (role) => { clearDashboardRequests(); set({ role }); },
 
       logout: () => {
+        clearDashboardRequests();
         localStorage.removeItem(TEMP_USER_KEY);
         set({
           userId: null,
@@ -68,6 +70,7 @@ export const useUserStore = create<UserState>()(
       },
 
       loginWithOAuth: (userId, displayName, email, provider) => {
+        clearDashboardRequests();
         localStorage.removeItem(TEMP_USER_KEY);
         set({ userId, displayName, email, authProvider: provider, isAuthenticated: true });
       },

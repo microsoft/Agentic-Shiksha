@@ -2,7 +2,8 @@
 
 This document covers what Agentic Shiksha is, how it behaves, and where its limits are.
 It follows the structure of a Responsible AI transparency note. For setup and
-troubleshooting questions, see [SUPPORT.md](SUPPORT.md).
+troubleshooting questions, see [INSTALL.md](INSTALL.md) and [SUPPORT.md](SUPPORT.md).
+For compatibility changes, see [RELEASE_NOTES.md](RELEASE_NOTES.md).
 
 > **Status:** research project. It has not been validated for production or commercial
 > deployment, and interfaces and data models may change between releases.
@@ -26,7 +27,7 @@ knowledge *transformation*.
 - **Track threshold concepts.** The curriculum is modelled as threshold concepts — ideas
   that are transformative and often troublesome. Progress is recorded per concept, and a
   concept is marked complete only once the learner's misconceptions have been addressed.
-- **Emit structured content.** Documents, quizzes, flashcards, challenges and diagrams
+- **Emit structured content.** Documents, quizzes, challenges and diagrams
   are produced as first-class blocks rather than walls of chat text.
 - **Report to teachers.** A dashboard surfaces usage, token analytics, groundedness
   evaluation and per-student progress.

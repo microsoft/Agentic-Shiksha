@@ -1,0 +1,920 @@
+{
+  "service": "admin",
+  "scope": "standalone admin API and UI",
+  "workflows": [
+    {
+      "id": "admin-runtime-health",
+      "title": "Service startup, health, and process lifetime",
+      "doc": "admin.md#admin-runtime-health",
+      "actors": ["Service operator", "Health/API client"],
+      "agent_tools": ["admin_backend.app.create_app/build_services/lifespan", "AdminServices and dependencies.get_services", "core.settings.validate_startup_settings/bootstrap_environment", "integrations.cosmos_queries._init", "No agent/model is called by health"],
+      "permissions": ["No health or app-wide session/role dependency; CORSMiddleware is not authentication.", "Services retrieves application-state collaborators, not caller identity; domain error mappings are not authorization.", "Azure process credentials do not authorize an individual caller."],
+      "state_changes": ["Process: main:app delegates to the factory, which builds or accepts AdminServices and mounts 11 router objects from 10 modules without prefix rewriting.", "Process: validated settings and lazy clients are cached; current bootstrap reads only backend .env with process precedence and PYTHON_DOTENV_DISABLED support, not APP_ENV profiles.", "Process: lifespan starts optional EvaluationService.run_periodic and cancels/awaits it in finally; evaluator resolution caches are per service instance.", "Storage: health itself performs no readiness probes or writes."],
+      "success": ["GET /api/dashboard/health retains its fixed liveness object; 43 explicit handler registrations preserve method/path/name/order after package extraction.", "Eight framework GET/HEAD registrations on /api/dashboard/docs, /api/dashboard/openapi.json, /docs/oauth2-redirect and /redoc remain separate from explicit handlers."],
+      "failure_retry": ["Invalid required settings can prevent factory construction/startup; evaluation settings are startup-required only when EVAL_ENABLED is true.", "Health success does not validate Azure access, storage, models or jobs.", "Lifespan finally now covers exceptional exits but is not a durable worker registry or comprehensive client shutdown.", "Existing flat-layout guides may be stale; canonical handlers and source refs here use current routers/core/services/integrations/schemas, never entry-point aliases."],
+      "classification": "current",
+      "handlers": ["Admin-Dashboard/backend/admin_backend/routers/health.py::health"],
+      "source_refs": [
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/health.py", "symbol": "health"},
+        {"path": "Admin-Dashboard/backend/admin_backend/app.py", "symbol": "lifespan"},
+        {"path": "Admin-Dashboard/backend/admin_backend/app.py", "symbol": "create_app"},
+        {"path": "Admin-Dashboard/backend/admin_backend/app.py", "symbol": "build_services"},
+        {"path": "Admin-Dashboard/backend/admin_backend/dependencies.py", "symbol": "get_services"},
+        {"path": "Admin-Dashboard/backend/admin_backend/services/container.py", "symbol": "AdminServices"},
+        {"path": "Admin-Dashboard/backend/admin_backend/core/settings.py", "symbol": "validate_startup_settings"},
+        {"path": "Admin-Dashboard/backend/admin_backend/core/settings.py", "symbol": "bootstrap_environment"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "_init"},
+        {"path": "Admin-Dashboard/backend/admin_backend/core/log_safe.py", "symbol": "scrub"}
+      ],
+      "doc_refs": ["Admin-Dashboard/backend/README.md", "docs/architecture.md"]
+    },
+    {
+      "id": "admin-navigation-session",
+      "title": "Browser navigation and session synchronization",
+      "doc": "admin.md#admin-navigation-session",
+      "actors": ["Dashboard browser operator"],
+      "agent_tools": ["React BrowserRouter/App", "useAuth", "ChatApiService", "Zustand useUserStore; no agent/model"],
+      "permissions": ["App routes are not guarded; DashboardView consumes the user label rather than enforcing the hook's authentication result.", "Browser roles, BYPASS_AUTH=false, VITE_SUPER_ADMIN_EMAIL and cookies are not admin API authorization.", "Optional main assignment controls combine JWT identity and a legacy profile read in a browser precheck; actual main mutation dependencies enforce active-user/role rules."],
+      "state_changes": ["Browser: navigation replaces history; sidebar state and avatar are local.", "Browser: ekalaiva.user.v1 persists identity/role; optional temporary-user helpers use ekalaiva.temp.userId.", "Browser/process: auth synchronization markers and dashboard GET caches are local, not a server session boundary."],
+      "success": ["Four screen routes render DashboardView; catch-all redirects to /overview.", "Relative main GET /auth/me plus admin GET /api/user/{user_id} can synchronize the user label.", "No backend handler is owned by this UI-only navigation workflow; the admin profile read belongs to admin-user-directory."],
+      "failure_retry": ["Persisted registration can skip synchronization; errors are not used to deny the screen.", "The included production nginx config has no /auth proxy; deployed auth routing is unverified.", "Retained registration helper calls admin PUT /api/user/{user_id}, which is not mounted; normal profile 404 is treated as a backend error.", "Login/logout/retry hook functions exist but have no controls in the mounted shell."],
+      "classification": "mixed",
+      "ui_only": true,
+      "implementation_scope": "Standalone admin browser shell only; main auth and separately mapped admin profile reads are dependencies, not owned handlers.",
+      "handlers": [],
+      "source_refs": [
+        {"path": "Admin-Dashboard/frontend/src/App.tsx", "symbol": "App"},
+        {"path": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx", "symbol": "DashboardView"},
+        {"path": "Admin-Dashboard/frontend/src/lib/useAuth.ts", "symbol": "useAuth"},
+        {"path": "Admin-Dashboard/frontend/src/lib/chatApi.ts", "symbol": "ChatApiService"},
+        {"path": "Admin-Dashboard/frontend/src/lib/userStore.ts", "symbol": "useUserStore"},
+        {"path": "Admin-Dashboard/frontend/src/lib/roles.ts", "symbol": "hasAccess"}
+      ],
+      "doc_refs": ["Admin-Dashboard/frontend/README.md", "Admin-Dashboard/frontend/src/lib/README.md", "Admin-Dashboard/frontend/src/README.md"]
+    },
+    {
+      "id": "admin-overview-reporting",
+      "title": "All-course reporting, period filters, and usage drill-downs",
+      "doc": "admin.md#admin-overview-reporting",
+      "actors": ["Dashboard reporting operator", "Direct reporting client"],
+      "agent_tools": ["cosmos_queries.list_agents", "cosmos_queries.courses_overview", "cosmos_queries.today_stats", "cosmos_queries.per_student_token_usage", "dashboard_cache.cached_view; no model"],
+      "permissions": ["Admin analytics reads have no caller/session/role enforcement.", "Backend data filtering excludes specific staff role values; it is not authorization or anonymization."],
+      "state_changes": ["Storage: read agents_v1, users_v1, invited_users_v1, chat_threads_v1 and chat_messages_v1, including __token_usage__:{agent_id} partitions.", "Process: selected aggregate helpers use a 30-second, 128-entry single-flight cache.", "Browser: two-second authenticated user/role/path GET reuse, column sorting, date filters, chart/dialog/search state."],
+      "success": ["Current UI uses Cosmos token events per course, falling back to assistant-message metadata only for courses without events.", "Today/week/month/custom reporting, searchable course-token distribution, and per-student token/round charts are wired.", "Explicit institute/department course placement determines courseAffiliations; staff affiliations do not place courses.", "Missing student attribution is displayed as unavailable; usage is not mastery or roster membership."],
+      "failure_retry": ["Period errors clear data and offer Retry; table errors require remount/reload and student dialogs can be reopened.", "Failed loads are not cached; aggregate cache waiters time out after 60 seconds and account changes invalidate/reject browser responses.", "Server date strings are inclusive prefix comparisons without typed range-order validation.", "Total-user denominators use top-level pairs/email deduplication, not every affiliation or per-TA saved roster; course active counts can repeat a user.", "Many admin exceptions remain 500 responses containing exception text; no blanket sanitized-error guarantee."],
+      "classification": "current",
+      "handlers": [
+        "Admin-Dashboard/backend/admin_backend/routers/agents.py::list_agents",
+        "Admin-Dashboard/backend/admin_backend/routers/overview.py::courses_overview",
+        "Admin-Dashboard/backend/admin_backend/routers/overview.py::token_usage_per_student",
+        "Admin-Dashboard/backend/admin_backend/routers/overview.py::today_overview"
+      ],
+      "source_refs": [
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/overview.py", "symbol": "today_overview"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "list_agents"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "courses_overview"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "today_stats"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "per_student_token_usage"},
+        {"path": "Admin-Dashboard/backend/admin_backend/core/dashboard_cache.py", "symbol": "cached_view"},
+        {"path": "Admin-Dashboard/frontend/src/pages/OverviewPage.tsx", "symbol": "OverviewContent"},
+        {"path": "Admin-Dashboard/frontend/src/lib/dashboardRequestCache.ts", "symbol": "cachedDashboardRequest"}
+      ],
+      "doc_refs": ["Admin-Dashboard/README.md", "Admin-Dashboard/frontend/src/pages/README.md", "Admin-Dashboard/backend/README.md"]
+    },
+    {
+      "id": "admin-legacy-foundry-tokens",
+      "title": "Compatibility Foundry response totals",
+      "doc": "admin.md#admin-legacy-foundry-tokens",
+      "actors": ["Compatibility reporting API client"],
+      "agent_tools": ["token_stats.get_token_stats", "AIProjectClient.send_request; no agent run"],
+      "permissions": ["No caller, course membership, or student-role scope on the admin route.", "Direct Foundry read uses process credentials and configured AZURE_AI_PROJECT_ENDPOINT."],
+      "state_changes": ["Remote: read stored Foundry response pages, not Cosmos usage events.", "Process: aggregate cache is refreshed at a 600-second TTL."],
+      "success": ["GET /api/dashboard/overview/tokens aggregates input/output/total tokens, responses and conversations by agent_reference or historical agent field.", "Current OverviewContent does not call the retained getTokenUsageOverview helper."],
+      "failure_retry": ["Pagination caps at 50 pages of 100 responses.", "Page failures can yield cached partial results; initial failures return a prior cache or empty object.", "A later expired-cache read retries; no automatic full-scan recovery or UI action is wired."],
+      "classification": "compatibility",
+      "surface": "api-only",
+      "handlers": ["Admin-Dashboard/backend/admin_backend/routers/overview.py::token_usage_overview"],
+      "source_refs": [
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/overview.py", "symbol": "token_usage_overview"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/token_stats.py", "symbol": "get_token_stats"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/token_stats.py", "symbol": "_fetch_all_responses"},
+        {"path": "Admin-Dashboard/frontend/src/lib/dashboardApi.ts", "symbol": "getTokenUsageOverview"}
+      ],
+      "doc_refs": ["Admin-Dashboard/backend/README.md", "Admin-Dashboard/frontend/src/pages/README.md"]
+    },
+    {
+      "id": "admin-course-analytics",
+      "title": "Course selection, legacy progress, and student topic details",
+      "doc": "admin.md#admin-course-analytics",
+      "actors": ["Analytics operator", "Progress API client"],
+      "agent_tools": ["cosmos_queries.agent_overview", "cosmos_queries.agent_usage_stats", "cosmos_queries.student_detail; no model"],
+      "permissions": ["No caller role, course membership, or own-student authorization in standalone admin reads.", "Paired UI placement filters and Graph Memory availability checks are not request authorization."],
+      "state_changes": ["Storage: read legacy learning_states_v1, course metadata, user profiles, chat threads and messages.", "Browser: institution/department changes clear child selections and hide chat; course request-generation checks reject stale results.", "Process: overview/activity queries use summary cache."],
+      "success": ["Selected agent ID is sent in the agent_name path position.", "Activity, completion distribution, struggle topics and expandable topic-status rows are shown.", "Graph Memory shadow/authoritative suppresses legacy progress reads and returns unavailable metadata; overview badges distinguish this from usage."],
+      "failure_retry": ["Individual missing/unreadable state can return 404; empty legacy state is distinct from measured learning.", "Analytics renderer does not fully represent the unavailable/null Graph Memory response.", "Errors appear in the shared banner; reselecting/reopening retries.", "Course changes invalidate stale details, but same-course student row races are not comprehensively guarded."],
+      "classification": "mixed",
+      "handlers": [
+        "Admin-Dashboard/backend/admin_backend/routers/progress.py::agent_overview",
+        "Admin-Dashboard/backend/admin_backend/routers/progress.py::student_detail"
+      ],
+      "source_refs": [
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/progress.py", "symbol": "agent_overview"},
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/progress.py", "symbol": "student_detail"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "_legacy_progress_availability"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "agent_usage_stats"},
+        {"path": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx", "symbol": "selectAgent"},
+        {"path": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx", "symbol": "StudentRow"},
+        {"path": "Admin-Dashboard/frontend/src/lib/dashboardApi.ts", "symbol": "filterDashboardAgents"}
+      ],
+      "doc_refs": ["Admin-Dashboard/frontend/src/pages/README.md", "Admin-Dashboard/frontend/README.md", "docs/evaluation.md"]
+    },
+    {
+      "id": "admin-image-quota",
+      "title": "Shared image allowance settings",
+      "doc": "admin.md#admin-image-quota",
+      "actors": ["Quota-setting operator", "Quota API client"],
+      "agent_tools": ["ImageQuotaCard", "integrations.cosmos_queries.get_image_quota_config", "integrations.cosmos_queries.set_image_quota_config", "services.quota.quota_payload; no image-generation model call"],
+      "permissions": ["No server administrator/session check or revision precondition for shared admin quota writes.", "Main image generation enforcement is separate from this settings editor."],
+      "state_changes": ["Storage: merge medium/low limits into learning_states_v1 document __image_quota_config__, partition __config__, with updatedAt.", "Browser: editable limits and cost preview; Reset restores the loaded snapshot."],
+      "success": ["GET/PUT /api/dashboard/image-quota reads/changes the per-student per-course weekly allowance.", "At least one integer field is required; API bounds are 0 through 1000.", "Server cost constants and 4.3-week estimates are previews, not live billing prices."],
+      "failure_retry": ["Unreadable/missing stored config silently falls back to medium=5 and low=15.", "400/422 validation or 500 storage errors are shown; failed saves retain draft for explicit retry.", "Failed initial load can retain a Loading label beside the error.", "No concurrency resolution, automatic mutation retry, or quota-reset scheduler is implemented in admin."],
+      "classification": "current",
+      "handlers": [
+        "Admin-Dashboard/backend/admin_backend/routers/quota.py::get_image_quota",
+        "Admin-Dashboard/backend/admin_backend/routers/quota.py::update_image_quota"
+      ],
+      "source_refs": [
+        {"path": "Admin-Dashboard/backend/admin_backend/schemas/quota.py", "symbol": "ImageQuotaUpdate"},
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/quota.py", "symbol": "update_image_quota"},
+        {"path": "Admin-Dashboard/backend/admin_backend/services/quota.py", "symbol": "quota_payload"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "set_image_quota_config"},
+        {"path": "Admin-Dashboard/frontend/src/components/ImageQuotaCard.tsx", "symbol": "ImageQuotaCard"}
+      ],
+      "doc_refs": ["Admin-Dashboard/frontend/src/components/README.md", "Admin-Dashboard/backend/README.md"]
+    },
+    {
+      "id": "admin-user-directory",
+      "title": "Directory reads, affiliation-aware grouping, and profile lookup",
+      "doc": "admin.md#admin-user-directory",
+      "actors": ["Directory operator", "Shell profile reader", "Directory API client"],
+      "agent_tools": ["cosmos_queries.list_directory_users", "userDirectory.loadDirectory", "groupByInstituteDept", "groupByCourse; no agent/model"],
+      "permissions": ["No session/role enforcement on admin directory or profile reads.", "Optional course-group reads use verified main assignment access; cosmetic isAdmin/isSuperAdmin remain true.", "Names, emails, roles and affiliations are not pseudonymized."],
+      "state_changes": ["Storage: read C1 invited_users_v1 and C2 users_v1; exclude promoted invites and prefer C2 for duplicate email in unfiltered status lists.", "Browser: USER_DIRECTORY, search/role/institute/department filters, collapse states and canonical affiliation-aware grouping.", "Browser: optional four-loader membership snapshot uses admin teacher lists and main rosters; grouping never writes memberships."],
+      "success": ["GET /api/directory supports role/status; GET /api/user/{user_id} reads the C2 profile.", "Complete saved affiliation pairs produce repeated display rows without identity or active-role changes; counts deduplicate canonical users.", "Only courses explicitly placed in a pair appear there; failed membership loads leave users visible without falsely labeling them unassigned."],
+      "failure_retry": ["Per-store list failures are swallowed and can return partial/empty HTTP success; profile absence/storage failure can return 404.", "Users without any complete institute/department pair do not enter the grouped tree.", "Directory request errors require remount/reload; membership errors have Retry course assignments.", "Stale membership requests are aborted; storage completeness and account isolation are not guaranteed by frontend caching."],
+      "classification": "current",
+      "handlers": [
+        "Admin-Dashboard/backend/admin_backend/routers/directory.py::api_list_directory",
+        "Admin-Dashboard/backend/admin_backend/routers/directory.py::api_get_user_profile"
+      ],
+      "source_refs": [
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/directory.py", "symbol": "api_list_directory"},
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/directory.py", "symbol": "api_get_user_profile"},
+        {"path": "Admin-Dashboard/backend/admin_backend/services/directory.py", "symbol": "DirectoryService"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "list_directory_users"},
+        {"path": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx", "symbol": "UserDirectorySection"},
+        {"path": "Admin-Dashboard/frontend/src/lib/userDirectory.ts", "symbol": "directoryAffiliations"},
+        {"path": "Admin-Dashboard/frontend/src/lib/userDirectory.ts", "symbol": "groupByInstituteDept"},
+        {"path": "Admin-Dashboard/frontend/src/lib/userDirectory.ts", "symbol": "groupByCourse"}
+      ],
+      "doc_refs": ["Admin-Dashboard/README.md", "Admin-Dashboard/frontend/src/lib/README.md"]
+    },
+    {
+      "id": "admin-user-invitations-import",
+      "title": "Invitations, CSV imports, and optional additive course assignment",
+      "doc": "admin.md#admin-user-invitations-import",
+      "actors": ["Directory operator", "Active main administrator for optional assignment/user CSV import"],
+      "agent_tools": ["cosmos_queries.invite_user", "handleAddUser", "handleCsvImport", "assignUserToCourse", "Main agent_membership.add_member contract; no email/model worker"],
+      "permissions": ["Admin POST /api/directory has no caller authorization and uses string fields rather than enforcing the UI role/email/pair policy.", "User CSV import and TA assignment require exact build flag true and the browser's fresh main active admin/superadmin precheck; single directory-only invite does not.", "Main student membership additions require admin; main teacher additions use authenticated course-manager rules, with a narrower admin UI gate.", "Main /auth/me checks token identity only and legacy GET /api/user/{user_id} has no caller guard; mutation authorization comes from the main route dependencies, not those probes."],
+      "state_changes": ["Storage: create a C1 allowlist invitation or add a nonduplicate affiliation to existing C1/C2, preserving active pair/role.", "Cross-service: optional main POST /api/agents/{agent_id}/members adds one student/teacher without replacing a roster.", "Browser: savedUser checkpoint, sequential CSV counters/errors, independent CSV scope selectors and template Blob download/object URL cleanup."],
+      "success": ["New invitation is 201; existing/affiliation-added response is 200 with flags, not email delivery.", "User CSV accepts only name,email,role; optional documented header aliases and one-line quoted records are parsed.", "Admin rows and no-TA imports remain directory-only; students are uniquely matched to main eligible candidates before membership writes."],
+      "failure_retry": ["Bad headers/column counts/roles/email/quoting/empty input produce explicit import errors; rows continue independently.", "Directory save and course assignment are not transactional; assignment failure does not undo the saved user.", "Single-user retry reuses savedUser; re-import a failed CSV row to retry explicitly without replacing others' memberships.", "Dialog closing/inputs are blocked during mutations; cancelling afterwards discards browser state, not completed writes.", "No concurrent-invitation uniqueness guarantee, batch rollback or automatic non-idempotent retry exists."],
+      "classification": "mixed",
+      "handlers": ["Admin-Dashboard/backend/admin_backend/routers/directory.py::api_invite_user"],
+      "source_refs": [
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/directory.py", "symbol": "api_invite_user"},
+        {"path": "Admin-Dashboard/backend/admin_backend/services/directory.py", "symbol": "DirectoryService"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "invite_user"},
+        {"path": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx", "symbol": "handleCsvImport"},
+        {"path": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx", "symbol": "handleAddUser"},
+        {"path": "Admin-Dashboard/frontend/src/lib/userDirectory.ts", "symbol": "assignUserToCourse"},
+        {"path": "Admin-Dashboard/frontend/src/lib/studentAssignmentsApi.ts", "symbol": "addCourseMember"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/routers/agent_membership.py", "symbol": "add_member"}
+      ],
+      "doc_refs": ["Admin-Dashboard/README.md", "Admin-Dashboard/frontend/README.md", "Agentic Shiksha Platform/Backend/backend/README.md"]
+    },
+    {
+      "id": "admin-user-role-profile-management",
+      "title": "Editing profiles and roles, and removing directory entries",
+      "doc": "admin.md#admin-user-role-profile-management",
+      "actors": ["Directory operator", "Directory mutation client"],
+      "agent_tools": ["DirectoryService.update_user/remove_user", "integrations.cosmos_queries.upsert_user_profile/remove_directory_user/save_directory_record", "handleEditSave", "handleRemoveConfirm; no model"],
+      "permissions": ["No caller authentication, role-transition policy, target-role constraint or protected-superadmin check in the admin handlers.", "canEdit/canRemove use hardcoded admin flags; a configured protected email is only a UI restriction."],
+      "state_changes": ["Storage: DirectoryService edits C2 or C1 names/role/top-level pair and synchronizes an existing selected affiliation through the repository adapter.", "Storage: removal attempts C2 and same-ID C1 only; chats, agent membership and research are not cascaded.", "Browser: update/remove canonical row; decorated adapter writes invalidate process summary cache, but the extracted save_directory_record used by C1 edits still does not invalidate it."],
+      "success": ["PATCH /api/directory/{user_id} returns edited profile fields; DELETE returns deleted ID.", "Browser edit merges retained secondary affiliation fields rather than switching the active profile."],
+      "failure_retry": ["Missing targets return 404; inline dialog errors preserve correction/retry opportunity.", "Per-store delete errors are swallowed; success after either deletion can mean partial cleanup.", "Cancel closes draft/confirmation without a new write; there is no undo, revision check or automatic retry.", "Cache clearing is not multi-process or cross-service invalidation."],
+      "classification": "current",
+      "handlers": [
+        "Admin-Dashboard/backend/admin_backend/routers/directory.py::api_update_directory_user",
+        "Admin-Dashboard/backend/admin_backend/routers/directory.py::api_remove_directory_user"
+      ],
+      "source_refs": [
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/directory.py", "symbol": "api_update_directory_user"},
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/directory.py", "symbol": "api_remove_directory_user"},
+        {"path": "Admin-Dashboard/backend/admin_backend/services/directory.py", "symbol": "DirectoryService"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "remove_directory_user"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "save_directory_record"},
+        {"path": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx", "symbol": "handleEditSave"},
+        {"path": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx", "symbol": "handleRemoveConfirm"}
+      ],
+      "doc_refs": ["Admin-Dashboard/README.md", "Admin-Dashboard/backend/README.md", "Admin-Dashboard/frontend/src/lib/README.md"]
+    },
+    {
+      "id": "admin-affiliation-switch",
+      "title": "API-only active-affiliation switching",
+      "doc": "admin.md#admin-affiliation-switch",
+      "actors": ["Direct affiliation API client"],
+      "agent_tools": ["cosmos_queries.switch_active_affiliation; no agent/model"],
+      "permissions": ["No caller authorization or role-transition policy; only C2 existence and index validity are checked."],
+      "state_changes": ["Storage: set C2 activeAffiliation, institute/college, department, affiliation role and updatedAt.", "Process: invalidate local summary cache; course memberships are unchanged."],
+      "success": ["POST /api/directory/{user_id}/switch-affiliation with index returns selected context.", "Exported switchUserAffiliation has no mounted UI caller; secondary directory grouping alone never switches context."],
+      "failure_retry": ["Missing C2 profile, no affiliations or invalid index returns 400; invited-only C1 users are unsupported.", "Storage failures propagate; no revision check, undo or automatic retry."],
+      "classification": "current",
+      "surface": "api-only",
+      "handlers": ["Admin-Dashboard/backend/admin_backend/routers/directory.py::api_switch_affiliation"],
+      "source_refs": [
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/directory.py", "symbol": "api_switch_affiliation"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "switch_active_affiliation"},
+        {"path": "Admin-Dashboard/frontend/src/lib/api.ts", "symbol": "switchUserAffiliation"}
+      ],
+      "doc_refs": ["Admin-Dashboard/frontend/src/lib/README.md", "Admin-Dashboard/backend/README.md"]
+    },
+    {
+      "id": "admin-organization-directory",
+      "title": "Institution and department registries, maintenance, and onboarding counts",
+      "doc": "admin.md#admin-organization-directory",
+      "actors": ["Directory operator", "Onboarding-count API client"],
+      "agent_tools": ["userDirectory.addInstitute/addDepartment", "cosmos_queries.rename_institute/delete_institute/rename_department/delete_department_users", "get_department_onboarding_progress; no agent/model"],
+      "permissions": ["All mounted organization maintenance/count routes lack caller authentication and role enforcement.", "Local creation/import and hardcoded super-admin controls do not create a server permission boundary."],
+      "state_changes": ["Browser only: Add Institution/Add Department and their CSV modes mutate in-memory extra registries, not persistent org records.", "Storage: maintenance individually upserts top-level institute/department matches in C1 and C2; deletion clears fields rather than deleting users.", "Saved affiliation arrays, agent placement/membership and research keys are not migrated; old branches may remain."],
+      "success": ["Rename/delete routes return updated/cleared counts including zero matches.", "Current dialogs support confirmation/cancel; templates use name or institute,department.", "API-only onboarding-progress returns invited/active/total and done from top-level C1/C2 matching."],
+      "failure_retry": ["Required blank strings return 400; partial writes can occur before errors, without ETag or rollback.", "UI rename/delete catches log to console rather than consistently showing errors; explicit retry or cancel remains the local recovery.", "Onboarding storage errors return zero counts and done=false, not a verifiable empty department.", "Local empty groups do not survive reload by themselves and need not appear without users."],
+      "classification": "mixed",
+      "handlers": [
+        "Admin-Dashboard/backend/admin_backend/routers/directory.py::api_rename_institute",
+        "Admin-Dashboard/backend/admin_backend/routers/directory.py::api_delete_institute",
+        "Admin-Dashboard/backend/admin_backend/routers/directory.py::api_rename_department",
+        "Admin-Dashboard/backend/admin_backend/routers/directory.py::api_delete_department",
+        "Admin-Dashboard/backend/admin_backend/routers/directory.py::api_onboarding_progress"
+      ],
+      "source_refs": [
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/directory.py", "symbol": "api_onboarding_progress"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "rename_institute"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "delete_institute"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "rename_department"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "delete_department_users"},
+        {"path": "Admin-Dashboard/frontend/src/lib/userDirectory.ts", "symbol": "addInstitute"},
+        {"path": "Admin-Dashboard/frontend/src/lib/userDirectory.ts", "symbol": "addDepartment"},
+        {"path": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx", "symbol": "handleRenameInstitute"}
+      ],
+      "doc_refs": ["Admin-Dashboard/README.md", "Admin-Dashboard/frontend/src/lib/README.md"]
+    },
+    {
+      "id": "admin-course-ownership-teachers",
+      "title": "Course ownership transfer and teacher-list replacement",
+      "doc": "admin.md#admin-course-ownership-teachers",
+      "actors": ["Analytics course operator", "Course-management API client"],
+      "agent_tools": ["AgentService.transfer_ownership/get_agent_teachers/set_agent_teachers", "integrations.cosmos_queries.transfer_agent_ownership/set_agent_teachers", "C1/C2 target lookup; no agent/model"],
+      "permissions": ["Admin handlers validate target existence/list shape, not caller identity, management rights, target role or active status.", "UI teacher/admin selection and disabled owner checkbox are not server authorization.", "These admin full-document upserts are not main authenticated additive membership operations."],
+      "state_changes": ["Storage: update agents_v1.createdById/teacherIds/updatedAt; transfer adds the new owner without removing the old owner from teachers.", "Storage: teacher replacement deduplicates IDs and retains owner.", "Process/browser: local summary and successful-mutation dashboard caches clear; existing rendered views are not comprehensively refetched."],
+      "success": ["Transfer reports new owner; teacher GET resolves names/emails and is_owner; teacher POST reports the replacement IDs."],
+      "failure_retry": ["Missing payload/targets return 400/404; other storage failures propagate.", "Teacher load errors alert and close; save/transfer errors alert and retain a retryable dialog.", "Cancel makes no new write; no ETag, merge handling, automatic retry or cross-service invalidation.", "Candidate pickers use in-memory USER_DIRECTORY and do not independently load it; visiting Analytics before Directory can leave choices empty."],
+      "classification": "current",
+      "handlers": [
+        "Admin-Dashboard/backend/admin_backend/routers/agents.py::transfer_ownership",
+        "Admin-Dashboard/backend/admin_backend/routers/agents.py::get_agent_teachers",
+        "Admin-Dashboard/backend/admin_backend/routers/agents.py::set_agent_teachers"
+      ],
+      "source_refs": [
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/agents.py", "symbol": "transfer_ownership"},
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/agents.py", "symbol": "get_agent_teachers"},
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/agents.py", "symbol": "set_agent_teachers"},
+        {"path": "Admin-Dashboard/backend/admin_backend/services/agents.py", "symbol": "AgentService"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "transfer_agent_ownership"},
+        {"path": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx", "symbol": "openTeachersDialog"},
+        {"path": "Admin-Dashboard/frontend/src/lib/dashboardApi.ts", "symbol": "setAgentTeachers"}
+      ],
+      "doc_refs": ["Admin-Dashboard/README.md", "Admin-Dashboard/frontend/src/pages/README.md"]
+    },
+    {
+      "id": "admin-student-roster",
+      "title": "Opt-in main-API student roster editor",
+      "doc": "admin.md#admin-student-roster",
+      "actors": ["Main-verified active administrator/superadministrator"],
+      "agent_tools": ["useStudentAssignmentAccess", "StudentAssignmentsDialog/StudentRosterEditor", "Main get_student_assignments/set_student_assignments contract; no model"],
+      "permissions": ["Exact VITE_STUDENT_ASSIGNMENTS_ENABLED=true gate plus a browser active admin/superadmin precheck combining main GET /auth/me and GET /api/user/{session.id}.", "Main /auth/me verifies cookie-preferred/Bearer JWT identity but not active status or role; legacy main GET /api/user/{user_id} has no caller check and can return success with a null profile.", "Main roster route dependencies enforce active admin access and ETag concurrency; this is distinct from both probe endpoints and does not secure admin directory reads.", "Disabled builds issue no assignment permission/roster requests; failed browser prechecks deny controls and offer retry."],
+      "state_changes": ["Browser: load main roster and admin directory together, retaining selected IDs and revision separately from search/paired affiliation filters.", "Main storage: PUT replaces this TA's studentIds only; empty saved roster intentionally removes student access.", "Browser: draft/discard dialog, unavailable selections, save/conflict state; close triggers directory membership refresh."],
+      "success": ["Directory or selected Analytics opens saved per-TA assignments; response validation checks IDs, revision and complete candidates.", "Active/invited candidates can be assigned; filters and shared links never enroll students.", "Select/Clear matching leaves nonmatching selections unchanged."],
+      "failure_retry": ["Failed roster or directory load prevents saving; retry reloads both.", "Unavailable selected entries, including filtered-out ones, must be explicitly removed.", "Ordinary save errors preserve draft; 409 locks editing until Reload saved roster, which discards unsaved selections.", "Switch/close with dirty state prompts discard; saves block closing, and stale reads abort.", "Main 401/403/404/422/409/503 remain distinct; prior chats/in-flight responses are not deleted or interrupted by revocation."],
+      "classification": "optional",
+      "ui_only": true,
+      "implementation_scope": "Standalone admin UI only. Main API handlers and persistence are external contracts, not admin handlers.",
+      "handlers": [],
+      "source_refs": [
+        {"path": "Admin-Dashboard/frontend/src/components/StudentAssignmentsDialog.tsx", "symbol": "StudentAssignmentsDialog"},
+        {"path": "Admin-Dashboard/frontend/src/components/StudentAssignmentsDialog.tsx", "symbol": "StudentRosterEditor"},
+        {"path": "Admin-Dashboard/frontend/src/lib/useStudentAssignmentAccess.ts", "symbol": "useStudentAssignmentAccess"},
+        {"path": "Admin-Dashboard/frontend/src/lib/studentAssignmentsApi.ts", "symbol": "getStudentAssignmentPermission"},
+        {"path": "Admin-Dashboard/frontend/src/lib/studentAssignmentsApi.ts", "symbol": "saveStudentRoster"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/routers/identity.py", "symbol": "create_identity_router"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/services/identity.py", "symbol": "IdentityService"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/main.py", "symbol": "get_user"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/routers/agent_membership.py", "symbol": "get_student_assignments"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/routers/agent_membership.py", "symbol": "set_student_assignments"}
+      ],
+      "doc_refs": ["Admin-Dashboard/README.md", "Admin-Dashboard/frontend/src/components/README.md", "Agentic Shiksha Platform/Backend/backend/README.md"]
+    },
+    {
+      "id": "admin-course-placement",
+      "title": "Opt-in main-API course placement editor",
+      "doc": "admin.md#admin-course-placement",
+      "actors": ["Main-verified active administrator/superadministrator"],
+      "agent_tools": ["CoursePlacementDialog", "getCoursePlacement/saveCoursePlacement", "Main get_course_placement/set_course_placement contract; no model"],
+      "permissions": ["Same exact assignment feature flag and browser active-main-admin precheck as roster controls.", "The main identity/profile probes do not independently enforce active/admin access; placement route AdminUser dependencies provide that server boundary.", "Main placement routes use ETag-preconditioned patches; admin profile/directory permissions are separate."],
+      "state_changes": ["Browser: all-TA selection, directory/course suggestions, exact-name fields, discard and reload state.", "Main storage: patch agents_v1 institute and department, clear departmentId; teacher/student membership arrays stay unchanged.", "Browser: update courseAffiliations and directory revision, clear dashboard cache and reset invalidated analytics selection."],
+      "success": ["GET supplies saved pair/unassigned and revision; PUT accepts both fields filled or both empty with revision.", "Unassigned and other-college TAs remain selectable; successful clearing removes placement only."],
+      "failure_retry": ["Stale reads are aborted/epoch-checked; directory suggestion failure still permits exact free text.", "Invalid/mismatched response or main 401/403/404/422/503 becomes visible error.", "409 requires reload for a fresh revision, but this UI lacks the roster editor's dedicated conflict lock.", "Reload discards draft; dirty switch/close prompts discard; saving prevents closing; no automatic write retry or undo."],
+      "classification": "optional",
+      "ui_only": true,
+      "implementation_scope": "Standalone admin UI only. Placement GET/PUT are owned by main API and are not counted as admin handlers.",
+      "handlers": [],
+      "source_refs": [
+        {"path": "Admin-Dashboard/frontend/src/components/CoursePlacementDialog.tsx", "symbol": "CoursePlacementDialog"},
+        {"path": "Admin-Dashboard/frontend/src/lib/studentAssignmentsApi.ts", "symbol": "getCoursePlacement"},
+        {"path": "Admin-Dashboard/frontend/src/lib/studentAssignmentsApi.ts", "symbol": "saveCoursePlacement"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/routers/course_placement.py", "symbol": "get_course_placement"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/routers/course_placement.py", "symbol": "set_course_placement"},
+        {"path": "Agentic Shiksha Platform/Backend/backend/schemas/course_placement.py", "symbol": "CoursePlacementUpdate"}
+      ],
+      "doc_refs": ["Admin-Dashboard/frontend/README.md", "Admin-Dashboard/backend/README.md", "Admin-Dashboard/README.md"]
+    },
+    {
+      "id": "admin-analytics-chat",
+      "title": "Analytics chat, local tools, and message artifacts",
+      "doc": "admin.md#admin-analytics-chat",
+      "actors": ["Analytics operator", "Configured remote analytics agent", "Local tool dispatcher"],
+      "agent_tools": ["LOGGING_AGENT_NAME at AZURE_AI_PROJECT_ENDPOINT; remote model/definition unverified", "list_agents", "list_all_students", "get_student_progress", "get_agent_overview", "add_message", "logging_agent_chat.chat_stream"],
+      "permissions": ["No admin session, course scope or conversation-ownership check.", "Selected UI filters enable Ask Agent but are not passed as enforced scope in the text/conversation payload.", "Name guard replaces current display-name words only; output/tool data is not comprehensively anonymized."],
+      "state_changes": ["Remote: create/reuse Foundry conversation and streamed responses/tool-output follow-ups.", "Process: cached credential/clients; local tools read Cosmos only.", "Browser: component-memory messages/conversation ID, abort controller, Markdown/copy/scroll state; no persisted admin chat history."],
+      "success": ["POST stream accepts text and conversation_id or thread_id alias; explicit OPTIONS handler is also mounted.", "SSE carries ID, text/message-block events, done/error; plain text has fallback formatting.", "Sanitized Markdown/math/tables/code, clipboard copying, HTTP(S) links and lazy browser images are supported.", "Unknown tool names receive acknowledgement only; remote model/tools are not inferred from branding."],
+      "failure_retry": ["Empty text is 400; stream errors are generic Internal error, while tool error text can feed the model.", "Malformed SSE JSON is skipped; incremental plus final message blocks can duplicate appended content.", "Stop aborts browser fetch, not remote work; Close merely hides the pane.", "No wired regeneration, edit, new-chat reset, automatic replay or general tool-round cap.", "Thumbs/More buttons have no handlers; no feedback write or asset-generation capability is implied.", "Unfiltered list_all_students reads legacy learning-state records in users_v1, unlike per-course learning_states_v1."],
+      "classification": "current",
+      "handlers": [
+        "Admin-Dashboard/backend/admin_backend/routers/chat.py::logging_agent_chat_options",
+        "Admin-Dashboard/backend/admin_backend/routers/chat.py::logging_agent_chat_stream"
+      ],
+      "source_refs": [
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/chat.py", "symbol": "logging_agent_chat_stream"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/logging_agent_chat.py", "symbol": "chat_stream"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/logging_agent_tools.py", "symbol": "TOOL_HANDLERS"},
+        {"path": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx", "symbol": "useLoggingChat"},
+        {"path": "Admin-Dashboard/frontend/src/lib/nameGuard.ts", "symbol": "applyNameGuard"},
+        {"path": "Admin-Dashboard/frontend/src/components/chat/UnifiedChatContainer.tsx", "symbol": "UnifiedChatContainer"},
+        {"path": "Admin-Dashboard/frontend/src/features/chat/ChatPane.tsx", "symbol": "ChatPane"},
+        {"path": "Admin-Dashboard/frontend/src/features/chat/ChatBubble.tsx", "symbol": "ChatBubble"},
+        {"path": "Admin-Dashboard/frontend/src/components/common/Markdown.tsx", "symbol": "Markdown"}
+      ],
+      "doc_refs": ["Admin-Dashboard/backend/README.md", "Admin-Dashboard/frontend/src/features/chat/README.md", "Admin-Dashboard/frontend/src/components/common/README.md"]
+    },
+    {
+      "id": "admin-institute-department-research",
+      "title": "Institute and department research jobs and result inspection",
+      "doc": "admin.md#admin-institute-department-research",
+      "actors": ["Directory research operator", "Research API client", "In-process FastAPI BackgroundTasks worker"],
+      "agent_tools": ["INSTITUTE_RESEARCH_AGENT_NAME at PROJECT_ENDPOINT; remote model/tools unverified", "ResearchService.run_institute/run_department", "integrations.research_agent.research_response", "services.research_json.parse_research_json", "integrations.research_storage Blob helpers"],
+      "permissions": ["No caller session/admin enforcement; UI super-admin controls are cosmetic.", "Process identity may create/write the configured account's institute-research-v2 container."],
+      "state_changes": ["Remote: each ResearchService job creates a Foundry conversation/response using inline profile prompts and optional instructions via the injected response integration.", "Storage: overwrite researching/completed/failed/cancelled JSON at institutes/{sanitized_name}.json or departments/{sanitized_institute}/{sanitized_department}.json in institute-research-v2.", "Process: response integration now context-manages DefaultAzureCredential/AIProjectClient; response and storage integrations no longer use the optional monorepo credential fallback.", "Process: successful research reads/writes still cache indefinitely; background work is not durable.", "Browser: bulk status load, per-key 15-second polling, prompt dialog, collapsible result viewer and retry/cancel labels."],
+      "success": ["Bulk/status reads return stored data or not_started; researching suppresses a normal duplicate trigger via already_researching.", "Nonempty JSON object parsing/repair produces a completed profile and timing fields, not strict full-schema validation.", "View and Re-Research are wired; viewer rerun omits prior instructions."],
+      "failure_retry": ["Blank names/pairs return 400; model/parse failure writes failed when storage succeeds.", "Cancel only overwrites a status marker and stops this browser poll; it does not cancel the remote call or worker, which can later overwrite cancelled.", "Trigger check and marker save are non-atomic; sanitized names can collide; process restart has no durable resume.", "Blob read failures look like not_started and ignored save=False can acknowledge nondurable work.", "Polling ignores errors, stops normally only on completed/failed, and may not notice cancellation by another client.", "No TTL/multi-process cache coherence; viewer rerun has no explicit rejection handler; retry is manual."],
+      "classification": "current",
+      "handlers": [
+        "Admin-Dashboard/backend/admin_backend/routers/research.py::api_bulk_research_status",
+        "Admin-Dashboard/backend/admin_backend/routers/research.py::api_trigger_institute_research",
+        "Admin-Dashboard/backend/admin_backend/routers/research.py::api_get_institute_research",
+        "Admin-Dashboard/backend/admin_backend/routers/research.py::api_trigger_department_research",
+        "Admin-Dashboard/backend/admin_backend/routers/research.py::api_get_department_research",
+        "Admin-Dashboard/backend/admin_backend/routers/research.py::api_cancel_institute_research",
+        "Admin-Dashboard/backend/admin_backend/routers/research.py::api_cancel_department_research"
+      ],
+      "source_refs": [
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/research.py", "symbol": "api_bulk_research_status"},
+        {"path": "Admin-Dashboard/backend/admin_backend/services/research.py", "symbol": "ResearchService"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/research_agent.py", "symbol": "research_response"},
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/research.py", "symbol": "api_cancel_institute_research"},
+        {"path": "Admin-Dashboard/backend/admin_backend/services/research_json.py", "symbol": "parse_research_json"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/research_storage.py", "symbol": "_sanitize_blob_key"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/research_storage.py", "symbol": "save_institute_research"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/research_storage.py", "symbol": "save_department_research"},
+        {"path": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx", "symbol": "pollResearchStatus"},
+        {"path": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx", "symbol": "ResearchDataRenderer"}
+      ],
+      "doc_refs": ["Admin-Dashboard/backend/README.md", "Admin-Dashboard/frontend/src/pages/README.md", "docs/research.md"]
+    },
+    {
+      "id": "admin-feedback-assets",
+      "title": "Feedback review and attachment delivery",
+      "doc": "admin.md#admin-feedback-assets",
+      "actors": ["Feedback reviewer", "Feedback/attachment API client"],
+      "agent_tools": ["integrations.cosmos_queries.list_feedback/get_feedback_stats", "AttachmentService.resolve", "integrations.attachments.download_attachment; no sentiment/model inference"],
+      "permissions": ["No session, administrator, feedback-owner or attachment-owner check.", "Proxy validates HTTPS, exact configured storage hostname, feedback-attachments container prefix and no .. path segment; these are not caller authorization."],
+      "state_changes": ["Storage: read feedback_v1 and configured-account Blob attachments, without submission/upload/deletion.", "Process: extracted AttachmentService resolves the URL and download_attachment now context-manages credential/blob clients; proxy still buffers content and returns streaming bytes with public one-day cache headers.", "Browser: category/sentiment filters, attachment list, image/PDF overlay or other-file new tab."],
+      "success": ["GET feedback returns stored sentiment/category, text, names/emails and URLs; current UI asks limit=500.", "Attachment proxy serves stored content type/length; image/PDF preview and other-file viewing/download are wired."],
+      "failure_retry": ["Helper max_item_count is a page size while iteration exhausts pages, not a guaranteed overall record limit.", "Cosmos exceptions can be swallowed into empty feedback/stats; HTTP failures show an error view with remount/reload recovery.", "Bad URL/path returns 400; Blob errors become 500 with exception detail.", "No explicit viewer load-retry/cancel API or general admin asset-library/storage browser exists."],
+      "classification": "current",
+      "handlers": [
+        "Admin-Dashboard/backend/admin_backend/routers/feedback.py::get_feedback",
+        "Admin-Dashboard/backend/admin_backend/routers/feedback.py::proxy_blob"
+      ],
+      "source_refs": [
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/feedback.py", "symbol": "get_feedback"},
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/feedback.py", "symbol": "proxy_blob"},
+        {"path": "Admin-Dashboard/backend/admin_backend/services/attachments.py", "symbol": "AttachmentService"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/attachments.py", "symbol": "download_attachment"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "list_feedback"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "get_feedback_stats"},
+        {"path": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx", "symbol": "FeedbackSection"}
+      ],
+      "doc_refs": ["Admin-Dashboard/README.md", "Admin-Dashboard/backend/README.md", "Admin-Dashboard/frontend/src/pages/README.md"]
+    },
+    {
+      "id": "admin-evaluation-on-demand",
+      "title": "API-only on-demand groundedness and RAG judging",
+      "doc": "admin.md#admin-evaluation-on-demand",
+      "actors": ["Evaluation API client"],
+      "agent_tools": ["integrations.groundedness_evaluator.evaluate_groundedness", "EvaluationService.batch", "Azure GroundednessEvaluator SDK path (declared runtime dependency; execution unverified)", "AZURE_EVAL_MODEL direct Foundry model deployment", "evaluate_rag_metrics", "SearchClient semantic retrieval via COMMON_INDEX_NAME"],
+      "permissions": ["No admin caller/session/scope authorization.", "Evaluation configuration is required by helper import even if the scheduled evaluator is disabled."],
+      "state_changes": ["Remote: optional Search read and model/SDK judging incur usage.", "Process: blocking evaluation runs through asyncio.to_thread; batch rows are sequential.", "Storage: on-demand endpoints do not save evaluation records or learner mastery."],
+      "success": ["Single/batch groundedness supports method convention sdk/llm/auto; auto or other strings fall through to SDK-to-LLM fallback.", "Combined RAG uses three LLM judges and averages non-null metrics.", "Results concern prompt-truncated context/response and intended 1-5 scores, not strict score-schema or learning validation."],
+      "failure_retry": ["Single groundedness without context returns error/null inside ok=true; RAG without context returns 400.", "Empty batch is 400; individual batch errors retain ok=false results and other rows continue.", "SDK exceptions trigger auto fallback; partial combined failures become null metric scores/reasons.", "Other errors can return 500/detail; no automatic transient retry, persisted request job, idempotency or cancellation route."],
+      "classification": "current",
+      "surface": "api-only",
+      "handlers": [
+        "Admin-Dashboard/backend/admin_backend/routers/evaluation.py::evaluate_groundedness_endpoint",
+        "Admin-Dashboard/backend/admin_backend/routers/evaluation.py::evaluate_groundedness_batch",
+        "Admin-Dashboard/backend/admin_backend/routers/evaluation.py::evaluate_rag_endpoint"
+      ],
+      "source_refs": [
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/evaluation.py", "symbol": "evaluate_groundedness_endpoint"},
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/evaluation.py", "symbol": "evaluate_groundedness_batch"},
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/evaluation.py", "symbol": "evaluate_rag_endpoint"},
+        {"path": "Admin-Dashboard/backend/admin_backend/services/evaluation.py", "symbol": "EvaluationService"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/groundedness_evaluator.py", "symbol": "evaluate_groundedness"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/groundedness_evaluator.py", "symbol": "evaluate_rag_metrics"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/groundedness_evaluator.py", "symbol": "_retrieve_context_with_chunks"}
+      ],
+      "doc_refs": ["docs/evaluation.md", "Admin-Dashboard/backend/README.md"]
+    },
+    {
+      "id": "admin-evaluation-results",
+      "title": "Stored evaluation reads and the dormant quality panel",
+      "doc": "admin.md#admin-evaluation-results",
+      "actors": ["Stored-evaluation API client", "Analytics operator viewing the placeholder panel"],
+      "agent_tools": ["EvaluationService.for_session/for_thread/all_results and summarize", "Cosmos groundedness_evaluations_v1 read helpers", "GroundednessSection; no model invocation"],
+      "permissions": ["No caller/session/owner/course authorization on stored evaluation reads.", "Returned records can include query/response/context, retrieved content and user/session references."],
+      "state_changes": ["Storage: read single document/session partition, session list, thread list or declared cross-partition all route.", "Browser: current fetchGroundedness is no-op; evaluations/summary remain empty/null and Refresh issues no request.", "Compatibility renderer retains expansion and Show all/less state, not a currently loaded dataset."],
+      "success": ["Declared result handlers return stored records, averages and all-route score distribution when reached.", "This inventory includes the decorated get_all_groundedness handler without falsely claiming current UI use or reachability."],
+      "failure_retry": ["GET /groundedness/{message_group_id} precedes /groundedness/all; normal route order shadows the latter and /all without session_id validates against the earlier handler.", "Single missing/unreadable record yields 404; list storage failures can become empty results.", "No groundedness evaluations yet in current UI is not evidence that stored data is absent.", "No active UI retry/load, rejudge or deletion contract; direct clients choose whether to retry."],
+      "classification": "mixed",
+      "handlers": [
+        "Admin-Dashboard/backend/admin_backend/routers/evaluation.py::get_groundedness_result",
+        "Admin-Dashboard/backend/admin_backend/routers/evaluation.py::get_session_groundedness",
+        "Admin-Dashboard/backend/admin_backend/routers/evaluation.py::get_thread_groundedness",
+        "Admin-Dashboard/backend/admin_backend/routers/evaluation.py::get_all_groundedness"
+      ],
+      "source_refs": [
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/evaluation.py", "symbol": "get_groundedness_result"},
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/evaluation.py", "symbol": "get_session_groundedness"},
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/evaluation.py", "symbol": "get_thread_groundedness"},
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/evaluation.py", "symbol": "get_all_groundedness"},
+        {"path": "Admin-Dashboard/backend/admin_backend/services/evaluation.py", "symbol": "EvaluationService"},
+        {"path": "Admin-Dashboard/backend/admin_backend/services/evaluation.py", "symbol": "summarize"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "get_groundedness_evaluation"},
+        {"path": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx", "symbol": "fetchGroundedness"},
+        {"path": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx", "symbol": "GroundednessSection"},
+        {"path": "Admin-Dashboard/frontend/src/lib/dashboardApi.ts", "symbol": "getAllGroundednessEvaluations"}
+      ],
+      "doc_refs": ["docs/evaluation.md", "Admin-Dashboard/frontend/src/pages/README.md", "Admin-Dashboard/backend/README.md"]
+    },
+    {
+      "id": "admin-evaluation-scheduler",
+      "title": "Manual stored evaluations and the optional scheduled evaluator",
+      "doc": "admin.md#admin-evaluation-scheduler",
+      "actors": ["Manual evaluation API client", "Optional background evaluator process"],
+      "agent_tools": ["EvaluationService.run_periodic/evaluate_recent", "admin_backend.app.lifespan", "asyncio task and asyncio.to_thread", "integrations.groundedness_evaluator.evaluate_and_store_groundedness", "AZURE_EVAL_MODEL direct model judges and semantic Search"],
+      "permissions": ["Manual trigger has no caller authorization; scheduled work uses process credentials across users/courses.", "EVAL_ENABLED defaults false; configuration, not an admin UI control, enables scheduled work."],
+      "state_changes": ["Process: sleep/scan loop defaults to 5-second interval, 24-hour lookback and 50-item batch; thread/course-session resolution caches now belong to the injected EvaluationService instance.", "Storage: read message groups and re-retrieve context; upsert groundedness_evaluations_v1 with messageGroupId ID and sessionId partition.", "Remote: three LLM metrics incur model/Search usage; stored method argument does not switch this path to SDK judging."],
+      "success": ["Manual trigger requires messageGroupId/sessionId/threadId/userId and returns the stored evaluation.", "Scheduled discovery fetches twice the batch limit, excludes/deduplicates evaluated groups, then processes the bounded batch.", "Stored records include limited query/response/context, chunks, scores/reasons/claims and time, not learner mastery updates."],
+      "failure_retry": ["Missing manual fields return 400; intended 422 on no result is caught by the broad handler except and becomes 500.", "No session/context can lead to placeholder context, and null metric records can still be stored and skipped next cycle.", "Per-item errors log; unevaluated records may be retried next scan; unexpected outer errors back off 30 seconds. Thread-resolution exceptions now log, although adapter failures may still collapse to empty values.", "No durable scheduled job, resume ledger, distributed lock, exactly-once guarantee or automatic rejudge; manual calls may overwrite.", "Lifespan finally cancels/awaits coroutine even on exceptional exits but cannot guarantee cancellation of a blocking worker thread or remote call."],
+      "classification": "mixed",
+      "handlers": ["Admin-Dashboard/backend/admin_backend/routers/evaluation.py::trigger_groundedness_evaluation"],
+      "source_refs": [
+        {"path": "Admin-Dashboard/backend/admin_backend/routers/evaluation.py", "symbol": "trigger_groundedness_evaluation"},
+        {"path": "Admin-Dashboard/backend/admin_backend/services/evaluation.py", "symbol": "EvaluationService"},
+        {"path": "Admin-Dashboard/backend/admin_backend/app.py", "symbol": "lifespan"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/groundedness_evaluator.py", "symbol": "evaluate_and_store_groundedness"},
+        {"path": "Admin-Dashboard/backend/admin_backend/integrations/cosmos_queries.py", "symbol": "save_groundedness_evaluation"},
+        {"path": "Admin-Dashboard/backend/admin_backend/core/settings.py", "symbol": "RuntimeSettings"}
+      ],
+      "doc_refs": ["docs/evaluation.md", "Admin-Dashboard/backend/README.md", "Admin-Dashboard/backend/tests/README.md"]
+    }
+  ],
+  "ui_routes": [
+    {"path": "/overview", "source": "Admin-Dashboard/frontend/src/App.tsx", "workflow_id": "admin-overview-reporting", "condition": "always", "screen": "DashboardView embeds OverviewContent"},
+    {"path": "/analytics", "source": "Admin-Dashboard/frontend/src/App.tsx", "workflow_id": "admin-course-analytics", "condition": "always", "screen": "DashboardView analytics, selected course and optional chat/dialogs"},
+    {"path": "/user-directory", "source": "Admin-Dashboard/frontend/src/App.tsx", "workflow_id": "admin-user-directory", "condition": "always", "screen": "DashboardView embeds UserDirectorySection"},
+    {"path": "/feedback", "source": "Admin-Dashboard/frontend/src/App.tsx", "workflow_id": "admin-feedback-assets", "condition": "always", "screen": "DashboardView embeds FeedbackSection"},
+    {"path": "*", "source": "Admin-Dashboard/frontend/src/App.tsx", "workflow_id": "admin-navigation-session", "condition": "always", "kind": "redirect", "redirect_to": "/overview", "replace": true, "note": "Includes / and unknown paths; no separate root or dev-only route is declared."}
+  ],
+  "ui_actions": [
+    {
+      "id": "admin-shell-navigation",
+      "title": "Navigate dashboard screens and expand/collapse sidebar",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-navigation-session",
+      "api_targets": [],
+      "condition": "always",
+      "behavior": "History-replacing navigation and local sidebar/avatar state; no route authorization."
+    },
+    {
+      "id": "admin-session-synchronization",
+      "title": "Synchronize the shell's session label and profile",
+      "source": "Admin-Dashboard/frontend/src/lib/useAuth.ts",
+      "workflow_id": "admin-navigation-session",
+      "api_targets": [
+        {"service": "main", "method": "GET", "path": "/auth/me"},
+        {"service": "admin", "method": "GET", "path": "/api/user/{user_id}"}
+      ],
+      "condition": "Shell mount when hook synchronization is not already satisfied/skipped",
+      "behavior": "Relative /auth development proxy is separate from API_BASE_URL. Retained profile PUT helper is unmounted and is not a supported provisioning action; no login/logout controls are mounted."
+    },
+    {
+      "id": "admin-overview-load-sort",
+      "title": "Load and sort all-course usage and totals",
+      "source": "Admin-Dashboard/frontend/src/pages/OverviewPage.tsx",
+      "workflow_id": "admin-overview-reporting",
+      "api_targets": [{"service": "admin", "method": "GET", "path": "/api/dashboard/overview/courses"}],
+      "condition": "/overview",
+      "behavior": "Column sorting and Graph Memory availability badges are local; failure is an error view, not zero totals."
+    },
+    {
+      "id": "admin-overview-period-filter",
+      "title": "Choose Today, This Week, This Month or Custom dates and retry period statistics",
+      "source": "Admin-Dashboard/frontend/src/pages/OverviewPage.tsx",
+      "workflow_id": "admin-overview-reporting",
+      "api_targets": [{"service": "admin", "method": "GET", "path": "/api/dashboard/overview/today"}],
+      "condition": "/overview",
+      "behavior": "Uses start_date/end_date query parameters; Custom Go submits explicitly. Error clears cards to unavailable and exposes Retry."
+    },
+    {
+      "id": "admin-course-token-dialog",
+      "title": "Inspect and search Token Usage by Course",
+      "source": "Admin-Dashboard/frontend/src/pages/OverviewPage.tsx",
+      "workflow_id": "admin-overview-reporting",
+      "api_targets": [],
+      "condition": "Total Tokens card after overview load",
+      "behavior": "Opens positive-token course rows from existing data; search does not change original share denominator; closing has no persistence."
+    },
+    {
+      "id": "admin-student-usage-dialogs",
+      "title": "Open per-student token and round charts",
+      "source": "Admin-Dashboard/frontend/src/pages/OverviewPage.tsx",
+      "workflow_id": "admin-overview-reporting",
+      "api_targets": [{"service": "admin", "method": "GET", "path": "/api/dashboard/overview/tokens/per-student"}],
+      "condition": "Average token/round cell for a loaded overview course",
+      "behavior": "Sends agent_id; dialogs distinguish loading, error and empty data, and show local chart tooltips. Reopening retries."
+    },
+    {
+      "id": "admin-image-quota-edit",
+      "title": "Edit shared medium/low allowance, preview costs, save or reset draft",
+      "source": "Admin-Dashboard/frontend/src/components/ImageQuotaCard.tsx",
+      "workflow_id": "admin-image-quota",
+      "api_targets": [
+        {"service": "admin", "method": "GET", "path": "/api/dashboard/image-quota"},
+        {"service": "admin", "method": "PUT", "path": "/api/dashboard/image-quota"}
+      ],
+      "condition": "/overview after successful overview load",
+      "behavior": "Save changes shared config; Reset is local. Failed saves preserve inputs; no role gate or version merge."
+    },
+    {
+      "id": "admin-analytics-course-filters",
+      "title": "Load course choices and select institution, department and TA",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-course-analytics",
+      "api_targets": [
+        {"service": "admin", "method": "GET", "path": "/api/dashboard/agents"},
+        {"service": "admin", "method": "GET", "path": "/api/dashboard/agents/{agent_name}/overview"}
+      ],
+      "condition": "/analytics; agent list also loads on DashboardView mount",
+      "behavior": "Parent filters clear child selections/data; course ID fills agent_name; explicit paired placement filter prevents all-course fallback."
+    },
+    {
+      "id": "admin-analytics-student-detail",
+      "title": "Expand/collapse a student's topic breakdown",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-course-analytics",
+      "api_targets": [{"service": "admin", "method": "GET", "path": "/api/dashboard/agents/{agent_name}/students/{user_id}"}],
+      "condition": "Selected analytics course with legacy student summaries",
+      "behavior": "Read-only topic groups; collapse clears local detail, reopening reloads and failures use shared error banner."
+    },
+    {
+      "id": "admin-directory-filter-tree",
+      "title": "Load, search and filter the affiliation-aware directory tree",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-user-directory",
+      "api_targets": [{"service": "admin", "method": "GET", "path": "/api/directory"}],
+      "condition": "/user-directory",
+      "behavior": "Role/institute/department/search and group expansion preserve canonical users and active affiliation; complete affiliation pairs drive branches."
+    },
+    {
+      "id": "admin-directory-course-grouping",
+      "title": "Read and retry per-course teacher/student grouping",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-user-directory",
+      "api_targets": [
+        {"service": "admin", "method": "GET", "path": "/api/dashboard/agents/{agent_id}/teachers"},
+        {"service": "main", "method": "GET", "path": "/api/agents/{agent_id}/students"}
+      ],
+      "condition": "VITE_STUDENT_ASSIGNMENTS_ENABLED === 'true' and fresh main active admin/superadmin permission",
+      "behavior": "Four bounded browser loaders, abort on invalidation; assignments-unavailable keeps users visible; Retry reloads without mutating rosters."
+    },
+    {
+      "id": "admin-add-user",
+      "title": "Add a directory user with optional course assignment and assignment-only retry",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-user-invitations-import",
+      "api_targets": [
+        {"service": "admin", "method": "POST", "path": "/api/directory"},
+        {"service": "main", "method": "GET", "path": "/auth/me"},
+        {"service": "main", "method": "GET", "path": "/api/user/{user_id}"},
+        {"service": "main", "method": "GET", "path": "/api/agents/{agent_id}/students"},
+        {"service": "main", "method": "POST", "path": "/api/agents/{agent_id}/members"}
+      ],
+      "condition": "Directory invite always available under cosmetic admin flags; main targets only for optional TA selection with verified access",
+      "behavior": "Require email/institute/department in UI; preserve savedUser after partial success; student candidate lookup only for student role, admin remains directory-only."
+    },
+    {
+      "id": "admin-user-csv-import",
+      "title": "Import user CSV into dedicated college/department with optional TA",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-user-invitations-import",
+      "api_targets": [
+        {"service": "admin", "method": "POST", "path": "/api/directory"},
+        {"service": "main", "method": "GET", "path": "/auth/me"},
+        {"service": "main", "method": "GET", "path": "/api/user/{user_id}"},
+        {"service": "main", "method": "GET", "path": "/api/agents/{agent_id}/students"},
+        {"service": "main", "method": "POST", "path": "/api/agents/{agent_id}/members"}
+      ],
+      "condition": "Exact assignment flag true and verified main active admin/superadmin, including no-TA user imports",
+      "behavior": "Only name,email,role; one line per record, per-row counters/errors; no TA means no main membership write. Re-import failed assignment row explicitly; no rollback."
+    },
+    {
+      "id": "admin-csv-template-download",
+      "title": "Preview and download user, institution and department CSV templates",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-user-invitations-import",
+      "api_targets": [],
+      "condition": "Corresponding Add dialog's View Template",
+      "behavior": "Creates a local CSV Blob/object URL, downloads and revokes URL; no server template asset or record upload occurs during preview."
+    },
+    {
+      "id": "admin-edit-user-role",
+      "title": "Edit canonical name, role and active affiliation fields",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-user-role-profile-management",
+      "api_targets": [{"service": "admin", "method": "PATCH", "path": "/api/directory/{user_id}"}],
+      "condition": "User row Edit; canEdit currently grants cosmetic super-admin privileges",
+      "behavior": "Save updates directory; Cancel discards local draft, inline failure allows correction/retry; no server role-transition check."
+    },
+    {
+      "id": "admin-remove-user",
+      "title": "Confirm or cancel directory-user removal",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-user-role-profile-management",
+      "api_targets": [{"service": "admin", "method": "DELETE", "path": "/api/directory/{user_id}"}],
+      "condition": "User row Remove except configured cosmetic protected email",
+      "behavior": "Successful UI removal is not a membership/chat cascade; errors stay in confirmation. Server has no corresponding protected-email guard."
+    },
+    {
+      "id": "admin-local-organization-create-import",
+      "title": "Add/import local institution and department choices",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-organization-directory",
+      "api_targets": [],
+      "condition": "Directory Add Institution/Add Department under cosmetic admin flags",
+      "behavior": "Single-entry forms and organization CSV modes populate in-memory extra registries only; page reload loses unattached choices."
+    },
+    {
+      "id": "admin-organization-rename-delete",
+      "title": "Rename or confirm deletion of institution/department fields",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-organization-directory",
+      "api_targets": [
+        {"service": "admin", "method": "POST", "path": "/api/directory/institutes/rename"},
+        {"service": "admin", "method": "POST", "path": "/api/directory/institutes/delete"},
+        {"service": "admin", "method": "POST", "path": "/api/directory/departments/rename"},
+        {"service": "admin", "method": "POST", "path": "/api/directory/departments/delete"}
+      ],
+      "condition": "Directory branch controls under cosmetic super-admin flag",
+      "behavior": "Blank UI requests disabled; errors log and dialog remains; operations update top-level fields only, not affiliation arrays, placement or research keys."
+    },
+    {
+      "id": "admin-transfer-course-owner",
+      "title": "Select and transfer ownership of the analytics TA",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-course-ownership-teachers",
+      "api_targets": [{"service": "admin", "method": "POST", "path": "/api/dashboard/agents/{agent_id}/transfer-ownership"}],
+      "condition": "Selected analytics course; no verified assignment permission requirement",
+      "behavior": "Teacher/admin UI choices; success/failure alerts and Cancel. Admin route validates existence only, no version/caller check."
+    },
+    {
+      "id": "admin-replace-course-teachers",
+      "title": "Load and replace assigned teachers while retaining owner",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-course-ownership-teachers",
+      "api_targets": [
+        {"service": "admin", "method": "GET", "path": "/api/dashboard/agents/{agent_id}/teachers"},
+        {"service": "admin", "method": "POST", "path": "/api/dashboard/agents/{agent_id}/teachers"}
+      ],
+      "condition": "Selected analytics course; no verified assignment permission requirement",
+      "behavior": "Owner checkbox disabled; load failure closes, save failure retains draft. This full replacement is not main additive members."
+    },
+    {
+      "id": "admin-assignment-permission-check",
+      "title": "Verify or retry main-API assignment permissions",
+      "source": "Admin-Dashboard/frontend/src/lib/useStudentAssignmentAccess.ts",
+      "workflow_id": "admin-student-roster",
+      "api_targets": [
+        {"service": "main", "method": "GET", "path": "/auth/me"},
+        {"service": "main", "method": "GET", "path": "/api/user/{user_id}"}
+      ],
+      "condition": "Directory or Analytics and VITE_STUDENT_ASSIGNMENTS_ENABLED === 'true'",
+      "behavior": "Browser combines main JWT identity with a legacy unguarded profile read and checks active admin/superadmin; main mutation dependencies, not these probes, enforce authorization. Cookies/no-store and stale-check aborts gate roster, placement, imports and grouping."
+    },
+    {
+      "id": "admin-roster-open-load",
+      "title": "Open a TA roster and retry loading candidates plus directory",
+      "source": "Admin-Dashboard/frontend/src/components/StudentAssignmentsDialog.tsx",
+      "workflow_id": "admin-student-roster",
+      "api_targets": [
+        {"service": "main", "method": "GET", "path": "/api/agents/{agent_id}/students"},
+        {"service": "admin", "method": "GET", "path": "/api/directory"}
+      ],
+      "condition": "Verified optional assignment access",
+      "behavior": "Both responses required; malformed/missing candidates or directory failure blocks edits/saving; load aborts on TA switch/unmount."
+    },
+    {
+      "id": "admin-roster-filter-select",
+      "title": "Filter students, select/clear matching and review unavailable selections",
+      "source": "Admin-Dashboard/frontend/src/components/StudentAssignmentsDialog.tsx",
+      "workflow_id": "admin-student-roster",
+      "api_targets": [],
+      "condition": "Loaded optional roster, not saving or conflict-locked",
+      "behavior": "Paired affiliation filtering does not enroll or move TA; hidden selections remain; unavailable selected entries block Save, with Clear filters recovery."
+    },
+    {
+      "id": "admin-roster-save-reload-discard",
+      "title": "Save/retry roster replacement, reload saved state or discard draft",
+      "source": "Admin-Dashboard/frontend/src/components/StudentAssignmentsDialog.tsx",
+      "workflow_id": "admin-student-roster",
+      "api_targets": [
+        {"service": "main", "method": "PUT", "path": "/api/agents/{agent_id}/students"},
+        {"service": "main", "method": "GET", "path": "/api/agents/{agent_id}/students"},
+        {"service": "admin", "method": "GET", "path": "/api/directory"}
+      ],
+      "condition": "Verified optional assignment access and validated loaded roster",
+      "behavior": "PUT student_ids/revision; empty list explicitly revokes. 409 requires reload; reload discards draft. Dirty switch/close prompts discard; active save blocks closing."
+    },
+    {
+      "id": "admin-placement-open-load",
+      "title": "Choose any TA and load saved department placement plus suggestions",
+      "source": "Admin-Dashboard/frontend/src/components/CoursePlacementDialog.tsx",
+      "workflow_id": "admin-course-placement",
+      "api_targets": [
+        {"service": "main", "method": "GET", "path": "/api/agents/{agent_id}/placement"},
+        {"service": "admin", "method": "GET", "path": "/api/directory"}
+      ],
+      "condition": "Verified optional assignment access",
+      "behavior": "Includes unassigned/out-of-scope TAs; failed suggestions allow exact free text; stale placement GETs abort."
+    },
+    {
+      "id": "admin-placement-save-clear-discard",
+      "title": "Save or clear TA placement, reload saved assignment, keep/discard changes",
+      "source": "Admin-Dashboard/frontend/src/components/CoursePlacementDialog.tsx",
+      "workflow_id": "admin-course-placement",
+      "api_targets": [
+        {"service": "main", "method": "PUT", "path": "/api/agents/{agent_id}/placement"},
+        {"service": "main", "method": "GET", "path": "/api/agents/{agent_id}/placement"},
+        {"service": "admin", "method": "GET", "path": "/api/directory"}
+      ],
+      "condition": "Verified optional assignment access and saved placement revision",
+      "behavior": "Both names or neither; membership unchanged. 409 requires fresh revision; reload discards draft; dirty close/switch prompts and saving blocks closing."
+    },
+    {
+      "id": "admin-chat-send-stop",
+      "title": "Open Ask Agent, choose suggestions, send/continue and stop the stream",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-analytics-chat",
+      "api_targets": [{"service": "admin", "method": "POST", "path": "/api/dashboard/logging-agent/chat/stream"}],
+      "condition": "Analytics institution, department and TA selected to open Ask Agent",
+      "behavior": "Sends name-guarded text and conversation ID, not enforced selection scope. Stop aborts local fetch; closing hides pane, no remote cancellation or regeneration."
+    },
+    {
+      "id": "admin-chat-render-copy-navigate",
+      "title": "Read Markdown artifacts, copy message/code, follow links and scroll",
+      "source": "Admin-Dashboard/frontend/src/components/common/Markdown.tsx",
+      "workflow_id": "admin-analytics-chat",
+      "api_targets": [],
+      "condition": "Rendered analytics chat content",
+      "behavior": "Sanitized Markdown/math/tables/code and lazy images; HTTP(S) links/browser image requests are direct external resources, not admin asset APIs. Copy/scroll are local. Good/Bad/More controls are inert."
+    },
+    {
+      "id": "admin-research-status-poll",
+      "title": "Load bulk research status and poll active jobs",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-institute-department-research",
+      "api_targets": [
+        {"service": "admin", "method": "POST", "path": "/api/dashboard/directory/research/bulk-status"},
+        {"service": "admin", "method": "GET", "path": "/api/dashboard/directory/institutes/research"},
+        {"service": "admin", "method": "GET", "path": "/api/dashboard/directory/departments/research"}
+      ],
+      "condition": "Loaded directory under cosmetic super-admin flag; interval for researching keys",
+      "behavior": "One bulk request then 15-second polls; completed/failed ends interval, errors ignored; unmount clears browser timers, not backend tasks."
+    },
+    {
+      "id": "admin-research-start-retry",
+      "title": "Enter optional research instructions and confirm initial/retry research",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-institute-department-research",
+      "api_targets": [
+        {"service": "admin", "method": "POST", "path": "/api/dashboard/directory/institutes/research"},
+        {"service": "admin", "method": "POST", "path": "/api/dashboard/directory/departments/research"}
+      ],
+      "condition": "Directory institute/department Research or Retry control",
+      "behavior": "Prompt Cancel sends nothing; confirm sets researching and starts polling. Request failure sets failed; only the configured research agent is invoked."
+    },
+    {
+      "id": "admin-research-view-rerun",
+      "title": "Inspect collapsible research results, close or Re-Research",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-institute-department-research",
+      "api_targets": [
+        {"service": "admin", "method": "GET", "path": "/api/dashboard/directory/institutes/research"},
+        {"service": "admin", "method": "GET", "path": "/api/dashboard/directory/departments/research"},
+        {"service": "admin", "method": "POST", "path": "/api/dashboard/directory/institutes/research"},
+        {"service": "admin", "method": "POST", "path": "/api/dashboard/directory/departments/research"}
+      ],
+      "condition": "Directory research result viewer",
+      "behavior": "GET populates structured sections or error; rerun omits prior instructions, parses viewer title for scope and has no explicit rejection handler."
+    },
+    {
+      "id": "admin-research-cancel",
+      "title": "Mark in-progress institute/department research cancelled",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-institute-department-research",
+      "api_targets": [
+        {"service": "admin", "method": "DELETE", "path": "/api/dashboard/directory/institutes/research"},
+        {"service": "admin", "method": "DELETE", "path": "/api/dashboard/directory/departments/research"}
+      ],
+      "condition": "Researching status control",
+      "behavior": "Clears local poll before request and changes saved marker; does not cancel actual worker/Foundry response and can later be overwritten."
+    },
+    {
+      "id": "admin-feedback-load-filter",
+      "title": "Load feedback/stats and filter sentiment/category",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-feedback-assets",
+      "api_targets": [{"service": "admin", "method": "GET", "path": "/api/dashboard/feedback"}],
+      "condition": "/feedback",
+      "behavior": "UI uses limit=500; local filters only; load errors require remount/reload and helper empty results can mask backend storage failure."
+    },
+    {
+      "id": "admin-feedback-attachments",
+      "title": "List attachments, view image/PDF overlays or open another file",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-feedback-assets",
+      "api_targets": [{"service": "admin", "method": "GET", "path": "/api/dashboard/blob/proxy"}],
+      "condition": "Feedback item has saved attachment URLs",
+      "behavior": "URL query selects a validated configured-account blob; image/PDF use img/iframe, other types open a tab; Close clears browser viewer state only."
+    },
+    {
+      "id": "admin-quality-panel-placeholder",
+      "title": "Show the current RAG Quality placeholder and no-op Refresh",
+      "source": "Admin-Dashboard/frontend/src/pages/DashboardView.tsx",
+      "workflow_id": "admin-evaluation-results",
+      "api_targets": [],
+      "condition": "Selected analytics course; fetchGroundedness is deliberately disabled",
+      "behavior": "No actual evaluation request. Compatibility query/response/claims expansion and Show all/less renderer has no populated data in the mounted app; not evidence of zero evaluations or an automatic evaluator."
+    }
+  ],
+  "exclusions": []
+}

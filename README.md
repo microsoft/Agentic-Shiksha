@@ -1,121 +1,239 @@
-# Agentic Shiksha
+<a href="docs/pedagogy/ekalaiva.md">
+  <img src="assets/images/research/shiksha-research-banner.svg" alt="Agentic Shiksha — From knowledge transmission to knowledge transformation." width="1200">
+</a>
 
-Agentic Shiksha is an AI-powered teaching-and-learning platform that operationalizes the
-Ekalaiva framework. It provides course-specific Teaching Assistant agents and lifelong
-personal-companion Lumens, aiming to shift education from knowledge *transmission* to
-knowledge *transformation*.
+<p>
+  <a href="#getting-started"><kbd>Get started</kbd></a>
+  <a href="#demos"><kbd>Demos</kbd></a>
+  <a href="docs/README.md"><kbd>Documentation</kbd></a>
+  <a href="docs/architecture.md"><kbd>Architecture</kbd></a>
+  <a href="docs/pedagogy/ekalaiva.md"><kbd>EKALAIVA</kbd></a>
+</p>
 
-> **Status:** research project. Interfaces and data models may change between releases.
+**Agentic Shiksha helps teachers build AI teaching assistants for their courses.**
+Teachers shape the course and review the teaching approach. The agents use course
+concepts, common misconceptions, and evidence from learner interactions to guide
+what to ask, explain, or practise next.
 
-## What it does
+The project draws on [Project Ekalaiva](docs/pedagogy/ekalaiva.md) and a central
+research question: **What changed in the learner’s understanding?**
 
-Rather than answering questions in isolation, each agent teaches against a course
-curriculum and tracks what a learner has actually understood.
+## The teaching approach
 
-- **Course TA agents** — grounded in the teacher's own materials via retrieval-augmented
-  generation, not general web knowledge.
-- **Threshold concepts** — the curriculum is modelled as threshold concepts (ideas that
-  are transformative and often troublesome). Progress is tracked per concept, and a
-  concept is only marked complete once the learner's misconceptions have been addressed.
-- **Structured output** — agents emit documents, quizzes, flashcards, challenges and
-  diagrams as first-class blocks rather than walls of chat text.
-- **Teacher dashboard** — usage, token analytics, groundedness evaluation and
-  per-student progress.
+A correct answer is useful evidence, but it does not tell the whole story. A
+learner might remember a procedure without understanding why it works, or explain
+an idea well but struggle to apply it in a different setting.
 
-## Architecture
+Agentic Shiksha is designed around four ideas:
 
-```
-Frontend (React + Vite)  ──►  Backend (FastAPI)  ──►  Microsoft Foundry Agents
-                                     │
-                                     ├──►  Azure AI Search   (course retrieval)
-                                     ├──►  Azure Cosmos DB   (chat, progress, identity)
-                                     └──►  Azure Blob Storage (course materials, media)
-```
+- **Teachers shape the course.** Course creation includes teacher review of the
+  concepts, troublesome ideas, and teaching instructions that guide the assistant.
+- **Teach for understanding.** Threshold concepts—the ideas that change how a
+  learner understands a subject—give the teaching a direction beyond topic coverage.
+- **Use evidence to adapt.** Learner responses and unresolved misconceptions
+  inform the next question, explanation, or activity.
+- **Follow learning over time.** Learner memory connects observations across
+  sessions so progress and persistent gaps can be examined.
 
-| Path | Purpose |
+This explores the course-level teaching part of Ekalaiva’s broader vision for
+education. Read the [pedagogy guide](docs/pedagogy/ekalaiva.md) for the framework,
+its relationship to the implementation, and Swami Manohar’s original essays.
+
+## Demos
+
+Two short walkthroughs show the teacher and learner experiences.
+
+| Build a course assistant | Learn with a course assistant |
 | --- | --- |
-| `Backend/` | FastAPI service. Entry point `backend/main.py`, served as `uvicorn backend.main:app`. |
-| `Backend/agent_tools/` | Agent tools — `custom/` are function tools, `hosted/` wrap Foundry-hosted tools. |
-| `Backend/azure_services/` | Azure integrations: agents, persistence, storage, search, evaluation. |
-| `Backend/prompt_store/` | Agent instructions. Only `core_agent_prompts/` is loaded at runtime. |
-| `Frontend/` | React 19 + TypeScript + Vite client. |
-| `Dashboard/` | Teacher and admin dashboards (separate services). |
+| [![Teacher course builder](assets/images/motion/shiksha-course-setup-tutorial.png)](assets/web/motion/shiksha-course-setup-tutorial.mp4) | [![Learner practice and feedback](assets/images/motion/shiksha-chat-tutorial.png)](assets/web/motion/shiksha-chat-tutorial.mp4) |
+| Course Companion proposes changes for the teacher to review. | A learner attempts a concept check and receives feedback. |
+| [Watch · 32 seconds](assets/web/motion/shiksha-course-setup-tutorial.mp4) · [GIF](assets/images/motion/shiksha-course-setup-tutorial.gif) · [Captions](assets/web/motion/shiksha-course-setup-tutorial.vtt) | [Watch · 37 seconds](assets/web/motion/shiksha-chat-tutorial.mp4) · [GIF](assets/images/motion/shiksha-chat-tutorial.gif) · [Captions](assets/web/motion/shiksha-chat-tutorial.vtt) |
 
-### Retrieval
+These recordings use the actual UI with synthetic data and intercepted responses.
+They do not connect to live cloud agents; the teacher walkthrough stops before
+creating an assistant. See [how the demos were made](assets/images/README.md).
 
-Course material is indexed with Azure AI Search's integrated pipeline: blob data source →
-skillset → index. The skillset runs the Document Intelligence Layout skill for
-structure-aware chunking (split at markdown headings, so tables and lists stay intact),
-then embeds each chunk with Azure OpenAI. Queries use hybrid vector + keyword search over
-an HNSW index, fused with Reciprocal Rank Fusion and re-scored by the semantic ranker.
+## How it works
+
+The teacher-reviewed course map grounds a feedback loop: the learner’s work
+provides evidence, that evidence informs the learner model, and the teaching
+assistant uses it to choose the next learning step.
+
+[![Learner feedback loop grounded in a teacher-reviewed course map](assets/images/research/04-conceptual-loop.svg)](docs/architecture.md)
+
+The platform brings together course creation, course teaching assistants, learner
+memory, teacher insights, and a separate administration dashboard. The learner
+model and teaching strategy in the diagram describe responsibilities; they are
+not separate agents.
+
+[Agent catalogue](docs/agents/README.md) ·
+[Agent and data flow](docs/agent-dataflow.md) ·
+[Workflow coverage audit](docs/workflows/README.md) ·
+[Architecture atlas](assets/web/architecture/index.html) ·
+[Deployment guide](docs/deployment.md)
+
+## Learner memory
+
+Memory serves two purposes:
+
+| Part | Purpose |
+| --- | --- |
+| **Memory Store** | Recall relevant information from conversations. |
+| **Learner-memory structure** | Connect concepts, misconceptions, evidence, and changes in understanding over time. |
+
+<a href="docs/memory/overview.md">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/images/memory/01-connected-memory-graphs-dark.svg">
+    <img src="assets/images/memory/01-connected-memory-graphs.svg" width="1200" alt="Custom learner memory: a shared curriculum graph connects to separate learner states and source-linked evidence through stable concept and misconception IDs. Synthetic example, not a mastery result.">
+  </picture>
+</a>
+
+*Illustration of the custom learner-memory structure, not the hosted Memory Store.*
+[Full-size SVG](assets/images/memory/01-connected-memory-graphs.svg) ·
+[High-resolution PNG](assets/images/memory/01-connected-memory-graphs.png) ·
+[All three views and reuse options](assets/images/memory/README.md)
+
+The learner-memory design keeps observations, inferred misconceptions, and
+learning state distinct. Evidence and its source remain available for inspection;
+model confidence alone does not establish mastery.
+
+**Graph memory is optional and off by default.** See the
+[memory guide](docs/memory/README.md) for the mechanism, state rules, and evidence model.
+
+<details>
+<summary>Inspect a teaching decision</summary>
+
+The illustrative decision record connects a learner observation to an inferred
+misconception, supporting evidence, state and trend, and a proposed teaching move.
+It shows the basis for a decision, not hidden chain-of-thought.
+
+[![Illustrative teaching decision record](assets/images/research/06-see-it-think.svg)](docs/memory/see-it-think.md)
+
+This is a synthetic research example. Read the
+[walkthrough](docs/memory/see-it-think.md) for the example and current UI boundaries.
+
+</details>
 
 ## Getting started
 
-You need an Azure subscription with Microsoft Foundry, Azure AI Search, Cosmos DB and
-Blob Storage provisioned. Services authenticate with Microsoft Entra ID (managed
-identity), so no service keys are required.
+**Explore the demos:** watch the recordings above without cloud access. From a
+local checkout, open `assets/web/motion/index.html` in your browser to view the gallery.
 
-### Backend
+**Run the application:** follow [INSTALL.md](INSTALL.md) to configure the backend,
+frontend, identity, and required cloud services.
 
-```bash
-cd Backend
-cp .env.example .env          # fill in your own Azure resources
-pip install -r requirements.txt
-PYTHONPATH=. uvicorn backend.main:app --reload
+The current application uses **Azure / Microsoft Foundry**. Direct OpenAI, local
+models, and other providers require integration work; they are not drop-in
+alternatives. The [provider guide](docs/providers.md) explains the current
+dependencies and planned separation of core logic from provider integrations.
+
+For setup problems, start with [installation troubleshooting](INSTALL.md#troubleshooting)
+or [support](SUPPORT.md). Browser sign-in and backend access to Azure services are
+configured separately.
+
+## Research status
+
+Agentic Shiksha is research software. This repository contains source code,
+design documentation, software tests, synthetic demonstrations, and an evaluation
+protocol. It does not currently link measured learning outcomes or a deployment
+report. Production readiness and learning benefits need to be evaluated for the
+intended setting.
+
+Evaluation focuses on four questions:
+
+| Area | Question |
+| --- | --- |
+| Teaching approach | Does the assistant elicit reasoning and follow the intended pedagogy? |
+| Learning | Can learners explain, retain, and apply what they learned? |
+| Adaptation | Does the next teaching move address the learner’s demonstrated gaps? |
+| Reliability | Are claims grounded, and are learner records trustworthy when something fails? |
+
+See the [evaluation methodology](docs/evaluation.md),
+[research and publication status](docs/research.md), and [changelog](CHANGELOG.md).
+Current engineering priorities include isolating provider dependencies and
+separating runtime and workflow code; see the [refactoring plan](refactoring_plan.md).
+
+## Repository guide
+
+```text
+Agentic Shiksha Platform/
+  Backend/          Main API, teaching runtime, tools, and learner memory
+  Frontend/         Learner app, course builder, and teacher dashboard
+Admin-Dashboard/    Institution-wide admin API and UI
+docs/              Pedagogy, agents, memory, evaluation, and deployment
+assets/
+  images/          Diagrams, artwork, and demo previews
+  web/             Architecture and demo galleries, videos, and captions
 ```
 
-The 31 variables marked `[REQUIRED]` in `.env.example` are resolved at import time by
-`azure_services/config.py`, `backend/main.py` and `auth.py`. Startup fails immediately if
-any is missing — the app will not run with silent, wrong defaults.
+[Platform guide](<Agentic Shiksha Platform/README.md>) ·
+[Admin guide](Admin-Dashboard/README.md) ·
+[Documentation index](docs/README.md)
 
-### Frontend
-
-```bash
-cd Frontend
-cp .env.example .env
-npm install
-npm run dev
-```
-
-Variables prefixed `VITE_` are inlined into the browser bundle at build time and are
-therefore public. Never put a credential in one.
-
-### Tests
-
-```bash
-cd Backend
-PYTHONPATH=. python -m pytest tests/ -q
-```
-
-The suite reports two independent counts, for example `63 passed, 79 subtests passed`;
-the second is not a subset of the first.
-
-## Deployment
-
-Both services ship as containers. The build context is each service directory, and
-`.dockerignore` keeps `.env` out of the image — supply configuration at runtime through
-App Service application settings or an equivalent secret store. Real environment
-variables take precedence over `.env`, so the same image works across environments.
-
-```bash
-# Build in a registry, then point the web app at the new tag.
-az acr build --registry <registry> --image agentic-shiksha-backend:<tag> --file Dockerfile .
-az webapp config container set -g <resource-group> -n <app-name> \
-    --container-image-name <registry>.azurecr.io/agentic-shiksha-backend:<tag>
-az webapp restart -g <resource-group> -n <app-name>
-```
+Visual resources are grouped under [assets](assets/), with separate
+[image assets](assets/images/README.md) and [web galleries/tools](assets/web/README.md).
+Keep both subfolders together when copying a gallery so its relative media links work.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and the CLA. This project
-has adopted the [Microsoft Open Source Code of Conduct](CODE_OF_CONDUCT.md).
+Contributions from teachers, learners, researchers, and engineers are welcome.
+Useful contributions include reviewing diagnostic questions, improving teaching
+examples, testing learner-memory behavior, and making setup easier to reproduce.
 
-- [FAQ.md](FAQ.md) — intended use, evaluation, safeguards, privacy and known limitations.
-- [SUPPORT.md](SUPPORT.md) — how to file an issue and get help.
-- [SECURITY.md](SECURITY.md) — coordinated disclosure. Please do not open a public issue
-  for a suspected vulnerability.
+Start with [CONTRIBUTING.md](CONTRIBUTING.md) and the
+[Code of Conduct](CODE_OF_CONDUCT.md). For bugs or ideas,
+[open an issue](https://github.com/microsoft/Agentic-Shiksha/issues) with enough
+detail to reproduce the problem or understand the proposal. Check the
+[FAQ](FAQ.md) and [support guide](SUPPORT.md) for common questions.
 
-## Trademarks
+Keep learner records and credentials out of public issues. Report vulnerabilities
+through the private [security reporting process](SECURITY.md#reporting-security-issues).
+
+[Meet the contributors](https://github.com/microsoft/Agentic-Shiksha/graphs/contributors).
+
+<details>
+<summary>Before using the platform with learners</summary>
+
+- Review data handling, retention, consent, and service terms for your setting.
+  Cloud services and models may have separate licences and usage charges.
+- Keep educators involved in reviewing generated explanations, assessments, and
+  inferred misconceptions. These can be wrong.
+- Configure identity, authorization, content-safety controls, and monitoring for
+  your deployment. Never commit secrets; frontend `VITE_` settings are public.
+
+See [deployment guidance](docs/deployment.md), [security](SECURITY.md), and the
+[privacy and safety limitations](FAQ.md).
+
+</details>
+
+## Citation
+
+If you use Agentic Shiksha in your work, cite the software and the commit or
+version used. Cite [Swami Manohar’s Ekalaiva essays](docs/pedagogy/ekalaiva.md#references-manohars-blog-series)
+separately when discussing the underlying framework.
+
+<details>
+<summary>Software BibTeX</summary>
+
+```bibtex
+@misc{agentic_shiksha,
+  author       = {{Agentic Shiksha contributors}},
+  title        = {Agentic Shiksha},
+  year         = {2026},
+  howpublished = {\url{https://github.com/microsoft/Agentic-Shiksha}},
+  note         = {Research software. Specify the commit or version used.}
+}
+```
+
+</details>
+
+## License
+
+[MIT](LICENSE). See the [media guide](assets/images/README.md) for information about
+the original figures and synthetic demos.
+
+<details>
+<summary>Trademarks</summary>
 
 This project may contain trademarks or logos for projects, products, or services.
 Authorized use of Microsoft trademarks or logos is subject to and must follow
@@ -124,6 +242,4 @@ Use of Microsoft trademarks or logos in modified versions of this project must n
 confusion or imply Microsoft sponsorship. Any use of third-party trademarks or logos is
 subject to those third parties' policies.
 
-## License
-
-Licensed under the [MIT License](LICENSE).
+</details>

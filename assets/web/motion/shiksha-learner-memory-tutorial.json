@@ -1,0 +1,125 @@
+{
+  "name": "shiksha-learner-memory-tutorial",
+  "title": "See how learner memory changes",
+  "duration": 44.083333333333336,
+  "frames": 529,
+  "width": 1360,
+  "height": 928,
+  "gifFrames": 441,
+  "gifBytes": 4777396,
+  "chapters": [
+    {
+      "start": 0,
+      "end": 8,
+      "caption": "01  Open Graph Memory: the course keeps a learner-specific, versioned snapshot."
+    },
+    {
+      "start": 8,
+      "end": 11.416666666666666,
+      "caption": "02  Two earlier demo probes support this misconception; one new answer is not clearance."
+    },
+    {
+      "start": 11.416666666666666,
+      "end": 23.416666666666668,
+      "caption": "03  Answer a fresh diagnostic and explain the fixed-voltage condition."
+    },
+    {
+      "start": 23.416666666666668,
+      "end": 28.833333333333332,
+      "caption": "04  Pending evidence does not replace the last committed memory snapshot."
+    },
+    {
+      "start": 28.833333333333332,
+      "end": 34.166666666666664,
+      "caption": "05  After demo processing commits, state improves without declaring mastery or crossing."
+    },
+    {
+      "start": 34.166666666666664,
+      "end": 40.75,
+      "caption": "06  Inspect the next probe and open the evidence behind the updated memory."
+    },
+    {
+      "start": 40.75,
+      "end": 44.083333333333336,
+      "caption": "07  The profile recommends another independent probe, not an automatic mastery claim."
+    }
+  ],
+  "headerStyle": {
+    "background": "#EDE9FE",
+    "text": "#30264D",
+    "badge": false
+  },
+  "layout": "single-screen",
+  "presentation": {
+    "configuredCourseStarters": 4,
+    "starterRuleApplicable": true,
+    "verifiedWelcomeScreens": 1,
+    "assetChecks": [
+      {
+        "event": "quiz_start",
+        "atSeconds": 15.5,
+        "navigationCollapsed": true
+      },
+      {
+        "event": "quiz",
+        "atSeconds": 16,
+        "navigationCollapsed": true
+      }
+    ]
+  },
+  "projectName": "Agentic Shiksha",
+  "demoId": "memory",
+  "description": "Inspect the actual Graph Memory UI before and after a reasoned diagnostic, separating pending evidence, committed state, citations and the next probe.",
+  "verification": {
+    "feature": "custom-learner-memory",
+    "fixtureMode": "authoritative",
+    "snapshots": [
+      {
+        "version": 1,
+        "pending": 0,
+        "concept": "STRUGGLING",
+        "misconception": "PRESENT",
+        "crossing": "NOT_CROSSED"
+      },
+      {
+        "version": 1,
+        "pending": 0,
+        "concept": "STRUGGLING",
+        "misconception": "PRESENT",
+        "crossing": "NOT_CROSSED"
+      },
+      {
+        "version": 1,
+        "pending": 1,
+        "concept": "STRUGGLING",
+        "misconception": "PRESENT",
+        "crossing": "NOT_CROSSED"
+      },
+      {
+        "version": 1,
+        "pending": 1,
+        "concept": "STRUGGLING",
+        "misconception": "PRESENT",
+        "crossing": "NOT_CROSSED"
+      },
+      {
+        "version": 2,
+        "pending": 0,
+        "concept": "PROGRESSING",
+        "misconception": "RESOLVING",
+        "crossing": "NOT_CROSSED"
+      }
+    ],
+    "submittedAssessmentId": "memory-diagnostic-03",
+    "evidenceId": "evidence-ohms-03",
+    "evidenceQuote": "I = V/R. At fixed voltage, doubling resistance halves the current.",
+    "nextProblemId": "P-independent-context",
+    "noAutomaticMasteryOrCrossing": true,
+    "provenance": "Synthetic before/pending/after API fixtures exercise the real Graph Memory UI; no live worker, model or state reducer was run."
+  },
+  "capture": "Actual unchanged React frontend; scripted interactions, synthetic course data and in-memory API responses.",
+  "timing": "Captured frames are paced for readability, not a performance benchmark.",
+  "isolation": "Fresh browser context. External services blocked; all API calls simulated. No remote course creation.",
+  "source": "Agentic Shiksha Platform/Frontend",
+  "recordedOn": "2026-09-30"
+}

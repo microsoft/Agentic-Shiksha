@@ -1,0 +1,19 @@
+{
+  "name": "shiksha-motion-illustrations",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render": "node generate.mjs",
+    "render-architecture": "node generate.mjs --architecture",
+    "record-platform": "node record-platform.mjs",
+    "record-demos": "node record-platform.mjs --additional",
+    "record-insights": "node record-insights.mjs",
+    "restyle": "node restyle-recordings.mjs",
+    "check": "node --check scenes.js && node --check player.js && node --check generate.mjs && node --check platform-demo.mjs && node --check record-platform.mjs && node --check additional-demos.mjs && node --check artifact-demos.mjs && node --check challenge-demo.mjs && node --check record-insights.mjs && node --check restyle-recordings.mjs && node --check memory-demo.mjs && node --check record-dual.mjs && node --check linked-insights-demo.mjs && node --check asset-paths.mjs && node --check asset-paths.test.mjs && node --check onboarding-demo.mjs && node --check teacher-dashboard-demos.mjs && node --check admin-dashboard-demos.mjs",
+    "check:paths": "node --test asset-paths.test.mjs"
+  },
+  "devDependencies": {
+    "@ffmpeg-installer/ffmpeg": "1.1.0",
+    "@fontsource-variable/sora": "5.3.0"
+  }
+}

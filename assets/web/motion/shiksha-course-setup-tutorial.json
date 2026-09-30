@@ -1,0 +1,59 @@
+{
+  "name": "shiksha-course-setup-tutorial",
+  "title": "Draft a course with Course Companion",
+  "duration": 31.583333333333332,
+  "frames": 379,
+  "width": 1360,
+  "height": 928,
+  "gifFrames": 316,
+  "gifBytes": 1842130,
+  "chapters": [
+    {
+      "start": 0,
+      "end": 4.666666666666667,
+      "caption": "01  Use Create in the real Agentic Shiksha teacher workspace."
+    },
+    {
+      "start": 4.666666666666667,
+      "end": 10.333333333333334,
+      "caption": "02  Give the course a name, then open Course Companion."
+    },
+    {
+      "start": 10.333333333333334,
+      "end": 19.25,
+      "caption": "03  Describe the level, duration, code and learning goals."
+    },
+    {
+      "start": 19.25,
+      "end": 25.083333333333332,
+      "caption": "04  Review the Companion's proposed fields in the actual course form."
+    },
+    {
+      "start": 25.083333333333332,
+      "end": 28.583333333333332,
+      "caption": "05  Review the course description and prerequisites before choosing Create."
+    },
+    {
+      "start": 28.583333333333332,
+      "end": 31.583333333333332,
+      "caption": "Draft only: this tutorial does not submit Create or provision a remote agent."
+    }
+  ],
+  "presentation": {
+    "configuredCourseStarters": 4,
+    "verifiedWelcomeScreens": 0,
+    "assetChecks": []
+  },
+  "projectName": "Agentic Shiksha",
+  "demoId": "teacher",
+  "capture": "Actual unchanged React frontend; scripted interactions, synthetic course data and in-memory API responses.",
+  "timing": "Captured frames are paced for readability, not a performance benchmark.",
+  "isolation": "Fresh browser context. External services blocked; all API calls simulated. No remote course creation.",
+  "source": "Agentic Shiksha Platform/Frontend",
+  "recordedOn": "2026-09-30",
+  "headerStyle": {
+    "background": "#EDE9FE",
+    "text": "#30264D",
+    "badge": false
+  }
+}

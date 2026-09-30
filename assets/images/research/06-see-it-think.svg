@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1460" height="824" viewBox="0 0 1460 824" role="img" aria-labelledby="see-it-think-title see-it-think-desc">
+    <title id="see-it-think-title">See it think: an observable learner decision record</title>
+    <desc id="see-it-think-desc">Synthetic observable record, not hidden chain-of-thought or a screenshot. Earlier learner reasoning supports misconception M-repeat. Later evidence E-clear-A contradicts it with extraction confidence 0.95, explicitly uncalibrated and not a mastery probability. Committed misconception state is RESOLVING with IMPROVING trend; the threshold is CANDIDATE, not CROSSED. A proposed teaching move asks for prediction and explanation in a changed context, followed by diagnostic P-path-B. The actual profile supplies the probe ID and reason code; teaching wording is illustrative. Source snapshot 2026-09-30. Original service-style glyphs, not official service logos. Logical source architecture, not a live deployment inventory.</desc>
+    <defs><marker id="see-it-think-blue" viewBox="0 0 12 12" refX="10.5" refY="6" markerWidth="9" markerHeight="9" orient="auto"><path d="M2 2L10 6L2 10" fill="none" stroke="#345EB4" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></marker><marker id="see-it-think-teal" viewBox="0 0 12 12" refX="10.5" refY="6" markerWidth="9" markerHeight="9" orient="auto"><path d="M2 2L10 6L2 10" fill="none" stroke="#087D78" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></marker><marker id="see-it-think-violet" viewBox="0 0 12 12" refX="10.5" refY="6" markerWidth="9" markerHeight="9" orient="auto"><path d="M2 2L10 6L2 10" fill="none" stroke="#7950AC" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></marker><marker id="see-it-think-amber" viewBox="0 0 12 12" refX="10.5" refY="6" markerWidth="9" markerHeight="9" orient="auto"><path d="M2 2L10 6L2 10" fill="none" stroke="#A86B21" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></marker><marker id="see-it-think-red" viewBox="0 0 12 12" refX="10.5" refY="6" markerWidth="9" markerHeight="9" orient="auto"><path d="M2 2L10 6L2 10" fill="none" stroke="#AD454F" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></marker><marker id="see-it-think-muted" viewBox="0 0 12 12" refX="10.5" refY="6" markerWidth="9" markerHeight="9" orient="auto"><path d="M2 2L10 6L2 10" fill="none" stroke="#526176" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/></marker>
+    </defs>
+    <g font-family="'Segoe UI', Arial, sans-serif"><rect x="0" y="0" width="1460" height="824" rx="0" fill="#FAFAF6" stroke="none" stroke-width="1.8"  /><text x="40" y="100" font-size="40" font-weight="650" fill="#203047" text-anchor="start" dominant-baseline="central" >A state you can inspect. A next move you can question.</text><text x="40" y="151" font-size="25" font-weight="400" fill="#526176" text-anchor="start" dominant-baseline="central" >Observable evidence and decisions, not hidden chain-of-thought.</text><g data-node="Observable learner evidence" data-fit="Observable learner evidence">
+    <rect x="48" y="192" width="606" height="360" rx="18" fill="#101D35" stroke="#345EB4" stroke-width="1.8"  data-bounds=""/>
+    <text x="78" y="230" font-size="23" font-weight="700" fill="#BED1F2" text-anchor="start" dominant-baseline="central" >01 / WHAT THE LEARNER SAID</text>
+    <text x="78" y="287" font-size="23" font-weight="400" fill="#B5C5DB" text-anchor="start" dominant-baseline="central" >Earlier: two independent source records</text>
+    <text x="78" y="328" font-size="27" font-weight="400" fill="#F0F5FF" text-anchor="start" dominant-baseline="central" >&quot;A simple path can revisit a vertex</text>
+    <text x="78" y="366" font-size="27" font-weight="400" fill="#F0F5FF" text-anchor="start" dominant-baseline="central" >if no edge repeats.&quot;</text>
+    <text x="78" y="422" font-size="23" font-weight="400" fill="#93DBCC" text-anchor="start" dominant-baseline="central" >Later: E-clear-A / reasoned counter-evidence</text>
+    <text x="78" y="466" font-size="27" font-weight="400" fill="#F0F5FF" text-anchor="start" dominant-baseline="central" >&quot;A simple path cannot repeat a vertex;</text>
+    <text x="78" y="504" font-size="27" font-weight="400" fill="#F0F5FF" text-anchor="start" dominant-baseline="central" >a walk can.&quot;</text>
+  </g><g data-node="Misconception interpretation" data-fit="Misconception interpretation">
+      <rect x="698" y="192" width="714" height="104" rx="17" fill="#FFFFFF" stroke="#7950AC" stroke-width="1.8"  data-bounds=""/>
+      
+      <text x="724" y="223" font-size="29" font-weight="650" fill="#203047" text-anchor="start" dominant-baseline="central" >Misconception / M-repeat</text>
+      <text x="724" y="266" font-size="26" font-weight="400" fill="#526176" text-anchor="start" dominant-baseline="central" >A simple path may repeat a vertex.</text>
+      
+    </g><g data-node="Extraction confidence" data-fit="Extraction confidence">
+      <rect x="698" y="320" width="337" height="136" rx="17" fill="#FFFFFF" stroke="#7950AC" stroke-width="1.8"  data-bounds=""/>
+      
+      <text x="724" y="352" font-size="24" font-weight="650" fill="#203047" text-anchor="start" dominant-baseline="central" >Extraction confidence</text>
+      <text x="724" y="398" font-size="23" font-weight="400" fill="#526176" text-anchor="start" dominant-baseline="central" >0.95 / uncalibrated</text><text x="724" y="431" font-size="23" font-weight="400" fill="#526176" text-anchor="start" dominant-baseline="central" >Not mastery probability</text>
+      
+    </g><g data-node="State and trend" data-fit="State and trend">
+      <rect x="1059" y="320" width="353" height="136" rx="17" fill="#FFFFFF" stroke="#087D78" stroke-width="1.8"  data-bounds=""/>
+      
+      <text x="1085" y="352" font-size="28" font-weight="650" fill="#203047" text-anchor="start" dominant-baseline="central" >State / trend</text>
+      <text x="1085" y="398" font-size="25" font-weight="400" fill="#526176" text-anchor="start" dominant-baseline="central" >RESOLVING</text><text x="1085" y="431" font-size="25" font-weight="400" fill="#526176" text-anchor="start" dominant-baseline="central" >IMPROVING</text>
+      
+    </g><text x="720" y="496" font-size="24" font-weight="400" fill="#526176" text-anchor="start" dominant-baseline="central" >Threshold: CANDIDATE, not CROSSED.</text><g data-node="Proposed teaching strategy" data-fit="Proposed teaching strategy">
+    <rect x="48" y="590" width="1364" height="154" rx="18" fill="#EAF4F1" stroke="#087D78" stroke-width="1.8"  data-bounds=""/>
+    <text x="78" y="624" font-size="23" font-weight="700" fill="#087D78" text-anchor="start" dominant-baseline="central" >02 / PROPOSED NEXT TEACHING STRATEGY</text>
+    <text x="78" y="671" font-size="34" font-weight="650" fill="#203047" text-anchor="start" dominant-baseline="central" >Predict. Explain. Probe a changed context.</text>
+    <text x="78" y="718" font-size="24" font-weight="400" fill="#087D78" text-anchor="start" dominant-baseline="central" >P-path-B / unused diagnostic family / INDEPENDENT_DIAGNOSTIC_REQUIRED</text>
+  </g><polyline data-connector="Observed evidence informs next move" points="354,552 354,590" fill="none" stroke="#087D78" stroke-width="3" stroke-linejoin="round"  marker-end="url(#see-it-think-teal)"/><polyline data-connector="Committed state informs next move" points="1300,456 1300,590" fill="none" stroke="#087D78" stroke-width="3" stroke-linejoin="round"  marker-end="url(#see-it-think-teal)"/><text x="48" y="788" font-size="23" font-weight="400" fill="#526176" text-anchor="start" dominant-baseline="central" >Illustration, not the shipped UI. The profile recommends a probe ID; the teaching wording is illustrative.</text></g>
+  </svg>

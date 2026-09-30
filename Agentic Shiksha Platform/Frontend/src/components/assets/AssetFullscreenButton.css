@@ -1,0 +1,29 @@
+[data-fullscreen-surface]:fullscreen,
+[data-fullscreen-surface].asset-viewport-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 100 !important;
+  width: 100% !important;
+  height: 100dvh !important;
+  max-width: none !important;
+  max-height: none !important;
+  margin: 0 !important;
+  border-radius: 0;
+  background: #171717;
+}
+
+[data-fullscreen-surface]:is(:fullscreen, .asset-viewport-fullscreen) [data-fullscreen-reading] {
+  min-height: 0;
+  padding: 1.5rem 1rem 2.5rem;
+  scrollbar-gutter: stable both-edges;
+}
+
+[data-fullscreen-surface]:is(:fullscreen, .asset-viewport-fullscreen) [data-fullscreen-reading] > * {
+  width: 100%;
+  max-width: 60rem;
+  margin-inline: auto;
+}
+
+[data-fullscreen-surface]:is(:fullscreen, .asset-viewport-fullscreen) [data-fullscreen-reading] .asset-reading-rail {
+  --tw-translate-x: 0px;
+}

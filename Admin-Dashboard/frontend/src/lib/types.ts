@@ -8,6 +8,13 @@ import { randomUuid } from "./secureId";
 
 export type View = "chat" | "library" | "create" | "edit" | "projectHome" | "assets";
 
+export type LearningProgressAvailability = {
+  graph_memory_mode?: "off" | "shadow" | "authoritative";
+  progress_available?: boolean;
+  progress_source?: "legacy" | "unavailable";
+  progress_unavailable_reason?: string | null;
+};
+
 /** Chat roles used across UI + storage */
 export type ChatRole = "user" | "assistant" | "system";
 
@@ -48,18 +55,12 @@ export type QuizQuestion = {
   explanation: string;
 };
 
-/** Flashcard for interactive flashcard blocks */
-export type FlashCard = {
-  front: string;
-  back: string;
-};
-
 /** Content block types for structured agent responses */
 export type ContentBlock = 
   | { type: "text"; content: string; isStreaming?: boolean }
   | { type: "document"; docId: string; title: string; isStreaming?: boolean }
   | { type: "quiz"; quizId: string; title: string; questions: QuizQuestion[] }
-  | { type: "flashcard"; flashcardId: string; title: string; cards: FlashCard[] }
+  | { type: "flashcard"; [key: string]: unknown } // Opaque legacy data: retain, never render.
   | { type: "challenge"; challengeId: string; title: string; description: string; difficulty: string; hints?: string[]; solution: string; challengeType?: string }
   | { type: "tikz_image"; tikzImageId: string; title: string; imageData: string; caption?: string; visualizationType?: string };
 
@@ -248,7 +249,7 @@ export type AssetCategory =
   | "all"
   | "document"
   | "quiz"
-  | "flashcard"
+  | "flashcard" // Historical records only; not offered for creation or display.
   | "challenge"
   | "diagram"
   | "summary"
@@ -263,7 +264,7 @@ export type AssetType =
   | "code"        // Code snippet
   | "mermaid"     // Mermaid diagram
   | "svg"         // SVG image
-  | "json"        // JSON data (flashcards, quiz, etc.)
+  | "json"        // Structured data (quizzes, circuits, etc.)
   | "text";       // Plain text
 
 /** Asset data */

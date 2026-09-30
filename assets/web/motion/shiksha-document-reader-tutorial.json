@@ -1,0 +1,66 @@
+{
+  "name": "shiksha-document-reader-tutorial",
+  "title": "Read and navigate generated notes",
+  "duration": 28.583333333333332,
+  "frames": 343,
+  "width": 1360,
+  "height": 928,
+  "gifFrames": 286,
+  "gifBytes": 3068933,
+  "chapters": [
+    {
+      "start": 0,
+      "end": 9.166666666666666,
+      "caption": "01  Ask your course TA to turn an explanation into structured study notes."
+    },
+    {
+      "start": 9.166666666666666,
+      "end": 14.5,
+      "caption": "02  Follow the document being created through the real artifact renderer."
+    },
+    {
+      "start": 14.5,
+      "end": 19.75,
+      "caption": "03  Open the saved document, then enter full screen for focused reading."
+    },
+    {
+      "start": 19.75,
+      "end": 24.083333333333332,
+      "caption": "04  Use the document-section rail to jump straight to the worked example."
+    },
+    {
+      "start": 24.083333333333332,
+      "end": 28.583333333333332,
+      "caption": "05  Return to the conversation without losing the generated notes."
+    }
+  ],
+  "presentation": {
+    "configuredCourseStarters": 4,
+    "verifiedWelcomeScreens": 1,
+    "assetChecks": [
+      {
+        "event": "document_start",
+        "atSeconds": 10,
+        "navigationCollapsed": true
+      },
+      {
+        "event": "document",
+        "atSeconds": 12.666666666666666,
+        "navigationCollapsed": true
+      }
+    ]
+  },
+  "projectName": "Agentic Shiksha",
+  "demoId": "documents",
+  "description": "Generate a study document, open the real reader, use full screen and jump between sections.",
+  "capture": "Actual unchanged React frontend; scripted interactions, synthetic course data and in-memory API responses.",
+  "timing": "Captured frames are paced for readability, not a performance benchmark.",
+  "isolation": "Fresh browser context. External services blocked; all API calls simulated. No remote course creation.",
+  "source": "Agentic Shiksha Platform/Frontend",
+  "recordedOn": "2026-09-30",
+  "headerStyle": {
+    "background": "#EDE9FE",
+    "text": "#30264D",
+    "badge": false
+  }
+}

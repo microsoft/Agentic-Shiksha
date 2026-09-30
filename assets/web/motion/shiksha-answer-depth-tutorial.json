@@ -1,0 +1,50 @@
+{
+  "name": "shiksha-answer-depth-tutorial",
+  "title": "Choose the right answer depth",
+  "duration": 29,
+  "frames": 348,
+  "width": 1360,
+  "height": 928,
+  "gifFrames": 290,
+  "gifBytes": 1845621,
+  "chapters": [
+    {
+      "start": 0,
+      "end": 7.25,
+      "caption": "01  Open your course and choose how much explanation you want."
+    },
+    {
+      "start": 7.25,
+      "end": 15.833333333333334,
+      "caption": "02  Concise gives a short response to a focused question."
+    },
+    {
+      "start": 15.833333333333334,
+      "end": 23.75,
+      "caption": "03  Switch to Comprehensive when you want a worked explanation."
+    },
+    {
+      "start": 23.75,
+      "end": 29,
+      "caption": "04  Read the example and its assumptions; depth can change on every turn."
+    }
+  ],
+  "presentation": {
+    "configuredCourseStarters": 4,
+    "verifiedWelcomeScreens": 1,
+    "assetChecks": []
+  },
+  "projectName": "Agentic Shiksha",
+  "demoId": "answer-depth",
+  "description": "Compare Concise and Comprehensive using the real answer-depth selector and streamed responses.",
+  "capture": "Actual unchanged React frontend; scripted interactions, synthetic course data and in-memory API responses.",
+  "timing": "Captured frames are paced for readability, not a performance benchmark.",
+  "isolation": "Fresh browser context. External services blocked; all API calls simulated. No remote course creation.",
+  "source": "Agentic Shiksha Platform/Frontend",
+  "recordedOn": "2026-09-30",
+  "headerStyle": {
+    "background": "#EDE9FE",
+    "text": "#30264D",
+    "badge": false
+  }
+}

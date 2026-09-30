@@ -1,3 +1,12 @@
 node_modules
 dist
+.cache
+.vite
+coverage
+.eslintcache
 *.tsbuildinfo
+.env
+.env.*
+test-results
+test-results-*
+playwright-report

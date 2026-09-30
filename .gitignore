@@ -18,7 +18,7 @@ logs/
 *.log
 
 ############################
-# Python (Backend/, Admin-Dashboard/backend/, ...)
+# Python (Agentic Shiksha Platform/Backend/, Admin-Dashboard/backend/, ...)
 ############################
 
 # Bytecode & cache. Repo-wide: Admin-Dashboard/backend is also Python.
@@ -26,12 +26,12 @@ logs/
 **/*.py[cod]
 **/*.class
 
-# Virtualenvs (anywhere, not just Backend/ - a root .venv relies on the
+# Virtualenvs (anywhere, not just the platform backend - a root .venv relies on the
 # self-ignore that python -m venv writes, which older tooling omits)
 .venv/
 venv/
-Backend/.venv/
-Backend/venv/
+Agentic Shiksha Platform/Backend/.venv/
+Agentic Shiksha Platform/Backend/venv/
 
 # Test / tooling caches
 **/.pytest_cache/
@@ -40,8 +40,8 @@ Backend/venv/
 **/.coverage
 
 # Local runtime data (auto-created by main.py; Azure Blob Storage is the source of truth)
-Backend/user_data/*
-!Backend/user_data/.gitkeep
+Agentic Shiksha Platform/Backend/user_data/*
+!Agentic Shiksha Platform/Backend/user_data/.gitkeep
 
 erase_pycache.bat
 erase_pycache.py
@@ -59,11 +59,6 @@ erase_pycache.py
 !**/.env.example
 !**/.env.*.example
 
-# Note: Frontend/.env.production is intentionally NOT tracked. Docker copies it
-# from the working tree, so the image build does not need it in git — publishing
-# it would only hardcode one deployment's hostnames for everyone who clones.
-# See Frontend/.env.production.example.
-
 # Credential material
 *.pem
 *.key
@@ -72,7 +67,7 @@ erase_pycache.py
 
 # Internal operational notes. Holds no credential values, but names which
 # secrets exist and their rotation status - not useful to publish.
-Backend/SECRETS_TO_ROTATE.md
+Agentic Shiksha Platform/Backend/SECRETS_TO_ROTATE.md
 
 # Azure CLI / azd machine-local state. Records one developer's resource group,
 # app service plan, SKU and region - deployment settings belong in env vars.
@@ -82,31 +77,47 @@ Backend/SECRETS_TO_ROTATE.md
 # Runtime artifacts the app regenerates. Each of these was committed-by-accident
 # material before: agent setups and session docs hold per-deployment agent state,
 # the Foundry cache reached 281 MB, and the token dumps captured local paths.
-Backend/agent_setups/
-Backend/session_docs/
+Agentic Shiksha Platform/Backend/agent_setups/
+Agentic Shiksha Platform/Backend/session_docs/
+Agentic Shiksha Platform/Backend/main.ipynb
 **/foundry_responses_cache.json
 **/token_usage_output.txt
 
 ############################
-# Node / React frontend (Frontend/)
+# Node / React frontends
 ############################
 
 # Dependencies (Frontend/, Admin-Dashboard/frontend/, ...)
 **/node_modules/
 
+# Compiler and lint caches
+**/*.tsbuildinfo
+**/.eslintcache
+
 # Build output
-Frontend/dist/
-Frontend/.build/
-Frontend/.next/
-Frontend/.turbo/
-Frontend/.cache/
-Frontend/.vite/
+Agentic Shiksha Platform/Frontend/dist/
+Agentic Shiksha Platform/Frontend/.build/
+Agentic Shiksha Platform/Frontend/.next/
+Agentic Shiksha Platform/Frontend/.turbo/
+Agentic Shiksha Platform/Frontend/.cache/
+Agentic Shiksha Platform/Frontend/.vite/
+Agentic Shiksha Platform/Frontend/.narration-build/
+Agentic Shiksha Platform/Frontend/test-results/
+Agentic Shiksha Platform/Frontend/test-results-*/
+Agentic Shiksha Platform/Frontend/playwright-report/
+Agentic Shiksha Platform/Frontend/coverage/
+Admin-Dashboard/frontend/.cache/
+Admin-Dashboard/frontend/.vite/
+Admin-Dashboard/frontend/test-results/
+Admin-Dashboard/frontend/test-results-*/
+Admin-Dashboard/frontend/playwright-report/
+Admin-Dashboard/frontend/coverage/
 
 # Frontend logs
-Frontend/npm-debug.log*
-Frontend/yarn-debug.log*
-Frontend/yarn-error.log*
-Frontend/pnpm-debug.log*
+Agentic Shiksha Platform/Frontend/npm-debug.log*
+Agentic Shiksha Platform/Frontend/yarn-debug.log*
+Agentic Shiksha Platform/Frontend/yarn-error.log*
+Agentic Shiksha Platform/Frontend/pnpm-debug.log*
 
 ############################
 # PyInstaller build artifacts

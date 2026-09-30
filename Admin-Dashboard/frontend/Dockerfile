@@ -1,7 +1,7 @@
 ########################
 # 1) Build stage
 ########################
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 
 WORKDIR /app
 
@@ -15,11 +15,17 @@ ENV NPM_CONFIG_REGISTRY=$NPM_REGISTRY \
     NPM_CONFIG_FUND=false
 
 COPY package*.json ./
-RUN npm ci && test -x node_modules/.bin/vite
+RUN npm ci && test -x node_modules/.bin/tsc && test -x node_modules/.bin/vite
 
 COPY . .
 
-ENV NODE_ENV=production
+ARG VITE_API_BASE_URL=http://localhost:8000
+ARG VITE_DASHBOARD_API_URL=http://localhost:8050
+ARG VITE_STUDENT_ASSIGNMENTS_ENABLED=false
+ENV NODE_ENV=production \
+    VITE_API_BASE_URL=$VITE_API_BASE_URL \
+    VITE_DASHBOARD_API_URL=$VITE_DASHBOARD_API_URL \
+    VITE_STUDENT_ASSIGNMENTS_ENABLED=$VITE_STUDENT_ASSIGNMENTS_ENABLED
 RUN npm run build
 
 ########################

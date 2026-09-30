@@ -5,6 +5,23 @@ labelled actual-UI tutorials with synthetic data. See the
 [image index](../../images/README.md) for the complete catalogue and tutorial recording
 instructions.
 
+## Playback in GitHub READMEs
+
+The canonical [project README](../../../.github/README.md#demos) embeds the existing
+animated GIF versions of the two introductory walkthroughs. GitHub does not
+render repository-relative MP4 links or repository HTML galleries as inline video
+players. MP4 links therefore use `?raw=1` and are labelled as downloads, with still
+previews and captions alongside them. Open the downloaded MP4 in a video player,
+or open [index.html](index.html) from a local checkout for play/pause, seeking and
+captions. The MP4s remain H.264/YUV420p videos with fast-start metadata.
+
+For a native player inside GitHub Markdown, upload the MP4 as a
+[GitHub video attachment](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/attaching-files)
+and use its returned attachment URL on its own line. Do not substitute a
+`blob/main/...mp4` URL or an unsupported `<video>`/`iframe` element.
+The root [README](../../../README.md) points to the canonical overview rather
+than maintaining a second copy with drifting links.
+
 Illustrated architecture scenes omit repeated project-name header strips, AS
 badges, and top-right level/duration stamps in every SVG, PNG, GIF, and MP4
 export. Descriptive scene titles, phase labels, and instructional captions stay

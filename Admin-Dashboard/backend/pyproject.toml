@@ -19,7 +19,7 @@ dependencies = [
     "azure-ai-evaluation==1.18.2",
     "openai==2.54.0",
     "pyjwt==2.14.0",
-    "json-repair==0.61.7",
+    "json-repair==0.63.5",
 ]
 
 [dependency-groups]

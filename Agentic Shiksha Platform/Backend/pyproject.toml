@@ -14,7 +14,7 @@ dependencies = [
     "anyio==4.11.0",
     # Preview APIs are used by the existing research and knowledge-base features.
     "azure-ai-agents==1.2.0b5",
-    "azure-ai-documentintelligence==1.0.0",
+    "azure-ai-documentintelligence==1.0.2",
     # Preserve the OpenAI 2.x-compatible project client.
     "azure-ai-projects==2.4.0",
     "azure-core==1.41.0",

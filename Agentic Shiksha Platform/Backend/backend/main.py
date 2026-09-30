@@ -53,7 +53,7 @@ from pydantic import BaseModel, ValidationError, field_validator
 
 # ---------- Azure SDK ----------
 from azure.ai.projects import AIProjectClient
-from azure.core.exceptions import HttpResponseError
+from azure.core.exceptions import AzureError, HttpResponseError
 
 # ---------- Your modules ----------
 from utils.prompt_unifier import unify_agent_prompts
@@ -4354,7 +4354,7 @@ async def create_agent_direct(payload: Dict[str, Any]):
             course_duration=course_duration,
             agent_kind=agent_kind,
             conversation_starters=conversation_starters,
-            additional_context=additional_context,
+            additional_context=course_description,
             metadata={"memoryStoreName": memory_store_name} if memory_store_name else None,
             session_uuid=session_uuid or None,
             department_id=payload.get("departmentId", ""),
@@ -7920,21 +7920,10 @@ async def create_vector_store_from_blobs(request: VectorStoreFromBlobsRequest):
     vector store that can be attached to an agent.
     """
     try:
-        from azure.ai.agents.models import VectorStoreDataSource, VectorStoreDataSourceAssetType
-        
-        # Create data sources from blob URIs
-        data_sources = [
-            VectorStoreDataSource(
-                asset_identifier=uri,
-                asset_type=VectorStoreDataSourceAssetType.URI_ASSET
-            )
-            for uri in request.blob_uris
-        ]
-        
-        # Create vector store using the agents client
-        vector_store = async_agents_client.vector_stores.create_and_poll(
-            data_sources=data_sources,
-            name=request.vector_store_name
+        processor = get_async_file_processor()
+        vector_store = await processor.create_vector_store_from_results(
+            blob_uris=request.blob_uris,
+            vector_store_name=request.vector_store_name,
         )
         
         logger.info(f"Created vector store from blobs: {vector_store.id}")
@@ -7944,11 +7933,11 @@ async def create_vector_store_from_blobs(request: VectorStoreFromBlobsRequest):
             vector_store_id=vector_store.id
         )
         
-    except Exception as e:
-        logger.error(f"Vector store creation error: {e}")
+    except (AzureError, TimeoutError):
+        logger.exception("Vector store creation failed")
         return VectorStoreFromBlobsResponse(
             success=False,
-            error=str(e)
+            error="Vector store creation failed",
         )
 
 

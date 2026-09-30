@@ -15,9 +15,11 @@ globalThis.ShikshaAzureIcons = azureServiceIcons;
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..", "..", "..");
 const args = process.argv.slice(2);
-assert(args.every((arg) => ["--stills-only", "--architecture"].includes(arg)), "Usage: node generate.mjs [--architecture] [--stills-only]");
+assert(args.every((arg) => ["--stills-only", "--architecture", "--tutorials-only"].includes(arg)), "Usage: node generate.mjs [--architecture] [--stills-only] | --tutorials-only");
 const stillsOnly = args.includes("--stills-only");
 const architectureOnly = args.includes("--architecture");
+const tutorialsOnly = args.includes("--tutorials-only");
+assert(!tutorialsOnly || (!stillsOnly && !architectureOnly), "--tutorials-only must be used without diagram-rendering options");
 const localRequire = createRequire(import.meta.url);
 const frontendRequire = createRequire(join(root, "Agentic Shiksha Platform", "Frontend", "package.json"));
 const { chromium } = frontendRequire("@playwright/test");
@@ -47,6 +49,8 @@ const expectedServiceIcons = {
 };
 const iconDataScript = `<script id="azure-service-icons">globalThis.ShikshaAzureIcons=${JSON.stringify(azureServiceIcons)};</script>`;
 const tutorialDefinitions = [
+  { id: "image-generation", name: "shiksha-image-generation-tutorial", role: "Learner",
+    note: "The actual image-generation loading state, inline image, full-size preview and follow-up chat are exercised with a synthetic tool response. The original solar-irrigation illustration is rendered locally from SVG; it is not live model output. No image-generation service, quota or cloud resource is used." },
   { id: "onboarding-profile", name: "shiksha-onboarding-profile-tutorial", role: "Learner",
     note: "The real first-run flow starts after simulated sign-in. Profile details and saves are synthetic, isolated in memory; no external identity or real learner profile is changed." },
   { id: "teacher-roster", name: "shiksha-teacher-roster-tutorial", role: "Teacher",
@@ -189,7 +193,7 @@ async function publishTutorialCollection() {
     if (definition.role.startsWith("Learner")) {
       assert(metadata.presentation.verifiedWelcomeScreens > 0, `${definition.name} must verify four visible starter buttons`);
     }
-    if (["chat", "documents", "slides", "circuits", "challenges", "student-teacher", "memory"].includes(definition.id)) {
+    if (["chat", "documents", "slides", "circuits", "challenges", "student-teacher", "memory", "image-generation"].includes(definition.id)) {
       assert(metadata.presentation.assetChecks.length > 0
         && metadata.presentation.assetChecks.every((check) => check.navigationCollapsed === true),
       `${definition.name} must verify collapsed navigation before opening assets`);
@@ -198,6 +202,21 @@ async function publishTutorialCollection() {
       assert.deepEqual(metadata.linkedUsage.map((snapshot) => snapshot.submittedChecks), [0, 1],
         "The paired recording must reflect the learner's actual simulated submission");
       assert.equal(metadata.layout, "side-by-side");
+    }
+    if (definition.id === "image-generation") {
+      const evidence = metadata.verification;
+      assert.equal(evidence?.feature, "image-generation");
+      assert.equal(evidence.nativeUI, true);
+      assert.equal(evidence.tool, "generate_image");
+      for (const check of ["placeholderVerified", "previewVerified", "navigationCollapsedBeforeImage", "sameConversationFollowup", "imageInSyncedHistory"]) {
+        assert.equal(evidence[check], true, `Image-generation recording must verify ${check}`);
+      }
+      assert.equal(evidence.realModelCalls, 0);
+      assert.equal(evidence.image.width, 1536);
+      assert.equal(evidence.image.height, 1024);
+      assert.equal(evidence.image.sha256, createHash("sha256")
+        .update(await readFile(assetPath("shiksha-image-generation-example.png"))).digest("hex"),
+      "The published illustration must match the image displayed and verified in the actual UI");
     }
     if (definition.id === "memory") {
       assert.equal(metadata.verification?.feature, "custom-learner-memory");
@@ -248,9 +267,9 @@ async function publishTutorialCollection() {
     }
     tutorials.push({ ...definition, ...metadata });
   }
-  assert.equal(tutorials.length, 16);
-  assert.equal(videoHashes.size, 16, "Every video must be a distinct recording");
-  const cards = `<section id="demo-collection" aria-label="Sixteen video demos"><div class="demo-grid">${tutorials.map((tutorial, i) =>
+  assert.equal(tutorials.length, tutorialDefinitions.length);
+  assert.equal(videoHashes.size, tutorials.length, "Every video must be a distinct recording");
+  const cards = `<section id="demo-collection" aria-label="${tutorials.length} video demos"><div class="demo-grid">${tutorials.map((tutorial, i) =>
     `<a class="demo-card" href="#${tutorial.id}"><img src="${assetUrl(`${tutorial.name}.png`)}" width="${tutorial.width}" height="${tutorial.height}" alt=""><span class="demo-meta">${String(i + 1).padStart(2, "0")} / ${tutorial.role} / ${Math.round(tutorial.duration)}s</span><strong>${escapeHtml(tutorial.title)}</strong></a>`).join("")}</div></section>`;
   const articles = tutorials.map((tutorial, i) => `<article class="sample" id="${tutorial.id}" data-tutorial="${tutorial.name}">
     <header><div><p class="eyebrow">${String(i + 1).padStart(2, "0")} / ACTUAL ${tutorial.role.toUpperCase()} INTERFACE / ${Math.round(tutorial.duration)} SECONDS</p><h2>${escapeHtml(tutorial.title)}</h2></div>
@@ -271,10 +290,10 @@ async function publishTutorialCollection() {
   assert(style, "Gallery styling is missing");
   await writeFile(join(here, "demos.html"), `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agentic Shiksha / Sixteen Video Demos</title><style>${style}</style><script src="player.js" defer></script></head>
-<body><header class="topbar"><div class="wrap"><div class="brand"><span>AS</span> AGENTIC SHIKSHA / VIDEO DEMOS</div><span>16 real-interface walkthroughs</span></div></header>
-<main class="wrap"><section class="hero"><p class="eyebrow">LEARNER. TEACHER. ADMINISTRATOR.</p><h1>Sixteen ways to explore<br>Agentic Shiksha.</h1>
-<p class="intro">Now with onboarding and profile setup, two teacher-dashboard walkthroughs and two standalone Admin Dashboard demos. All videos use the real interfaces with synthetic records and locally simulated responses. Lavender title bars, readable captions and native UI interactions remain consistent throughout. Choose a demo below; playback starts only when you press Play.</p>
+<title>Agentic Shiksha / ${tutorials.length} Video Demos</title><style>${style}</style><script src="player.js" defer></script></head>
+<body><header class="topbar"><div class="wrap"><div class="brand"><span>AS</span> AGENTIC SHIKSHA / VIDEO DEMOS</div><span>${tutorials.length} real-interface walkthroughs</span></div></header>
+<main class="wrap"><section class="hero"><p class="eyebrow">LEARNER. TEACHER. ADMINISTRATOR.</p><h1>${tutorials.length} ways to explore<br>Agentic Shiksha.</h1>
+<p class="intro">Now with image generation: request a learning illustration, inspect it and ask a follow-up. Explore course chat, learner memory, onboarding, teacher dashboards and the separate Admin Dashboard too. All videos use the real interfaces with synthetic records and locally simulated responses. Choose a demo below; playback starts only when you press Play.</p>
 <div class="tags"><span>Actual website UI</span><span>Four course starters</span><span>Asset-focused layout</span><span>MP4 + GIF</span><span>No live learner data</span></div></section>
 ${cards}${articles}<footer>Agentic Shiksha / 30 September 2026. Original recordings of the actual frontend with local fixtures. No cloud resources or live learner records were changed.</footer></main></body></html>\n`);
   await writeFile(join(here, "tutorials.json"), JSON.stringify({
@@ -651,22 +670,24 @@ async function verifyGallery(browser, tutorials) {
       overflow: document.documentElement.scrollWidth > innerWidth,
       anchors: [...document.querySelectorAll('a[href^="#"]')].every((link) => document.getElementById(link.hash.slice(1))),
     }));
-    assert.deepEqual(standalone, { count: 16, paused: true, overflow: false, anchors: true });
+    assert.deepEqual(standalone, { count: tutorials.length, paused: true, overflow: false, anchors: true });
   }
   assert.deepEqual(errors, [], "Gallery must have no script errors or external network requests");
   await context.close();
-  console.log("Verified both sixteen-video galleries, role-specific sources, exact dimensions/durations, MP4 playback, pause/seek, responsive layout and one-player policy.");
+  console.log(`Verified both ${tutorials.length}-video galleries, role-specific sources, exact dimensions/durations, MP4 playback, pause/seek, responsive layout and one-player policy.`);
 }
 
 await mkdir(here, { recursive: true });
 await mkdir(imageDir, { recursive: true });
-await publishIconData();
+if (!tutorialsOnly) await publishIconData();
 const browser = await chromium.launch({ headless: true });
 try {
   const tutorials = architectureOnly ? [] : await publishTutorialCollection();
   if (architectureOnly) await publishArchitectureGallery();
-  await renderPosters(browser);
-  for (const kind of Object.keys(files)) await renderVideo(browser, kind);
+  if (!tutorialsOnly) {
+    await renderPosters(browser);
+    for (const kind of Object.keys(files)) await renderVideo(browser, kind);
+  }
   if (architectureOnly) {
     await verifyArchitectureGallery(browser);
     if (!stillsOnly) {
@@ -690,4 +711,5 @@ for (const filename of allOutputs) {
   const data = await readFile(assetPath(filename));
   console.log(`${filename}: ${data.length} bytes / SHA-256 ${createHash("sha256").update(data).digest("hex").slice(0, 16)}`);
 }
-console.log(stillsOnly ? "Stills and all scene-layout checkpoints passed." : "All animated and static outputs passed verification.");
+console.log(tutorialsOnly ? "Tutorial galleries passed verification; existing recordings, diagrams and banners were not regenerated."
+  : stillsOnly ? "Stills and all scene-layout checkpoints passed." : "All animated and static outputs passed verification.");

@@ -27,6 +27,22 @@ def _large_diagram() -> str:
     return "\n".join(body)
 
 
+def test_salvage_truncated_discriminator_json_preserves_complete_scores():
+    raw = (
+        'Verdict: {"scores": {"completeness": 8, "accuracy": 9}, '
+        '"feedback": "Keep \\"quoted, labels\\" intact", "all_pass": f'
+    )
+
+    assert tikz._salvage_json(raw) == {
+        "scores": {"completeness": 8, "accuracy": 9},
+        "feedback": 'Keep "quoted, labels" intact',
+    }
+
+
+def test_salvage_discriminator_json_does_not_invent_a_verdict():
+    assert tikz._salvage_json('{"scores": {"completeness": ') is None
+
+
 def test_malformed_ampersand_escape_is_repaired_without_touching_valid_forms():
     source = "literal \\& | malformed \\\\& | linebreak then literal \\\\\\&"
 

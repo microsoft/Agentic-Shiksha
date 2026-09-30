@@ -40,6 +40,7 @@ from azure.storage.blob import BlobServiceClient, ContainerClient, BlobClient, g
 from azure.storage.blob.aio import BlobServiceClient as AsyncBlobServiceClient
 from azure.ai.agents import AgentsClient
 from azure.ai.agents.models import (
+    VectorStore,
     VectorStoreDataSource,
     VectorStoreDataSourceAssetType,
     AzureAISearchTool,
@@ -598,7 +599,7 @@ class AsyncFileProcessor:
         self,
         blob_uris: List[str],
         vector_store_name: str = "processed_documents_vectorstore",
-    ) -> Any:
+    ) -> VectorStore:
         """Create a vector store from processed blob URIs."""
         agents_client = self._get_agents_client()
         
@@ -610,9 +611,11 @@ class AsyncFileProcessor:
             for uri in blob_uris
         ]
         
-        vector_store = agents_client.vector_stores.create_and_poll(
+        vector_store = await asyncio.to_thread(
+            agents_client.vector_stores.create_and_poll,
             data_sources=data_sources,
-            name=vector_store_name
+            name=vector_store_name,
+            retry_total=0,
         )
         
         logger.info(f"Created vector store: {vector_store.id} with {len(blob_uris)} documents")

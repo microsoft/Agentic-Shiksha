@@ -6,7 +6,7 @@ Azure AI Search index management and the query paths behind course retrieval.
 | --- | --- |
 | [course_index_manager.py](course_index_manager.py) | Per-course index lifecycle: data source, skillset, index and indexer. |
 | [bing_custom_search.py](bing_custom_search.py) | Domain-restricted web search over teacher-curated sites. |
-| [azure_ai_search.py](azure_ai_search.py) | Reference snippet for creating a Foundry search connection. See the warning below. |
+| [azure_ai_search.py](azure_ai_search.py) | Optional, explicit Azure ML workspace connection setup helper; not called by the application. |
 
 ## Indexing pipeline
 
@@ -20,14 +20,16 @@ Fusion and re-scored by the semantic ranker.
 Each course gets its own dedicated index, alongside the shared `COMMON_*` resources
 configured in [../../../.env.example](../../../.env.example).
 
-## `azure_ai_search.py` is not runnable
+## Optional search connection setup
 
-It is an illustrative snippet, not wired into the application: it references an
-`ml_client` that is never defined and would raise `NameError` if imported. Nothing
-imports it. It is also the only reason `AZURE_SEARCH_CONNECTION_NAME` appears in
-`.env.example`. Treat it as documentation, or delete it.
+`azure_ai_search.create_search_connection(ml_client, name=..., endpoint=...)`
+creates or updates an Entra-authenticated search connection in the Azure ML
+workspace selected by the supplied, authenticated `MLClient`. It is a management
+helper, not part of the runtime indexing pipeline or a Foundry data-plane client.
+Calling it explicitly changes that workspace's connection configuration.
 
-Its `azure.ai.ml.entities` import requires `azure-ai-ml`, which is intentionally
-excluded from the application's runtime requirements. Adapting this snippet also
-requires supplying an authenticated `ml_client`; installing that SDK alone does
-not make the snippet runnable.
+Importing this module reads no environment variables, creates no clients, and
+performs no Azure operations. The optional `azure-ai-ml` SDK is imported only
+inside the helper and remains excluded from the application's runtime
+requirements. A separate management environment must provide it when invoking
+the helper; connection names and endpoints must be supplied explicitly.

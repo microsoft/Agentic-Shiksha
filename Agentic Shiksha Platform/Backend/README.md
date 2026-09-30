@@ -288,9 +288,9 @@ make every service feature generally available.
 
 Evaluation runs in the admin service, so `azure-ai-evaluation` belongs to its
 separate requirements. The unused management SDK is not a main-runtime dependency.
-The [search-connection reference snippet](azure_services/tools/search/README.md#azure_ai_searchpy-is-not-runnable)
-is not part of the application; its `azure-ai-ml` dependency is intentionally not
-included in the runtime manifest.
+The [optional search-connection setup helper](azure_services/tools/search/README.md#optional-search-connection-setup)
+is not called by the application; its lazily imported `azure-ai-ml` dependency is
+intentionally not included in the runtime manifest.
 
 After installation, verify installed package constraints:
 

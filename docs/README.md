@@ -19,6 +19,7 @@ and recommendations.
 | --- | --- |
 | [The research architecture](architecture.md) | How does the learner feedback loop work? |
 | [Implemented agents](agents/README.md) | Which named agents does the code actually create or call, and which components are workers or tools? |
+| [Image generation](image-generation.md) | How can a course TA create a learning illustration, and what does the actual-interface demo show? |
 | [Workflow coverage audit](workflows/README.md) | Which UI/API workflows exist, who can use them, what changes, and how do success, failure and retry behave? |
 | [Project Ekalaiva](pedagogy/ekalaiva.md) | What is Manohar's framework, where are its source essays, and how does Agentic Shiksha relate to it? |
 | [Learner memory](memory/README.md) | How do the Memory Store and custom learner-memory structure differ? |

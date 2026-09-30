@@ -39,6 +39,10 @@ Agentic Shiksha Platform/Backend/venv/
 **/.ruff_cache/
 **/.coverage
 
+# Optional pip exports are generated from each service's canonical uv.lock.
+Agentic Shiksha Platform/Backend/requirements.txt
+Admin-Dashboard/backend/requirements.txt
+
 # Local runtime data (auto-created by main.py; Azure Blob Storage is the source of truth)
 Agentic Shiksha Platform/Backend/user_data/*
 !Agentic Shiksha Platform/Backend/user_data/.gitkeep

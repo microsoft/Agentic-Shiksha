@@ -577,9 +577,18 @@ for (const width of [1440, 390, 320]) {
   test(`answer depth dropdown is accessible and preserves the draft at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await mockChat(page);
-    if (width < 640) await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
+    if (width < 640) {
+      await page.getByRole("button", { name: "Collapse sidebar", exact: true }).click();
+      await page.getByRole("button", { name: "Expand sidebar", exact: true }).evaluate(async button => {
+        await Promise.all(button.closest("aside")!.getAnimations().map(animation => animation.finished));
+      });
+    }
     const input = page.getByRole("textbox", { name: "Ask anything about the course..." });
     const trigger = page.getByRole("button", { name: /^Answer depth:/ });
+    const controlBounds = () => trigger.evaluate(element => ({
+      depthRight: element.getBoundingClientRect().right,
+      micLeft: document.querySelector('[aria-label="Start recording"]')!.getBoundingClientRect().left,
+    }));
     await expect(trigger).toHaveAccessibleName("Answer depth: Balanced");
     await expect(trigger.locator("svg.lucide-wand-sparkles")).toHaveCount(0);
     await expect(trigger.locator("svg")).toHaveCount(1);
@@ -589,10 +598,8 @@ for (const width of [1440, 390, 320]) {
     }
     await expect(page.getByText("Tools", { exact: true })).toHaveCount(0);
     await input.fill("Keep this draft unchanged.");
-    const triggerBounds = await trigger.boundingBox();
-    const micBounds = await page.getByRole("button", { name: "Start recording", exact: true }).boundingBox();
-    if (!triggerBounds || !micBounds) throw new Error("Composer controls did not render");
-    expect(triggerBounds.x + triggerBounds.width).toBeLessThanOrEqual(micBounds.x);
+    const balancedBounds = await controlBounds();
+    expect(balancedBounds.depthRight).toBeLessThanOrEqual(balancedBounds.micLeft);
     await trigger.click();
     await expect(page.getByRole("menuitemradio")).toHaveCount(3);
     await expect(page.getByRole("menuitemradio", { name: /^Balanced/ })).toHaveAttribute("aria-checked", "true");
@@ -622,8 +629,8 @@ for (const width of [1440, 390, 320]) {
     await expect(menu).toHaveCount(0);
     await expect(trigger).toHaveAccessibleName("Answer depth: Comprehensive");
     await expect(input).toHaveValue("Keep this draft unchanged.");
-    const comprehensiveBounds = (await trigger.boundingBox())!;
-    expect(comprehensiveBounds.x + comprehensiveBounds.width).toBeLessThanOrEqual(micBounds.x);
+    const comprehensiveBounds = await controlBounds();
+    expect(comprehensiveBounds.depthRight).toBeLessThanOrEqual(comprehensiveBounds.micLeft);
     await trigger.focus();
     await page.keyboard.press("Enter");
     await expect(menu).toBeVisible();
@@ -1315,6 +1322,8 @@ test("clarification offers a fresh ten-second choice after every accepted extens
   await choice.getByRole("button", { name: "Continue with defaults" }).click();
   await expect(choice).toHaveCount(0);
   expect(state.submissions).toEqual([[{ answer: "" }, { answer: "" }]]);
+  await page.clock.runFor(3000);
+  await expect(page.getByText(answer, { exact: true }).first()).toBeVisible();
 });
 
 test("clarification can complete its final answer during the decision countdown", async ({ page }) => {
@@ -1366,6 +1375,8 @@ test("clarification continues with saved answers and defaults only after the ten
   expect(state.submissions).toEqual([]);
   expect(state.answers).toEqual([{ answer: "Industrial control" }, { answer: "" }]);
   await expect(page.getByText("Industrial control", { exact: true })).toBeVisible();
+  await page.clock.runFor(3000);
+  await expect(page.getByText(answer, { exact: true }).first()).toBeVisible();
 });
 
 test("clarification extension and answer failures remain visible without pretending to resume", async ({ page }) => {
@@ -1388,6 +1399,8 @@ test("clarification extension and answer failures remain visible without pretend
   await page.getByRole("button", { name: "Retry saving answers" }).click();
   await expect(page.getByText("Waiting for your response…", { exact: true })).toHaveCount(0);
   expect(state.closed).toBe(true);
+  await page.clock.runFor(3000);
+  await expect(page.getByText(answer, { exact: true }).first()).toBeVisible();
 });
 
 for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
@@ -3173,6 +3186,7 @@ for (const initial of ["not_available", "failed"] as const) {
       await expect(panel.getByRole("button", { name: "Retry generation", exact: true })).toHaveCount(0);
       status = "ready";
       await expect(panel.getByText("Recovered module", { exact: true })).toBeVisible({ timeout: 15000 });
+      await expect(page.getByText("Course curriculum is now available!", { exact: true })).toHaveCount(0);
       await expect(panel.getByRole("button", { name: "Edit", exact: true })).toBeVisible({ timeout: 15000 });
       expect(retryCalls).toBe(1);
     } finally { release(); }
@@ -3256,6 +3270,39 @@ test("a delayed curriculum status cannot restore retry after generation starts",
   } finally { release(); }
 });
 
+test("background curriculum readiness notification clears when the panel opens", async ({ page }) => {
+  await page.clock.install();
+  await mockChat(page);
+  let status = "processing";
+  await page.route("**/api/agents/*/course-curriculum**", route => {
+    const url = new URL(route.request().url());
+    if (url.pathname.endsWith("/translations")) return route.fulfill({ json: {
+      source_hash: "a".repeat(64), translations: [], default_instructions: "Translate the syllabus.", max_instructions_length: 2000,
+    } });
+    return route.fulfill({ json: {
+      status,
+      course_curriculum: status === "ready" && !url.searchParams.has("status_only") ? {
+        course_name: "Example", syllabus: [{ title: "Ready module", topics: ["Example topic"] }], all_threshold_concepts: [],
+      } : null,
+    } });
+  });
+  await page.reload();
+  await page.getByRole("button", { name: "TA actions", exact: true }).click();
+  await expect(page.getByRole("menuitem", { name: /Course Curriculum/ })).toContainText("Generating...");
+  await page.keyboard.press("Escape");
+  status = "ready";
+  await page.clock.fastForward(5_000);
+  const notice = page.getByText("Course curriculum is now available!", { exact: true });
+  await expect(notice).toBeVisible();
+  await page.getByRole("button", { name: "TA actions", exact: true }).click();
+  await page.getByRole("menuitem", { name: /Course Curriculum/ }).click();
+  const panel = page.getByRole("region", { name: "Course Curriculum", exact: true });
+  await expect(panel.getByText("Ready module", { exact: true })).toBeVisible();
+  await expect(notice).toHaveCount(0);
+  await panel.getByRole("button", { name: "Translate syllabus", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "Translate syllabus", exact: true })).toBeVisible();
+});
+
 for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
 test(`translates a syllabus in pure or mixed style and switches saved versions at ${viewport.width}px without regeneration`, async ({ page }, testInfo) => {
   // This journey covers several translations and a reload; assertion timeouts stay unchanged.
@@ -3337,6 +3384,8 @@ test(`translates a syllabus in pure or mixed style and switches saved versions a
   await page.getByRole("button", { name: "TA actions", exact: true }).click();
   await page.getByRole("menuitem", { name: /Course Curriculum/ }).click();
   const panel = page.getByRole("region", { name: "Course Curriculum", exact: true, includeHidden: true });
+  await expect(panel.getByText(originalTitle, { exact: true })).toBeVisible();
+  await expect(page.getByText("Course curriculum is now available!", { exact: true })).toHaveCount(0);
   await panel.getByRole("button", { name: "Translate syllabus", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "Translate syllabus", exact: true });
   const instructionsField = dialog.getByRole("textbox", { name: "Translation instructions", exact: true });
@@ -4398,16 +4447,21 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
           icon: styles(icon, ["width", "height", "border-radius", "background-color"]),
           glyph: styles(icon.firstElementChild!, ["width", "height", "color"]),
           title: styles(card.querySelector("p")!, ["font-size", "font-weight", "color", "text-overflow"]),
+          subtitle: styles(card.querySelectorAll("p")[1], ["white-space", "text-overflow"]),
           button: styles(card.querySelector("button")!, ["height", "padding", "border-radius", "border-color", "font-size", "font-weight", "color"]),
         };
       };
-      return { circuit: profile(element), document: profile(reference), fits: element.scrollWidth <= element.clientWidth };
+      return {
+        circuit: profile(element), document: profile(reference),
+        fits: [element, reference].every(card => card.scrollWidth <= card.clientWidth),
+      };
     });
     expect(profiles.circuit).toEqual({
       ...profiles.document,
       icon: [...profiles.document.icon.slice(0, -1), "rgba(245, 158, 11, 0.15)"],
       glyph: [...profiles.document.glyph.slice(0, -1), "rgb(251, 191, 36)"],
     });
+    expect(profiles.document.subtitle).toEqual(["nowrap", "ellipsis"]);
     expect(profiles.fits).toBe(true);
     await launch.screenshot({ path: testInfo.outputPath(`circuit-launch-${viewport.width}.png`) });
     await page.getByRole("button", { name: "Open circuit: Voltage divider", exact: true }).click();

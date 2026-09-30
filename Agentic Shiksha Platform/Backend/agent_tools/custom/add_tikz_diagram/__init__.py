@@ -472,7 +472,7 @@ def _salvage_json(raw: str) -> Optional[Dict[str, Any]]:
     # Truncated mid-value (e.g. `"completeness": f`). Walk back to successively
     # earlier key/value boundaries, closing open containers at each attempt.
     body = raw[start:]
-    boundaries: List[Tuple[int, int]] = []
+    boundaries: list[tuple[int, int]] = []
     depth = 0
     in_string = False
     escaped = False

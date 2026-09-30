@@ -1,4 +1,8 @@
-from types import SimpleNamespace
+import builtins
+import importlib.util
+from pathlib import Path
+import sys
+from types import ModuleType, SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
@@ -11,6 +15,49 @@ from agent_tools.hosted.azure_ai_search.builder import build_azure_ai_search_too
 from azure_services.agents import agent_creation
 from azure_services.tools.memory import memory_store_manager
 from utils import course_creation
+
+
+def test_search_connection_reference_has_no_import_time_sdk_or_environment_dependency(
+    monkeypatch,
+):
+    import_module = builtins.__import__
+
+    def guarded_import(name, *args, **kwargs):
+        if name.startswith("azure.ai.ml"):
+            pytest.fail("Optional management SDK must be loaded only when setup is requested")
+        return import_module(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", guarded_import)
+    monkeypatch.delenv("AZURE_SEARCH_CONNECTION_NAME", raising=False)
+    monkeypatch.delenv("AZURE_SEARCH_ENDPOINT", raising=False)
+    path = (
+        Path(__file__).resolve().parents[1]
+        / "azure_services" / "tools" / "search" / "azure_ai_search.py"
+    )
+    spec = importlib.util.spec_from_file_location("search_connection_reference", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    assert callable(module.create_search_connection)
+
+
+def test_search_connection_setup_uses_only_the_supplied_management_client(monkeypatch):
+    entities = ModuleType("azure.ai.ml.entities")
+    connection_factory = Mock()
+    entities.AzureAISearchConnection = connection_factory
+    monkeypatch.setitem(sys.modules, "azure.ai.ml.entities", entities)
+    from azure_services.tools.search.azure_ai_search import create_search_connection
+
+    client = Mock()
+    result = create_search_connection(
+        client, name="course-search", endpoint="https://example.search.windows.net"
+    )
+
+    connection_factory.assert_called_once_with(
+        name="course-search", endpoint="https://example.search.windows.net", api_key=None
+    )
+    client.connections.create_or_update.assert_called_once_with(connection_factory.return_value)
+    assert result is client.connections.create_or_update.return_value
 
 
 def test_search_tool_keeps_course_filter_and_query_settings():

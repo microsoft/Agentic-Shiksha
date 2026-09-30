@@ -10,13 +10,13 @@ updates:
       interval: weekly
 
   # ── Python ──────────────────────────────────────────────────────────────
-  - package-ecosystem: pip
+  - package-ecosystem: uv
     directory: "/Agentic Shiksha Platform/Backend"
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
 
-  - package-ecosystem: pip
+  - package-ecosystem: uv
     directory: "/Admin-Dashboard/backend"
     schedule:
       interval: weekly
@@ -31,6 +31,12 @@ updates:
 
   - package-ecosystem: npm
     directory: "/Admin-Dashboard/frontend"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: npm
+    directory: "/assets/web/motion"
     schedule:
       interval: weekly
     open-pull-requests-limit: 5

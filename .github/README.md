@@ -2,12 +2,15 @@
   <img src="../assets/images/research/shiksha-research-banner.svg" alt="Agentic Shiksha — From knowledge transmission to knowledge transformation." width="1200">
 </a>
 
+
+# Welcome to Agentic Shiksha!
+
 <p>
-  <a href="#getting-started"><kbd>Get started</kbd></a>
-  <a href="#demos"><kbd>Demos</kbd></a>
-  <a href="../docs/README.md"><kbd>Documentation</kbd></a>
-  <a href="../docs/architecture.md"><kbd>Architecture</kbd></a>
-  <a href="../docs/pedagogy/ekalaiva.md"><kbd>EKALAIVA</kbd></a>
+  <a href="#getting-started"><img src="../assets/images/branding/readme-get-started.svg" alt="Get Started" height="28"></a>
+  <a href="#demos"><img src="../assets/images/branding/readme-demos.svg" alt="Demos" height="28"></a>
+  <a href="../docs/README.md"><img src="../assets/images/branding/readme-documentation.svg" alt="Documentation" height="28"></a>
+  <a href="../docs/architecture.md"><img src="../assets/images/branding/readme-architecture.svg" alt="Architecture" height="28"></a>
+  <a href="../docs/pedagogy/ekalaiva.md"><img src="../assets/images/branding/readme-ekalaiva.svg" alt="EKALAIVA" height="28"></a>
 </p>
 
 **Agentic Shiksha helps teachers build AI teaching assistants for their courses.**
@@ -17,6 +20,48 @@ what to ask, explain, or practise next.
 
 The project draws on [Project Ekalaiva](../docs/pedagogy/ekalaiva.md) and a central
 research question: **What changed in the learner’s understanding?**
+
+## Background
+
+**Shiksha** is a Sanskrit word associated with *instruction, learning, and
+education* ([Wikipedia](https://en.wikipedia.org/wiki/Shiksha)). At its core,
+education is not only about access to information, but about helping learners
+build understanding, overcome difficult ideas, and develop the ability to think
+and apply knowledge independently.
+
+AI has gradually evolved from systems that primarily generated responses into
+**[agents](https://www.anthropic.com/engineering/building-effective-agents)** that
+can reason over context, use tools, maintain state, plan across multiple steps,
+and work toward goals. This evolution creates an opportunity to rethink how AI
+can participate in education, not merely as a question answering interface, but
+as a system that can observe, adapt, and support learning over time.
+
+**[EKALAIVA](../docs/pedagogy/ekalaiva.md)** provides the pedagogical foundation
+for this direction. It emphasizes ideas such as
+[threshold concepts](../docs/pedagogy/ekalaiva.md#threshold-concepts),
+[challenge driven learning][background-ekalaiva-challenges],
+[portfolio based assessment][background-ekalaiva-portfolios],
+[flexible learning pathways][background-ekalaiva-overview],
+[lifelong learning][background-ekalaiva-lifelong], and a
+[changing role for faculty][background-ekalaiva-faculty]. A central idea is that
+learning should focus not just on delivering more content, but on helping
+learners cross the conceptual barriers that fundamentally change how they
+understand a subject.
+
+**Agentic Shiksha** emerges from bringing these two ideas together: agentic AI
+and the [EKALAIVA pedagogy](../docs/pedagogy/ekalaiva.md#how-agentic-shiksha-relates-to-the-vision).
+It explores [course specific teaching agents](../docs/agents/course-ta.md) that
+work with [teacher intent](../docs/agents/course-creation.md#inputs-and-outputs),
+[course knowledge](../docs/agent-dataflow.md#course-material-processing),
+[learner interactions, misconceptions, and progress](../docs/memory/overview.md#from-an-interaction-to-usable-memory)
+to determine what support may be useful next, shifting AI in education from
+simply *answering questions* toward *supporting the learning process itself*.
+
+[background-ekalaiva-overview]: https://medium.com/@swamimanohar_73269/project-ekalaiva-the-six-pillars-of-educational-transformation-9e7c022b2964
+[background-ekalaiva-challenges]: https://medium.com/@swamimanohar_73269/grand-challenge-driven-unified-pedagogy-learning-through-problems-that-matter-5362616101b7
+[background-ekalaiva-portfolios]: https://medium.com/@swamimanohar_73269/portfolio-based-assessment-from-proof-of-reproduction-to-proof-of-application-9d1125b3ef55
+[background-ekalaiva-lifelong]: https://medium.com/@swamimanohar_73269/ekalaivas-fifth-pillar-breaking-the-linear-prison-of-education-lifelong-learning-and-lifelong-38df2bb8cbec
+[background-ekalaiva-faculty]: https://medium.com/@swamimanohar_73269/faculty-transformation-from-gatekeepers-to-guides-in-the-ai-age-10761c31249a
 
 ## The teaching approach
 
@@ -78,6 +123,25 @@ not separate agents.
 [Workflow coverage audit](../docs/workflows/README.md) ·
 [Architecture atlas](../assets/web/architecture/index.html) ·
 [Deployment guide](../docs/deployment.md)
+
+## Image generation
+
+Ask a course TA to turn a lesson into a labeled illustration, open the image for
+a closer look, and ask a follow-up in the same conversation. Image generation
+uses the TA's `generate_image` tool; it is not a separate teaching agent.
+
+![Image-generation demo: request an illustration, inspect it and ask a follow-up](../assets/images/motion/shiksha-image-generation-tutorial.gif)
+
+[Download MP4 - 35 seconds](../assets/web/motion/shiksha-image-generation-tutorial.mp4?raw=1) ·
+[Still preview](../assets/images/motion/shiksha-image-generation-tutorial.png) ·
+[Captions](../assets/web/motion/shiksha-image-generation-tutorial.vtt) ·
+[Feature guide and example prompts](../docs/image-generation.md)
+
+The recording uses the real interface with four starters and collapsed
+navigation when viewing the image. Its artwork and responses are synthetic,
+not live image-model output or a speed benchmark. Live use requires a configured
+image deployment, storage and an available course tool. Always review generated
+labels and relationships against the course material.
 
 ## Learner memory
 

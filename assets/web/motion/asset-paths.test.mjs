@@ -206,3 +206,30 @@ test("relocated script imports, recorder dependencies and fixture font resolve l
   assert((await stat(join(here, "node_modules", "@fontsource-variable", "sora", "files",
     "sora-latin-wght-normal.woff2"))).size > 0);
 });
+
+test("image-generation recording verifies native preview, retained image and synthetic provenance", async () => {
+  const metadata = JSON.parse(await readFile(assetPath("shiksha-image-generation-tutorial.json"), "utf8"));
+  const evidence = metadata.verification;
+  assert.equal(metadata.demoId, "image-generation");
+  assert.equal(metadata.presentation.configuredCourseStarters, 4);
+  assert(metadata.presentation.verifiedWelcomeScreens > 0);
+  assert(metadata.presentation.assetChecks.some(check => check.event === "generated_image_start"));
+  assert(metadata.presentation.assetChecks.some(check => check.event === "generated_image"));
+  assert(metadata.presentation.assetChecks.every(check => check.navigationCollapsed));
+  assert.equal(evidence.feature, "image-generation");
+  assert.equal(evidence.tool, "generate_image");
+  for (const key of ["nativeUI", "placeholderVerified", "previewVerified",
+    "navigationCollapsedBeforeImage", "sameConversationFollowup", "imageInSyncedHistory"]) {
+    assert.equal(evidence[key], true, `${key} must be exercised by the real-interface recipe`);
+  }
+  assert.equal(evidence.realModelCalls, 0);
+  assert.match(evidence.image.source, /not live model output/);
+  const fixture = await readFile(assetPath("shiksha-image-generation-example.png"));
+  assert.equal(fixture.readUInt32BE(16), 1536);
+  assert.equal(fixture.readUInt32BE(20), 1024);
+  assert.equal(createHash("sha256").update(fixture).digest("hex"), evidence.image.sha256);
+  assert.equal(metadata.chapters.length, 6);
+  const captions = await readFile(assetPath("shiksha-image-generation-tutorial.vtt"), "utf8");
+  assert(captions.startsWith("WEBVTT\n"));
+  for (const chapter of metadata.chapters) assert(captions.includes(chapter.caption));
+});

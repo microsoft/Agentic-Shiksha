@@ -146,3 +146,62 @@ def test_legacy_creation_propagates_creation_failure(legacy_creation):
         asyncio.run(main._path2_create_agent(**request))
 
     creator.assert_awaited_once()
+
+
+@pytest.mark.parametrize(
+    "context_fields,expected_context",
+    [
+        ({}, ""),
+        ({"additionalContext": None}, ""),
+        ({"additionalContext": "Teacher context"}, "Teacher context"),
+        ({"courseDescription": "Course description"}, "Course description"),
+        (
+            {"courseDescription": "Course description", "additionalContext": "Teacher context"},
+            "Course description",
+        ),
+        (
+            {"courseDescription": "", "additionalContext": "Teacher context"},
+            "Teacher context",
+        ),
+        (
+            {"courseDescription": None, "additionalContext": "Teacher context"},
+            "Teacher context",
+        ),
+    ],
+)
+def test_direct_creation_persists_the_context_used_for_instructions(
+    monkeypatch, context_fields, expected_context
+):
+    monkeypatch.setattr(main, "ALLOWED_DEPLOYMENTS", {"test-model"})
+    meta_agent = AsyncMock(return_value=("Generated description", "Course prompt", ["Start here"]))
+    unify = Mock(return_value="Unified instructions")
+    creator = Mock()
+    creator.create_agent.return_value = ("course-example", "1")
+    persist = Mock()
+    monkeypatch.setattr(main, "call_meta_agent_for_prompt", meta_agent)
+    monkeypatch.setattr(main, "unify_agent_prompts", unify)
+    monkeypatch.setattr(main, "AgentCreator", Mock(return_value=creator))
+    monkeypatch.setattr(
+        main, "create_memory_store_for_agent", Mock(return_value={"name": "course-memory"})
+    )
+    monkeypatch.setattr(main, "create_agent_metadata", persist)
+
+    result = asyncio.run(main.create_agent_direct({
+        "kind": "learning",
+        "name": "course-example",
+        "model": "test-model",
+        "courseName": "Example course",
+        "createdById": "teacher-1",
+        **context_fields,
+    }))
+
+    meta_agent.assert_awaited_once()
+    assert meta_agent.call_args.kwargs["course_description"] == expected_context
+    assert unify.call_args.kwargs["additional_context"] == (expected_context or None)
+    persist.assert_called_once()
+    assert persist.call_args.kwargs["additional_context"] == expected_context
+    assert persist.call_args.kwargs["agent_id"] == "course-example"
+    assert persist.call_args.kwargs["created_by"] == "teacher-1"
+    assert persist.call_args.kwargs["metadata"] == {"memoryStoreName": "course-memory"}
+    assert result["agent_id"] == "course-example"
+    assert result["agent_version"] == "1"

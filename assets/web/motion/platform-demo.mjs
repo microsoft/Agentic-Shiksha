@@ -132,7 +132,9 @@ export async function installDemo(context, baseURL, role, { onboardingCompleted 
       }
     }
     if (path === "/auth/me" && method === "GET") return json({ id: account.userId, ...account });
-    if (path === "/api/config" && method === "GET") return json({ default_model: "gpt-4.1", allowed_models: ["gpt-4.1"] });
+    if (path === "/api/config" && method === "GET") return json({
+      default_model: "gpt-4.1", agent_model: "gpt-4.1", allowed_models: ["gpt-4.1"], version: "tutorial-1",
+    });
     if (path === "/api/speech/token" && method === "GET") {
       return json({ detail: "Speech is intentionally disabled in this offline tutorial." }, 503);
     }

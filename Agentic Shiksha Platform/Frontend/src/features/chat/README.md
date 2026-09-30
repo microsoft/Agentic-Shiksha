@@ -324,6 +324,8 @@ Circuits use `CircuitLaunchCard` in the transcript. The `onCircuitOpen` callback
 through the chat containers to the existing document pane, where `AssetContent` validates
 and renders the complete simulator. Do not render the editor inline. Public shares use
 the same pane read-only, with visual playback and CSV export still available.
+Circuit and document launch cards keep their titles and metadata on single lines,
+truncating on narrow screens so the cards stay aligned and Open remains available.
 
 While a circuit is open in its owner's active course conversation, chat requests include
 the current draft and simulation status as user-provided context. Valid completed runs

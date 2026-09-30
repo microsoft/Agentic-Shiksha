@@ -33,7 +33,7 @@ function parseOptions(args) {
       if (argument === "--learner") selected = ["learner"];
       else if (argument === "--teacher") selected = ["teacher"];
       else if (argument === "--additional") selected = ["answer-depth", "documents", "preferences", "companion-review", "slides", "circuits"];
-      else if (argument === "--all") selected = ["learner", "teacher", "answer-depth", "documents", "preferences", "companion-review", "slides", "circuits", "challenges", "student-teacher", "memory", "onboarding-profile", "teacher-roster", "teacher-usage", "admin-overview", "admin-assignments"];
+      else if (argument === "--all") selected = ["learner", "teacher", "answer-depth", "documents", "preferences", "companion-review", "slides", "circuits", "challenges", "student-teacher", "memory", "onboarding-profile", "teacher-roster", "teacher-usage", "admin-overview", "admin-assignments", "image-generation"];
       else if (argument === "--demo") {
         assert(args[index + 1] && !args[index + 1].startsWith("--"), "--demo requires a name or comma-separated names");
         selected = args[++index].split(",");
@@ -243,6 +243,7 @@ function createHelpers(page, recorder) {
   const assetEvents = new Set([
     "document_start", "document", "quiz_start", "quiz",
     "slides_start", "slides", "circuit_start", "circuit", "challenge_start", "challenge",
+    "generated_image_start", "generated_image",
   ]);
   return {
     async openCourse() {
@@ -298,6 +299,10 @@ async function scenarioFor(id) {
   if (id === "challenges") {
     const { challengeDemo } = await import("./challenge-demo.mjs");
     return challengeDemo;
+  }
+  if (id === "image-generation") {
+    const { imageGenerationDemo } = await import("./image-generation-demo.mjs");
+    return imageGenerationDemo;
   }
   if (id === "memory") {
     const { memoryDemo } = await import("./memory-demo.mjs");
@@ -467,7 +472,7 @@ async function main() {
           const verification = await scenario.run(ctx);
           demo.verify();
           if (scenario.role === "student") assert(recorder.starterChecks > 0, "Every learner demo must show four verified starters");
-          if (["learner", "documents", "slides", "circuits", "challenges", "memory"].includes(kind)) {
+          if (["learner", "documents", "slides", "circuits", "challenges", "memory", "image-generation"].includes(kind)) {
             assert(recorder.assetChecks.length > 0, "Asset demos must verify collapsed navigation before rendering the asset");
           }
           if (checkFlow) {

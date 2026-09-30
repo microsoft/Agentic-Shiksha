@@ -100,6 +100,46 @@ function assertAtlasImageContent(svg, icons) {
   }
 }
 
+test("GitHub README navigation uses five local, accessible purple icon badges", async () => {
+  const readmePath = join(repositoryRoot, ".github", "README.md");
+  const readme = await readFile(readmePath, "utf8");
+  assert.match(readme, /^# Welcome to Agentic Shiksha!\r?\n/);
+  const navigation = readme.match(/<p>([\s\S]*?)<\/p>/)?.[1];
+  assert(navigation, "The welcome heading must be followed by the navigation row");
+  assert.doesNotMatch(navigation, /<kbd\b|<style\b|<script\b|style=/i);
+  const badges = [...navigation.matchAll(/<a href="([^"]+)">\s*<img\b([^>]+)>\s*<\/a>/g)]
+    .map(([, href, attributes]) => ({
+      href,
+      src: attributes.match(/\bsrc="([^"]+)"/)?.[1],
+      alt: attributes.match(/\balt="([^"]+)"/)?.[1],
+      height: attributes.match(/\bheight="([^"]+)"/)?.[1],
+    }));
+  const expected = [
+    ["Get Started", "#getting-started", "get-started"],
+    ["Demos", "#demos", "demos"],
+    ["Documentation", "../docs/README.md", "documentation"],
+    ["Architecture", "../docs/architecture.md", "architecture"],
+    ["EKALAIVA", "../docs/pedagogy/ekalaiva.md", "ekalaiva"],
+  ];
+  assert.deepEqual(badges, expected.map(([alt, href, name]) => ({
+    alt, href, src: `../assets/images/branding/readme-${name}.svg`, height: "28",
+  })));
+  for (const badge of badges) {
+    const svg = await readFile(new URL(badge.src, pathToFileURL(readmePath)), "utf8");
+    assert.match(svg, /<svg\b[^>]*height="28"[^>]*role="img"/);
+    assert(svg.includes(`>${badge.alt}</title>`), `${badge.alt}: accessible SVG title`);
+    assert(svg.includes(`>${badge.alt}</text>`), `${badge.alt}: visible label`);
+    assert.match(svg, /<rect\b[^>]*rx="4"[^>]*fill="#5865F2"/);
+    assert.match(svg, /<g\b[^>]*data-icon=""[^>]*aria-hidden="true"/);
+    assert.match(svg, /<text\b[^>]*fill="#FFFFFF"/);
+    assert.doesNotMatch(svg, /<(?:script|style|foreignObject|image)\b|\b(?:href|onload|onclick)=/i);
+  }
+  assert.match(readme, /^## Getting started\r?$/m);
+  assert.match(readme, /^## Demos\r?$/m);
+  assert(readme.indexOf("</p>") < readme.indexOf("shiksha-research-banner.svg"), "Badges precede the existing light banner");
+  await assertLinks(readmePath, true);
+});
+
 test("Atlas image exceptions reject unrecognized, external and modified icon content", async () => {
   const { azureServiceIcon, azureServiceIcons } = await import("./azure-icons/diagram-icons.mjs");
   const original = azureServiceIcon("foundry", 0, 0, 32);

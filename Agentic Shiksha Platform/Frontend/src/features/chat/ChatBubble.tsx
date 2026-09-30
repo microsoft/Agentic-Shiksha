@@ -720,7 +720,7 @@ function ChatBubble({
                               <p className="text-sm font-medium text-white truncate">
                                 {block.title || "Document"}
                               </p>
-                              <p className="text-xs text-neutral-500">
+                              <p className="text-xs text-neutral-500 truncate" title="Document · MD">
                                 Document · MD
                               </p>
                             </div>
@@ -761,7 +761,7 @@ function ChatBubble({
                             <p className="text-sm font-medium text-white truncate">
                               {generatedDocTitle ?? "Generated document"}
                             </p>
-                            <p className="text-xs text-neutral-500">
+                            <p className="text-xs text-neutral-500 truncate" title="Document · MD">
                               Document · MD
                             </p>
                           </div>

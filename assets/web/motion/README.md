@@ -182,7 +182,8 @@ production credentials or edits to the application itself.
 
 ## Role-based video demos
 
-[demos.html](demos.html) presents sixteen recordings. The newest five cover
+[demos.html](demos.html) presents seventeen recordings, including the new
+[image-generation walkthrough](demos.html#image-generation). Five others cover
 onboarding/profile setup, teacher roster and usage workflows, and two
 standalone administrator workflows. The main app and separate admin frontend
 remain unchanged; fresh browser contexts and explicit local fixtures isolate
@@ -205,6 +206,45 @@ publishes and checks the gallery. The older selectors and `--all` still work.
 Four conversation starters apply to course-chat welcome screens, not to the
 standalone admin dashboard. Native navigation is collapsed before assets
 where that control exists. Every video retains the lavender, badge-free header.
+
+### Image generation
+
+For the product feature, example prompts, configuration and limitations, read
+the [image-generation guide](../../../docs/image-generation.md).
+This section describes the separate offline recording process.
+
+The [image-generation demo](demos.html#image-generation) opens a course with four
+starters, sends a labeled-illustration request, shows the native **Generating
+image** state, opens the result in the actual image preview, then asks a
+follow-up in the same conversation. The left navigation collapses before the
+image appears.
+
+[image-generation-demo.mjs](image-generation-demo.mjs) delivers the real
+`generated_image_start` and `generated_image` event shapes. Its response includes
+base64 pixels and an isolated local image URL, matching the live-versus-restored
+image contract. Assertions verify the 1536 x 1024 result, preview, conversation
+identity and image reference in the intercepted chat-sync payload.
+
+The [solar-irrigation SVG](../../images/motion/shiksha-image-generation-example.svg)
+is original tutorial artwork, rasterized locally to a
+[PNG fixture](../../images/motion/shiksha-image-generation-example.png).
+**It is not live model output.** No image-generation provider, quota or real
+learner record is accessed, and recorded timing is not a model-speed benchmark.
+The common synthetic configuration includes the current required `agent_model`
+and `version` fields; no application configuration was changed.
+
+With the isolated frontend running as described above:
+
+```powershell
+node assets\web\motion\record-platform.mjs --demo image-generation --check-flow
+node assets\web\motion\record-platform.mjs --demo image-generation
+node assets\web\motion\generate.mjs --tutorials-only
+```
+
+`--tutorials-only` updates and verifies the two video galleries and their
+catalogue without rerendering any existing recording, architecture illustration,
+research banner or memory artwork. Direct MP4/GIF/PNG/caption downloads include
+the new recording; existing ZIPs remain explicitly labelled earlier snapshots.
 
 ## Architecture diagrams
 
@@ -256,6 +296,8 @@ exports the original 16-second flow and refreshes the existing tutorial gallery
 metadata. It does not rerecord the real-UI tutorial videos. `--stills-only`
 regenerates SVG/PNG posters and checks phases but deliberately leaves GIF/MP4
 files unchanged; run the full commands before sharing updated animation downloads.
+Use `--tutorials-only` instead when publishing a new recording without touching
+diagram exports.
 All rendering, recording, inspection and restyling commands keep PNG/SVG/GIF
 outputs in `images\motion` and MP4/VTT/JSON/HTML outputs here. Existing media ZIPs
 are retained unchanged as downloadable snapshots; these commands do not rebuild

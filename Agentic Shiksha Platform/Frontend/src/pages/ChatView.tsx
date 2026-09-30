@@ -1045,6 +1045,8 @@ export function ChatView() {
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | null = null;
     const controller = new AbortController();
+    const readyToastId = `curriculum-ready:${effectiveAgentId}`;
+    if (syllabusOpen) toast.dismiss(readyToastId);
 
     const check = async () => {
       if (curriculumRetryRef.current) return;
@@ -1063,15 +1065,15 @@ export function ChatView() {
         acceptCurriculumStatus(result);
 
         if (newStatus === "ready") {
-          // Fire browser notification when transitioning to ready
-          if (prevStatus && prevStatus !== "ready") {
+          // The open panel already shows readiness; notifications must not cover its controls.
+          if (prevStatus && prevStatus !== "ready" && !syllabusOpen) {
             if ("Notification" in window && Notification.permission === "granted") {
               new Notification("Course Curriculum Ready", {
                 body: `The curriculum for ${getCourseName(courseAgentName)} is now available.`,
                 icon: "/logo192.png",
               });
             }
-            toast.success("Course curriculum is now available!");
+            toast.success("Course curriculum is now available!", { id: readyToastId });
           }
         }
 
@@ -1092,7 +1094,12 @@ export function ChatView() {
     }
 
     check();
-    return () => { cancelled = true; controller.abort(); if (timer) clearTimeout(timer); };
+    return () => {
+      cancelled = true;
+      controller.abort();
+      if (timer) clearTimeout(timer);
+      toast.dismiss(readyToastId);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveAgentId, currentUserId, curriculumPollVersion, syllabusOpen, acceptCurriculumStatus]);
 

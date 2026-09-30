@@ -1,0 +1,90 @@
+{
+  "name": "shiksha-image-generation-tutorial",
+  "title": "Generate and explore a learning image",
+  "duration": 35.166666666666664,
+  "frames": 422,
+  "width": 1360,
+  "height": 928,
+  "gifFrames": 352,
+  "gifBytes": 2845139,
+  "chapters": [
+    {
+      "start": 0,
+      "end": 4.583333333333333,
+      "caption": "01  Open a course and explore its four conversation starters."
+    },
+    {
+      "start": 4.583333333333333,
+      "end": 11.333333333333334,
+      "caption": "02  Describe the image you want, including its subject and useful labels."
+    },
+    {
+      "start": 11.333333333333334,
+      "end": 15.166666666666666,
+      "caption": "03  Follow the native image-generation loading state."
+    },
+    {
+      "start": 15.166666666666666,
+      "end": 18.666666666666668,
+      "caption": "04  Review the illustration and its explanation inside the conversation."
+    },
+    {
+      "start": 18.666666666666668,
+      "end": 24.666666666666668,
+      "caption": "05  Open the native image preview to inspect the complete illustration."
+    },
+    {
+      "start": 24.666666666666668,
+      "end": 35.166666666666664,
+      "caption": "06  Return to chat and ask your TA to explain the image's energy flow."
+    }
+  ],
+  "headerStyle": {
+    "background": "#EDE9FE",
+    "text": "#30264D",
+    "badge": false
+  },
+  "layout": "single-screen",
+  "presentation": {
+    "configuredCourseStarters": 4,
+    "starterRuleApplicable": true,
+    "verifiedWelcomeScreens": 1,
+    "assetChecks": [
+      {
+        "event": "generated_image_start",
+        "atSeconds": 12.166666666666666,
+        "navigationCollapsed": true
+      },
+      {
+        "event": "generated_image",
+        "atSeconds": 15.166666666666666,
+        "navigationCollapsed": true
+      }
+    ]
+  },
+  "projectName": "Agentic Shiksha",
+  "demoId": "image-generation",
+  "description": "Request an illustration, follow its native loading state, open the image preview and discuss the energy flow with your course TA.",
+  "verification": {
+    "feature": "image-generation",
+    "nativeUI": true,
+    "tool": "generate_image",
+    "placeholderVerified": true,
+    "previewVerified": true,
+    "navigationCollapsedBeforeImage": true,
+    "sameConversationFollowup": true,
+    "imageInSyncedHistory": true,
+    "image": {
+      "width": 1536,
+      "height": 1024,
+      "sha256": "d3ca878b4dbb48c4204bb66baad920d9a0fb8238d9b502036744de508518befc",
+      "source": "Original local SVG rasterized for an isolated synthetic tool-response fixture; not live model output."
+    },
+    "realModelCalls": 0
+  },
+  "capture": "Actual unchanged React frontend; scripted interactions, synthetic course data and in-memory API responses.",
+  "timing": "Captured frames are paced for readability, not a performance benchmark.",
+  "isolation": "Fresh browser context. External services blocked; all API calls simulated. No remote course creation.",
+  "source": "Agentic Shiksha Platform/Frontend",
+  "recordedOn": "2026-09-30"
+}

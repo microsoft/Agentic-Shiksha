@@ -41,6 +41,16 @@ screenshot or a claim of measured learning. Edit the banner in
 [artwork.mjs](../web/research/artwork.mjs) and regenerate with
 `node assets\web\research\generate.mjs --png`.
 
+### GitHub README navigation
+
+The [main GitHub README](../../.github/README.md) uses five local SVG badges in
+[branding/](branding/) for Get Started, Demos, Documentation, Architecture, and
+EKALAIVA. Their compact purple (`#5865F2`) backgrounds and original white icons
+echo the reference's badge style without using its logo or community counters.
+The 28 px badges work through linked images rather than custom README CSS,
+scripts, remote badge services, or external fonts. This navigation palette is
+separate from the architecture diagrams' logo palette.
+
 ## Official Azure service icons
 
 The [Azure icon collection](azure-icons/README.md) includes original SVGs and
@@ -91,10 +101,13 @@ See [how the UI demos are generated](../web/motion/README.md#how-the-ui-demos-ar
 for the Playwright/FFmpeg pipeline, local synthetic-data boundaries, and exact
 commands to regenerate the learning-preferences and learner-memory walkthroughs.
 
-The [sixteen-video gallery](../web/motion/demos.html) and
+The [seventeen-video gallery](../web/motion/demos.html) and
 [complete media gallery](../web/motion/index.html) contain tutorials captured in the
 **actual Agentic Shiksha React application**, not a drawn-chat imitation:
 
+- Image generation: request a labeled illustration, follow the native loading
+  state, inspect the full-size preview and ask a follow-up. The original
+  solar-irrigation illustration is a local synthetic fixture, not live model output.
 - Onboarding and profile: complete first-run questions, review the saved profile
   in Settings, update a detail and start a course.
 - Teacher roster: review fictional learner progress and work in the embedded
@@ -126,7 +139,7 @@ The original interface, components and Sora font are retained. The recordings
 use fresh browser contexts with synthetic identities and in-memory API
 responses. No real learner data, remote agents or cloud resources are accessed.
 Course welcome screens show four conversation starters. Before any document,
-quiz, challenge, slide deck or circuit is opened, the actual left navigation is collapsed
+quiz, image, challenge, slide deck or circuit is opened, the actual left navigation is collapsed
 to give the asset more space. The recorder asserts both presentation rules and
 stores the verification in each video's timing metadata.
 Unknown API requests fail; third-party services and telemetry are blocked.
@@ -161,7 +174,8 @@ node assets\web\motion\generate.mjs --stills-only
 ```
 
 Use `--demo "onboarding-profile,teacher-roster,teacher-usage,admin-overview,admin-assignments"`
-for the five newest walkthroughs. `--all` includes all sixteen; `--additional`
+for the five role-based walkthroughs, or `--demo image-generation` for the new
+image walkthrough. `--all` includes all seventeen; `--additional`
 retains the earlier six-demo group. Admin demos use a separate isolated frontend
 on port 4190; see [startup instructions](../web/motion/index.html#guide).
 Add `--check-flow` for a faster actual-UI check without video encoding.
@@ -183,7 +197,10 @@ consistent local fixtures, not a claim that a live simulator was contacted.
 
 Regenerate the research figures using their gallery instructions before running
 `node assets\web\motion\generate.mjs --stills-only` to update the compatibility banner
-and publish/validate both sixteen-video galleries and illustration layout.
+and publish/validate both seventeen-video galleries and illustration layout.
+For gallery-only publication, use
+`node assets\web\motion\generate.mjs --tutorials-only`; this preserves concurrently
+edited research/memory artwork and all existing recordings.
 The video-only download includes an offline gallery and all MP4/GIF, PNG, VTT
 and timing metadata files. The [combined ZIP](../web/motion/shiksha-motion-set.zip)
 extracts into sibling `motion`, `research`, and `architecture` folders. It is a

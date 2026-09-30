@@ -36,6 +36,8 @@ Full-screen chat interface for conversing with agents:
 - Thread management for conversation context
 - Real-time message streaming
 - File attachment support
+- Curriculum readiness notifications appear only while its panel is closed and are
+  dismissed when the panel opens or the course changes, leaving its controls reachable.
 
 ### `CompanionAnimationsPage.tsx`
 The `/companion-animations` catalogue previews only the five cat poses used in

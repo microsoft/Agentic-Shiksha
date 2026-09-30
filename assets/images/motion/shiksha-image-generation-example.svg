@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1024" viewBox="0 0 1536 1024" role="img" aria-labelledby="title description">
+  <title id="title">Sunlight into moving water</title>
+  <desc id="description">Original synthetic tutorial illustration of sunlight reaching solar panels, electrical energy powering a motor and pump, and water flowing to crops. This is a conceptual illustration, not a wiring diagram or live model output.</desc>
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1">
+      <stop stop-color="#eef8fc"/>
+      <stop offset="1" stop-color="#fbfcf5"/>
+    </linearGradient>
+    <linearGradient id="land" x2="0" y2="1">
+      <stop stop-color="#d9eedb"/>
+      <stop offset="1" stop-color="#b9d8b8"/>
+    </linearGradient>
+    <linearGradient id="panel" x2="1" y2="1">
+      <stop stop-color="#244a8c"/>
+      <stop offset="1" stop-color="#5679c5"/>
+    </linearGradient>
+    <linearGradient id="motor" x2="1" y2="0">
+      <stop stop-color="#257f82"/>
+      <stop offset=".5" stop-color="#63babb"/>
+      <stop offset="1" stop-color="#337d83"/>
+    </linearGradient>
+    <pattern id="cells" width="57" height="51" patternUnits="userSpaceOnUse">
+      <rect x="3" y="3" width="51" height="45" rx="5" fill="url(#panel)" stroke="#bbd8f8" stroke-width="1.5"/>
+      <path d="M20 5v40M37 5v40M5 25h47" stroke="#abc9f0" stroke-width=".8" opacity=".65"/>
+    </pattern>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#2e5765" flood-opacity=".13"/>
+    </filter>
+    <marker id="light-arrow" markerWidth="10" markerHeight="10" refX="7" refY="4" orient="auto">
+      <path d="M0 0l8 4-8 4z" fill="#d7a940"/>
+    </marker>
+    <marker id="water-arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0 0l7 4-7 4z" fill="#358dab"/>
+    </marker>
+    <g id="plant">
+      <path d="M0 0v-38" fill="none" stroke="#39865a" stroke-width="5" stroke-linecap="round"/>
+      <path d="M-1-15C-28-11-31-32-31-32S-4-35-1-15M1-26C27-23 29-44 29-44S4-43 1-26" fill="#5caa65"/>
+      <path d="M0-15l-23-12M0-27l21-11" stroke="#93c580" stroke-width="2"/>
+    </g>
+  </defs>
+  <rect width="1536" height="1024" rx="30" fill="#f7faf8"/>
+  <rect x="28" y="28" width="1480" height="968" rx="24" fill="url(#sky)"/>
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <text x="88" y="100" fill="#173847" font-size="48" font-weight="700">Sunlight into moving water</text>
+    <text x="91" y="145" fill="#577280" font-size="24">A solar-powered irrigation system, explained visually.</text>
+    <rect x="1170" y="66" width="272" height="44" rx="22" fill="#e7e1f4"/>
+    <text x="1306" y="95" text-anchor="middle" fill="#64507f" font-size="17" font-weight="700" letter-spacing="1.6">ENERGY IN EVERYDAY LIFE</text>
+    <path d="M86 565Q270 417 477 492T874 489T1450 503V791H86Z" fill="#e3efe3"/>
+    <path d="M86 648Q287 503 540 595T1020 551T1450 605V794H86Z" fill="#d2e5d4"/>
+    <ellipse cx="792" cy="681" rx="643" ry="127" fill="url(#land)"/>
+    <path d="M174 734Q719 852 1413 701" fill="none" stroke="#a2c6ac" stroke-width="3" opacity=".5"/>
+    <g fill="#fff" opacity=".8">
+      <path d="M864 304c0-21 19-36 41-32 10-29 53-32 68-4 28-6 48 16 40 36z"/>
+      <path d="M1086 220c0-15 14-27 31-25 10-21 40-23 53-3 22-3 36 12 31 28z"/>
+    </g>
+    <g transform="translate(287 296)">
+      <circle r="102" fill="#fce8ad" opacity=".47"/>
+      <circle r="69" fill="#ffcf68"/>
+      <circle cx="-15" cy="-17" r="35" fill="#ffde8a" opacity=".55"/>
+      <g stroke="#e7b858" stroke-width="7" stroke-linecap="round">
+        <path d="M0-101v-22M0 101v22M101 0h22M-101 0h-22"/>
+        <path d="M72-72l16-16M72 72l16 16M-72-72l-16-16M-72 72l-16 16"/>
+      </g>
+    </g>
+    <g fill="none" stroke="#d7a940" stroke-width="5" stroke-linecap="round" stroke-dasharray="9 13" marker-end="url(#light-arrow)">
+      <path d="M367 330l131 139"/>
+      <path d="M327 394l78 94"/>
+    </g>
+    <rect x="401" y="234" width="178" height="49" rx="24" fill="#fff8e2" stroke="#efdaad"/>
+    <text x="490" y="267" fill="#8a662b" font-size="24" font-weight="600" text-anchor="middle">Sunlight</text>
+    <ellipse cx="388" cy="658" rx="239" ry="41" fill="#67867c" opacity=".14"/>
+    <g stroke-linejoin="round">
+      <path d="M267 565v108l24 8V571M515 549v97l24 8V555" fill="#91a8ad" stroke="#607b84" stroke-width="3"/>
+      <path d="M170 503l334-80 137 151-334 84z" fill="#233b66" stroke="#233b66" stroke-width="13"/>
+      <g transform="matrix(.974 -.235 .67 .74 170 503)">
+        <rect width="343" height="204" rx="5" fill="url(#cells)" stroke="#d6e4ed" stroke-width="6"/>
+        <path d="M5 4h170L83 197H5Z" fill="#d1eaff" opacity=".13"/>
+      </g>
+    </g>
+    <path d="M598 621C651 621 645 662 699 662H742" fill="none" stroke="#8b77ad" stroke-width="9" stroke-linecap="round"/>
+    <path d="M654 611l-14 24h16l-8 27 30-36h-17l10-15z" fill="#a287c5" stroke="#f9f5ff" stroke-width="3"/>
+    <rect x="582" y="484" width="205" height="49" rx="24" fill="#f6f1fb" stroke="#d8cbea"/>
+    <text x="684" y="517" text-anchor="middle" fill="#745491" font-size="23" font-weight="600">Electrical energy</text>
+    <g filter="url(#shadow)">
+      <path d="M724 678h193l33 32H698z" fill="#aab8b3"/>
+      <path d="M698 710h252v16H698z" fill="#809b98"/>
+      <rect x="752" y="598" width="103" height="85" rx="18" fill="url(#motor)" stroke="#366e76" stroke-width="4"/>
+      <g stroke="#d5efeb" stroke-width="3" opacity=".65">
+        <path d="M769 611v58M784 610v61M799 610v61M814 610v61"/>
+      </g>
+      <rect x="771" y="578" width="55" height="22" rx="7" fill="#5ba1a2" stroke="#366e76" stroke-width="3"/>
+      <circle cx="856" cy="641" r="49" fill="#91ced1" stroke="#366e76" stroke-width="5"/>
+      <circle cx="856" cy="641" r="32" fill="#daf0eb" stroke="#488892" stroke-width="3"/>
+      <g fill="#4b979c">
+        <path d="M856 641c-6-18 6-25 16-23l-8 20z"/>
+        <path d="M856 641c18-6 25 6 23 16l-20-8z"/>
+        <path d="M856 641c6 18-6 25-16 23l8-20z"/>
+        <path d="M856 641c-18 6-25-6-23-16l20 8z"/>
+      </g>
+      <circle cx="856" cy="641" r="7" fill="#245e6c"/>
+      <path d="M764 677v18M810 679v16M873 685v10" stroke="#366e76" stroke-width="10"/>
+    </g>
+    <path d="M856 690v62" fill="none" stroke="#77afbd" stroke-width="17"/>
+    <ellipse cx="856" cy="756" rx="47" ry="16" fill="#568d9b"/>
+    <ellipse cx="856" cy="752" rx="36" ry="9" fill="#9bd6df"/>
+    <path d="M856 743v-36" stroke="#ebffff" stroke-width="4" marker-end="url(#water-arrow)"/>
+    <text x="923" y="755" fill="#507780" font-size="18">Water source</text>
+    <path d="M900 640h73q27 0 27-27v-17q0-19 27-19h127" fill="none" stroke="#33859e" stroke-width="20" stroke-linecap="round"/>
+    <path d="M900 635h73q22 0 22-24v-16q0-23 32-23h120" fill="none" stroke="#89cad3" stroke-width="6" stroke-linecap="round"/>
+    <path d="M928 640h36M1030 577h43" stroke="#e1fbff" stroke-width="4" marker-end="url(#water-arrow)"/>
+    <rect x="936" y="459" width="203" height="49" rx="24" fill="#edf9fc" stroke="#b5d9e3"/>
+    <text x="1037" y="492" text-anchor="middle" fill="#39768c" font-size="23" font-weight="600">Water flow</text>
+    <g>
+      <path d="M1080 649l198-78 146 70-194 85z" fill="#aa8865"/>
+      <path d="M1080 649v20l150 80v-23z" fill="#8c6c4f"/>
+      <path d="M1230 726v23l194-85v-23z" fill="#7a6049"/>
+      <path d="M1120 646l159-59M1160 667l159-61M1201 688l157-60" stroke="#caa57e" stroke-width="13" stroke-linecap="round"/>
+      <g>
+        <use href="#plant" x="1132" y="633"/>
+        <use href="#plant" x="1190" y="611"/>
+        <use href="#plant" x="1248" y="588"/>
+        <use href="#plant" x="1175" y="655"/>
+        <use href="#plant" x="1233" y="632"/>
+        <use href="#plant" x="1291" y="609"/>
+        <use href="#plant" x="1218" y="678"/>
+        <use href="#plant" x="1276" y="655"/>
+        <use href="#plant" x="1334" y="632"/>
+      </g>
+      <path d="M1131 573v-29h71" stroke="#33859e" stroke-width="10" fill="none" stroke-linecap="round"/>
+      <g fill="none" stroke="#6eb5cb" stroke-width="3" stroke-dasharray="4 7">
+        <path d="M1202 544q29-49 65 28M1202 544q46-30 87 48M1202 544q3-26-21 45"/>
+      </g>
+    </g>
+    <g fill="#fff" stroke="#d6e4e0" filter="url(#shadow)">
+      <rect x="223" y="737" width="293" height="64" rx="18"/>
+      <rect x="670" y="788" width="290" height="64" rx="18"/>
+      <rect x="1128" y="768" width="236" height="64" rx="18"/>
+    </g>
+    <g fill="#244853" font-size="25" font-weight="600" text-anchor="middle">
+      <text x="369" y="778">Solar panels</text>
+      <text x="815" y="829">Motor + pump</text>
+      <text x="1246" y="809">Irrigated crops</text>
+    </g>
+    <g transform="translate(90 889)">
+      <rect width="1356" height="68" rx="20" fill="#fff" stroke="#d6e4e0"/>
+      <g font-size="23" font-weight="600" text-anchor="middle">
+        <text x="163" y="43" fill="#96712f">Light</text>
+        <text x="500" y="43" fill="#806498">Electricity</text>
+        <text x="841" y="43" fill="#39777e">Motion</text>
+        <text x="1182" y="43" fill="#39839e">Water flow</text>
+      </g>
+      <g stroke="#c4d5d5" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M303 34h37m-9-8 9 8-9 8M641 34h37m-9-8 9 8-9 8M979 34h37m-9-8 9 8-9 8"/>
+      </g>
+    </g>
+    <text x="768" y="984" text-anchor="middle" fill="#6d8588" font-size="17">Conceptual illustration - not to scale and not a wiring diagram.</text>
+  </g>
+</svg>

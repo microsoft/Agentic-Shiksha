@@ -17,6 +17,11 @@ GitHub displays that README on the repository home page.
 linked there; for play/pause, seeking and captions, open
 [the video gallery](assets/web/motion/index.html) from a local checkout.
 
+## Image generation
+
+[Feature guide and 35-second demo](docs/image-generation.md) ·
+[Animated README preview](.github/README.md#image-generation)
+
 ## Learner memory
 
 [Memory overview and diagrams](.github/README.md#learner-memory) ·

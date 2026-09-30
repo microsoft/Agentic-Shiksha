@@ -24,7 +24,7 @@ dependencies = [
     "azure-storage-blob==12.25.1",
     "openai==2.54.0",
     "litellm==1.98.0",
-    "aiofiles==24.1.0",
+    "aiofiles==25.1.0",
     "aiohttp==3.14.3",
     "httpx==0.28.1",
     "requests==2.32.5",

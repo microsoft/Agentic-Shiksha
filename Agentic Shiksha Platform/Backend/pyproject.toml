@@ -11,7 +11,7 @@ dependencies = [
     "pydantic==2.12.3",
     "pydantic-settings==2.15.0",
     "python-dotenv==1.2.3",
-    "anyio==4.14.2",
+    "anyio==4.15.1",
     # Preview APIs are used by the existing research and knowledge-base features.
     "azure-ai-agents==1.2.0b5",
     "azure-ai-documentintelligence==1.0.0",

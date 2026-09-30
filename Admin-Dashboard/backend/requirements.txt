@@ -113,9 +113,9 @@ azure-cosmos==4.14.5 \
     --hash=sha256:1a50d2019f81380b4cf35aff881290607ff1bf1287611abf067a965b9ea46f5d \
     --hash=sha256:3239a605fe29c94b77391826773aa3d0d9bbe4b93903fce5b6434b0f32742ba7
     # via agentic-shiksha-admin-backend
-azure-identity==1.25.1 \
-    --hash=sha256:87ca8328883de6036443e1c37b40e8dc8fb74898240f61071e09d2e369361456 \
-    --hash=sha256:e9edd720af03dff020223cd269fa3a61e8f345ea75443858273bcb44844ab651
+azure-identity==1.25.3 \
+    --hash=sha256:ab23c0d63015f50b630ef6c6cf395e7262f439ce06e5d07a64e874c724f8d9e6 \
+    --hash=sha256:f4d0b956a8146f30333e071374171f3cfa7bdb8073adb8c3814b65567aa7447c
     # via
     #   agentic-shiksha-admin-backend
     #   azure-ai-evaluation

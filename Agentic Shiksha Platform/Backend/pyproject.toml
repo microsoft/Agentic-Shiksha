@@ -5,7 +5,7 @@ description = "Agentic Shiksha main API and teaching runtime"
 requires-python = ">=3.11,<3.14"
 dependencies = [
     "fastapi==0.120.0",
-    "starlette==0.48.0",
+    "starlette==1.7.0",
     "uvicorn==0.38.0",
     "python-multipart==0.0.32",
     "pydantic==2.12.3",

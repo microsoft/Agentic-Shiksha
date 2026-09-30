@@ -43,13 +43,14 @@ screenshot or a claim of measured learning. Edit the banner in
 
 ### GitHub README navigation
 
-The [main GitHub README](../../.github/README.md) uses five local SVG badges in
-[branding/](branding/) for Get Started, Demos, Documentation, Architecture, and
-EKALAIVA. Their compact purple (`#5865F2`) backgrounds and original white icons
-echo the reference's badge style without using its logo or community counters.
-The 28 px badges work through linked images rather than custom README CSS,
-scripts, remote badge services, or external fonts. This navigation palette is
-separate from the architecture diagrams' logo palette.
+The [main GitHub README](../../.github/README.md) uses five
+[Shields.io static badges](https://shields.io/badges) for Get Started, Demos,
+Documentation, Architecture, and EKALAIVA. The `for-the-badge` style combines
+white icons with coordinated indigo, purple, blue, and teal backgrounds.
+These 28 px linked images preserve the navigation targets and accessible labels
+without custom README CSS or scripts. Badge rendering requires access to
+`img.shields.io`; they are navigation links, not live build or quality claims.
+The earlier local SVG designs remain available in [branding/](branding/).
 
 ## Official Azure service icons
 

@@ -6,11 +6,11 @@
 # Welcome to Agentic Shiksha!
 
 <p>
-  <a href="#getting-started"><img src="../assets/images/branding/readme-get-started.svg" alt="Get Started" height="28"></a>
-  <a href="#demos"><img src="../assets/images/branding/readme-demos.svg" alt="Demos" height="28"></a>
-  <a href="../docs/README.md"><img src="../assets/images/branding/readme-documentation.svg" alt="Documentation" height="28"></a>
-  <a href="../docs/architecture.md"><img src="../assets/images/branding/readme-architecture.svg" alt="Architecture" height="28"></a>
-  <a href="../docs/pedagogy/ekalaiva.md"><img src="../assets/images/branding/readme-ekalaiva.svg" alt="EKALAIVA" height="28"></a>
+  <a href="#getting-started"><img src="https://img.shields.io/badge/Get_Started-5865F2?style=for-the-badge&amp;logo=github&amp;logoColor=white" alt="Get Started" height="28"></a>
+  <a href="#demos"><img src="https://img.shields.io/badge/Demos-7C3AED?style=for-the-badge&amp;logo=youtube&amp;logoColor=white" alt="Demos" height="28"></a>
+  <a href="../docs/README.md"><img src="https://img.shields.io/badge/Documentation-2563EB?style=for-the-badge&amp;logo=readthedocs&amp;logoColor=white" alt="Documentation" height="28"></a>
+  <a href="../docs/architecture.md"><img src="https://img.shields.io/badge/Architecture-0F766E?style=for-the-badge&amp;logo=diagramsdotnet&amp;logoColor=white" alt="Architecture" height="28"></a>
+  <a href="../docs/pedagogy/ekalaiva.md"><img src="https://img.shields.io/badge/EKALAIVA-9333EA?style=for-the-badge&amp;logo=googlescholar&amp;logoColor=white" alt="EKALAIVA" height="28"></a>
 </p>
 
 **Agentic Shiksha helps teachers build AI teaching assistants for their courses.**

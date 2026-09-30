@@ -100,13 +100,13 @@ function assertAtlasImageContent(svg, icons) {
   }
 }
 
-test("GitHub README navigation uses five local, accessible purple icon badges", async () => {
+test("GitHub README navigation uses five accessible Shields.io static badges", async () => {
   const readmePath = join(repositoryRoot, ".github", "README.md");
   const readme = await readFile(readmePath, "utf8");
-  assert.match(readme, /^# Welcome to Agentic Shiksha!\r?\n/);
+  assert.match(readme, /^# Welcome to Agentic Shiksha!\r?$/m);
   const navigation = readme.match(/<p>([\s\S]*?)<\/p>/)?.[1];
   assert(navigation, "The welcome heading must be followed by the navigation row");
-  assert.doesNotMatch(navigation, /<kbd\b|<style\b|<script\b|style=/i);
+  assert.doesNotMatch(navigation, /<kbd\b|<style\b|<script\b|\sstyle=/i);
   const badges = [...navigation.matchAll(/<a href="([^"]+)">\s*<img\b([^>]+)>\s*<\/a>/g)]
     .map(([, href, attributes]) => ({
       href,
@@ -121,22 +121,19 @@ test("GitHub README navigation uses five local, accessible purple icon badges", 
     ["Architecture", "../docs/architecture.md", "architecture"],
     ["EKALAIVA", "../docs/pedagogy/ekalaiva.md", "ekalaiva"],
   ];
-  assert.deepEqual(badges, expected.map(([alt, href, name]) => ({
-    alt, href, src: `../assets/images/branding/readme-${name}.svg`, height: "28",
-  })));
+  assert.deepEqual(badges.map(({ alt, href, height }) => ({ alt, href, height })),
+    expected.map(([alt, href]) => ({ alt, href, height: "28" })));
   for (const badge of badges) {
-    const svg = await readFile(new URL(badge.src, pathToFileURL(readmePath)), "utf8");
-    assert.match(svg, /<svg\b[^>]*height="28"[^>]*role="img"/);
-    assert(svg.includes(`>${badge.alt}</title>`), `${badge.alt}: accessible SVG title`);
-    assert(svg.includes(`>${badge.alt}</text>`), `${badge.alt}: visible label`);
-    assert.match(svg, /<rect\b[^>]*rx="4"[^>]*fill="#5865F2"/);
-    assert.match(svg, /<g\b[^>]*data-icon=""[^>]*aria-hidden="true"/);
-    assert.match(svg, /<text\b[^>]*fill="#FFFFFF"/);
-    assert.doesNotMatch(svg, /<(?:script|style|foreignObject|image)\b|\b(?:href|onload|onclick)=/i);
+    const url = new URL(badge.src.replaceAll("&amp;", "&"));
+    assert.equal(url.origin, "https://img.shields.io");
+    assert.match(url.pathname, /^\/badge\//);
+    assert.equal(url.searchParams.get("style"), "for-the-badge");
+    assert.equal(url.searchParams.get("logoColor"), "white");
+    assert(url.searchParams.get("logo"), `${badge.alt}: icon required`);
   }
   assert.match(readme, /^## Getting started\r?$/m);
   assert.match(readme, /^## Demos\r?$/m);
-  assert(readme.indexOf("</p>") < readme.indexOf("shiksha-research-banner.svg"), "Badges precede the existing light banner");
+  assert(readme.includes("shiksha-research-banner.svg"), "Preserve the existing light banner");
   await assertLinks(readmePath, true);
 });
 

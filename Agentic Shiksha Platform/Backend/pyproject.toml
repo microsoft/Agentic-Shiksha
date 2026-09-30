@@ -27,7 +27,7 @@ dependencies = [
     "aiofiles==24.1.0",
     "aiohttp==3.14.3",
     "httpx==0.28.1",
-    "requests==2.33.0",
+    "requests==2.34.2",
     "msal==1.39.0",
     "pyjwt==2.14.0",
     "pdf2image==1.17.0",

@@ -28,7 +28,7 @@
     "framer-motion": "^12.23.24",
     "highlight.js": "^11.11.1",
     "html2pdf.js": "^0.14.0",
-    "katex": "^0.16.25",
+    "katex": "^0.18.2",
     "lucide-react": "^0.553.0",
     "mermaid": "^11.16.0",
     "microsoft-cognitiveservices-speech-sdk": "^1.48.0",

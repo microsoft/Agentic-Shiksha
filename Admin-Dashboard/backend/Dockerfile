@@ -1,4 +1,4 @@
-FROM python:3.11-slim AS dependencies
+FROM python:3.12-slim AS dependencies
 
 WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 \

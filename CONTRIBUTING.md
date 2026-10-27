@@ -61,6 +61,18 @@ For main-frontend changes, `npm run build` includes `tsc -b` and the production 
 build. A plain `vite build` does not perform the same TypeScript check. Backend
 pytest output may report ordinary tests and subtests separately.
 
+## GitHub Actions
+
+Pin external actions and reusable workflows to a full 40-character commit SHA, not
+a mutable branch or version tag. Keep the corresponding release version in a
+trailing comment for readability. Resolve the SHA from the action's upstream
+repository; for annotated tags, use the peeled commit (`refs/tags/<version>^{}`),
+not the tag object's SHA.
+
+Weekly GitHub Actions updates are already configured in
+[Dependabot](.github/dependabot.yml). Review and merge those PRs while retaining
+full-length SHA pins, and validate both CI and CodeQL after updating actions.
+
 ## Documentation maintenance
 
 - Every maintained source, configuration, script or reference-material directory

@@ -50,6 +50,13 @@ environments, npm lockfile installation, public frontend settings and server-onl
 configuration. Run commands from the service directory named in that guide; the
 repository root and `Agentic Shiksha Platform` are not installable applications.
 
+Each backend's `pyproject.toml` and `uv.lock` must stay in sync. Use the uv version
+required by that service's manifest, run `uv lock` from its directory after
+changing dependencies, and commit the regenerated lockfile with the manifest.
+Verify freshness with `uv lock --check`; do not remove `--locked` from CI or
+container builds to bypass a stale lockfile. Generated locks must use public PyPI
+registry and artifact URLs rather than workstation-only package feeds.
+
 ## Running Tests
 
 Use the [verification commands](INSTALL.md#verification) and the service-local test

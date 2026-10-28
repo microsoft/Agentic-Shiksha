@@ -2172,6 +2172,7 @@ test("companion uses TA voice dictation and stops recording when hidden", async 
   await input.fill("Course details:");
   await assistant.getByRole("button", { name: "Start recording", exact: true }).click();
   await expect(assistant.getByRole("button", { name: "Stop recording", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await page.waitForFunction(() => "voiceRecognizer" in window);
   await page.evaluate(() => {
     const recognizer = (window as any).voiceRecognizer;
     recognizer.recognizing(recognizer, { result: { reason: 1, text: "Example Electronics" } });

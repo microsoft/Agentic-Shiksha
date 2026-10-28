@@ -48,7 +48,11 @@ explicitly verified.
 - Valid slide events no longer fail artifact validation because of SSE transport
   metadata; saved presentations retain their document-style side-pane behavior.
 - Narrow-screen chat controls avoid overlap without changing the selected answer
-  depth or the draft.
+  depth or the draft, including Comprehensive at 320px.
+- Main and admin Python dependency lockfiles match the declared runtime pins and
+  security constraints, with public PyPI artifact URLs for CI and container builds.
+- The Course Companion voice regression waits for the recognizer to be constructed
+  before emitting speech events; the recording button also covers startup.
 
 ### Removed
 

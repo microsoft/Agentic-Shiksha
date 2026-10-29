@@ -8,6 +8,7 @@ import jwt
 import pytest
 from azure.core.exceptions import ServiceRequestError
 from azure.cosmos.exceptions import CosmosHttpResponseError, CosmosResourceNotFoundError
+from fastapi.routing import iter_route_contexts
 from fastapi.testclient import TestClient
 
 from azure_services.persistence import cosmos_db
@@ -88,7 +89,7 @@ def request_profile(api, method, suffix=""):
 
 
 def test_routes_are_registered_with_typed_responses():
-    routes = [route for route in main.app.routes if getattr(route, "path", None) == URL]
+    routes = [route for route in iter_route_contexts(main.app.routes) if route.path == URL]
 
     assert {method for route in routes for method in route.methods} == {"GET", "PUT"}
     assert all(route.response_model is LearnerProfileResponse for route in routes)
@@ -461,7 +462,7 @@ def learner_learning(profile_api, assigned_course, monkeypatch):
 
 
 def test_learning_endpoint_has_a_typed_response():
-    route = next(route for route in main.app.routes if getattr(route, "path", None) == URL + "/learning/{agent_id}")
+    route = next(route for route in iter_route_contexts(main.app.routes) if route.path == URL + "/learning/{agent_id}")
     assert route.response_model is LearnerLearningResponse
     assert route.methods == {"GET"}
 

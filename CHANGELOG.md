@@ -53,6 +53,9 @@ explicitly verified.
   security constraints, with public PyPI artifact URLs for CI and container builds.
 - The Course Companion voice regression waits for the recognizer to be constructed
   before emitting speech events; the recording button also covers startup.
+- Backend route-contract tests inspect effective FastAPI route contexts instead
+  of assuming included routers are flattened in `app.routes`, retaining route
+  counts, order, typed responses and the existing contract hashes.
 
 ### Removed
 

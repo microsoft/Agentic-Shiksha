@@ -6,6 +6,7 @@ from threading import Event
 from unittest.mock import Mock
 
 import pytest
+from fastapi.routing import iter_route_contexts
 from fastapi.testclient import TestClient
 
 from admin_backend.app import create_app
@@ -22,7 +23,7 @@ def test_complete_openapi_and_ordered_routes_match_pre_refactor_baseline(admin_s
     app = create_app(admin_services)
     routes = [
         {"path": route.path, "methods": sorted(route.methods or ())}
-        for route in app.routes if hasattr(route, "methods")
+        for route in iter_route_contexts(app.routes) if route.methods
     ]
     assert len(routes) == 47
     assert digest(routes) == "c0d2a1f40763e17123c1110996e30daa7b09763888cf54c6319698776040c2d8"

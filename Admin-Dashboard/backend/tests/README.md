@@ -102,6 +102,9 @@ routes** (43 application endpoints plus the four framework documentation routes)
 and the complete OpenAPI document. The persistent contract test pins both
 canonical JSON SHA-256 values, not merely the endpoint count. Do not update those
 hashes to make a structural refactor pass; compare the full documents first.
+Route inspection uses FastAPI's `iter_route_contexts` so lazily included routers
+are counted with their effective prefixes and registration order. The 47-route
+baseline and both contract hashes remain unchanged.
 
 The original research prompt expressions have separate source-AST hashes;
 schemas and model/agent selection are not part of this change. Existing

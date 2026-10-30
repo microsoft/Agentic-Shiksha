@@ -112,6 +112,8 @@ and in-depth). The trigger has no leading icon; its dropdown chevron is retained
 Its compact 208px menu omits the visible heading, keeps the short descriptions,
 and uses 44px option rows. The trigger and menu retain accessible answer-depth
 labels, keyboard navigation and the selected-option checkmark.
+At narrow widths, the trigger reserves space for the microphone and send controls
+and truncates its visible label while keeping the full accessible answer-depth name.
 The choice is stored in the existing browser chat preferences, survives navigation
 and refresh, and resets to Balanced on sign-out. It is disabled during generation
 and does not modify the draft, attachments, or visible user messages.

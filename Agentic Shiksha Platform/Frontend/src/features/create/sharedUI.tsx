@@ -834,7 +834,7 @@ export function ChatInput({
           </div>
 
           {showAnswerDepthSelector && (
-            <div className="absolute left-[50px] bottom-2">
+            <div className="absolute bottom-2 left-[50px] right-[94px]">
               <DropdownMenu modal={false} onOpenChange={open => {
                 if (open) {
                   setShowPlusMenu(false);
@@ -847,10 +847,10 @@ export function ChatInput({
                     disabled={answerDepthDisabled}
                     aria-label={`Answer depth: ${ANSWER_DEPTH_OPTIONS[answerDepth].label}`}
                     title="Choose answer depth"
-                    className="flex h-9 items-center justify-center gap-1.5 rounded-lg px-1 min-[360px]:px-2 text-neutral-400 transition-colors hover:bg-neutral-700/60 hover:text-neutral-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-400 disabled:cursor-not-allowed disabled:text-neutral-600 disabled:hover:bg-transparent"
+                    className="flex h-9 max-w-full items-center justify-center gap-1.5 rounded-lg px-1 min-[360px]:px-2 text-neutral-400 transition-colors hover:bg-neutral-700/60 hover:text-neutral-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-400 disabled:cursor-not-allowed disabled:text-neutral-600 disabled:hover:bg-transparent"
                   >
-                    <span className="text-xs min-[360px]:text-sm font-medium">{ANSWER_DEPTH_OPTIONS[answerDepth].label}</span>
-                    <ChevronDown aria-hidden="true" className="hidden h-3.5 w-3.5 min-[360px]:block" />
+                    <span className="truncate text-xs min-[360px]:text-sm font-medium">{ANSWER_DEPTH_OPTIONS[answerDepth].label}</span>
+                    <ChevronDown aria-hidden="true" className="hidden h-3.5 w-3.5 shrink-0 min-[360px]:block" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent

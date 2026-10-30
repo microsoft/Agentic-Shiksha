@@ -196,6 +196,9 @@ async function openProfile(page: Page, tab: "Overview" | "Learning" | "Memory" =
   await page.getByRole("menuitem", { name: /^Learner profile/ }).click();
   const dialog = page.getByRole("dialog", { name: "Learner profile", exact: true });
   await expect(dialog).toBeVisible();
+  await dialog.evaluate(async element => {
+    await Promise.all(element.getAnimations().map(animation => animation.finished));
+  });
   await expect(dialog.getByRole("tab", { name: "Overview", exact: true })).toHaveAttribute("aria-selected", "true");
   if (tab !== "Overview") await dialog.getByRole("tab", { name: tab, exact: true }).click();
   return dialog;

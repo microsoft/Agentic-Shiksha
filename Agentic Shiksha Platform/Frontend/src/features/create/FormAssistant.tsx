@@ -408,7 +408,7 @@ export function FormAssistant({ form, setForm, disabled, open, onOpenChange, use
           data-launcher-animation="cat"
           className="companion-launcher absolute bottom-5 right-5 z-30 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-neutral-800 text-neutral-100 shadow-md shadow-black/20 transition-colors hover:bg-neutral-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-300 disabled:opacity-40"
         >
-          <ChatCompanion size={40} showStatus={false} readOnly={disabled} />
+          <ChatCompanion size={40} showStatus={false} readOnly={disabled} className="pointer-events-none" />
         </button>
       )}
       <AlertDialog open={Boolean(deleteId)} onOpenChange={value => { if (!value) setDeleteId(null); }}>

@@ -5,6 +5,7 @@ from unittest.mock import Mock
 
 import pytest
 from fastapi import FastAPI
+from fastapi.routing import iter_route_contexts
 from fastapi.testclient import TestClient
 
 from backend.dependencies.auth import ActiveUser, get_current_active_user
@@ -219,7 +220,7 @@ def test_runtime_registers_owner_and_emits_resume_event(monkeypatch):
         resumed = list(agent._resolve_clarification(result, conversation))
         assert resumed == [("clarification_done", json.dumps({"clarifyId": clarify_id}), "conversation-1")]
         assert "Two" in result["output"]
-        assert not any(route.path == "/api/clarify/{clarify_id}" and route.endpoint.__module__ == main.__name__ for route in main.app.routes)
+        assert not any(route.path == "/api/clarify/{clarify_id}" and route.endpoint.__module__ == main.__name__ for route in iter_route_contexts(main.app.routes))
     finally:
         registry.cancel(clarify_id)
 

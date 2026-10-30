@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, Mock
 
 import pytest
 from fastapi import FastAPI
+from fastapi.routing import iter_route_contexts
 from fastapi.testclient import TestClient
 
 from backend.dependencies.auth import ActiveUser, get_current_active_user
@@ -1173,7 +1174,7 @@ def test_replacement_workflow_routes_are_unique_and_neighboring_chat_routes_rema
         ("POST", "/api/chat/thread/{thread_id}/share"), ("DELETE", "/api/chat/thread/{thread_id}/share"),
         ("PUT", "/api/chat/thread/{thread_id}"), ("DELETE", "/api/chat/thread/{thread_id}"),
     ]:
-        routes_found = [route for route in main.app.routes if getattr(route, "path", None) == path and method in getattr(route, "methods", set())]
+        routes_found = [route for route in iter_route_contexts(main.app.routes) if route.path == path and method in (route.methods or set())]
         assert len(routes_found) == 1, (method, path)
         assert not routes_found[0].endpoint.__name__.startswith("_legacy_")
 

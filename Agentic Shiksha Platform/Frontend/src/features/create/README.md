@@ -82,6 +82,8 @@ successful save.
 
 The monochrome bottom-right assistant button opens a docked chat panel. On desktop, the form
 narrows to its left without being covered; below 1024px, chat uses the main area until closed.
+Its animated cat is decorative and ignores pointer events, so the first click opens
+the panel even when the cat changes pose while waking from nighttime sleep.
 Closing restores the same form and scroll state. The composer supports Enter to send,
 Shift+Enter for a new line, Stop, starter suggestions, and a new conversation without clearing
 the draft. Done acknowledges the last applied changes; Undo restores only unchanged values.

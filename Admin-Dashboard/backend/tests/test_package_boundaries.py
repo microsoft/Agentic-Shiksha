@@ -86,9 +86,10 @@ def test_independent_entry_and_factory_import_from_an_unrelated_working_director
             from admin_backend.app import create_app
             assert "admin_backend.integrations.cosmos_queries" not in sys.modules
             assert "admin_backend.integrations.groundedness_evaluator" not in sys.modules
+            from fastapi.routing import iter_route_contexts
             from uvicorn.importer import import_from_string
             app = import_from_string("main:app")
-            assert len(app.routes) == 47
+            assert len(list(iter_route_contexts(app.routes))) == 47
             assert callable(import_from_string("admin_backend.app:create_app"))
             from admin_backend.core.settings import BACKEND_ROOT
             from pathlib import Path

@@ -50,6 +50,13 @@ environments, npm lockfile installation, public frontend settings and server-onl
 configuration. Run commands from the service directory named in that guide; the
 repository root and `Agentic Shiksha Platform` are not installable applications.
 
+Each backend's `pyproject.toml` and `uv.lock` must stay in sync. Use the uv version
+required by that service's manifest, run `uv lock` from its directory after
+changing dependencies, and commit the regenerated lockfile with the manifest.
+Verify freshness with `uv lock --check`; do not remove `--locked` from CI or
+container builds to bypass a stale lockfile. Generated locks must use public PyPI
+registry and artifact URLs rather than workstation-only package feeds.
+
 ## Running Tests
 
 Use the [verification commands](INSTALL.md#verification) and the service-local test
@@ -60,6 +67,18 @@ Azure. Check test setup rather than assuming a whole service is offline.
 For main-frontend changes, `npm run build` includes `tsc -b` and the production Vite
 build. A plain `vite build` does not perform the same TypeScript check. Backend
 pytest output may report ordinary tests and subtests separately.
+
+## GitHub Actions
+
+Pin external actions and reusable workflows to a full 40-character commit SHA, not
+a mutable branch or version tag. Keep the corresponding release version in a
+trailing comment for readability. Resolve the SHA from the action's upstream
+repository; for annotated tags, use the peeled commit (`refs/tags/<version>^{}`),
+not the tag object's SHA.
+
+Weekly GitHub Actions updates are already configured in
+[Dependabot](.github/dependabot.yml). Review and merge those PRs while retaining
+full-length SHA pins, and validate both CI and CodeQL after updating actions.
 
 ## Documentation maintenance
 

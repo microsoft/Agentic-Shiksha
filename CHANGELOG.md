@@ -48,7 +48,18 @@ explicitly verified.
 - Valid slide events no longer fail artifact validation because of SSE transport
   metadata; saved presentations retain their document-style side-pane behavior.
 - Narrow-screen chat controls avoid overlap without changing the selected answer
-  depth or the draft.
+  depth or the draft, including Comprehensive at 320px.
+- Main and admin Python dependency lockfiles match the declared runtime pins and
+  security constraints, with public PyPI artifact URLs for CI and container builds.
+- The Course Companion voice regression waits for the recognizer to be constructed
+  before emitting speech events; the recording button also covers startup.
+- Backend route-contract tests inspect effective FastAPI route contexts instead
+  of assuming included routers are flattened in `app.routes`, retaining route
+  counts, order, typed responses and the existing contract hashes.
+- Course Companion opens on the first click when its cat wakes from nighttime
+  sleep; decorative artwork no longer intercepts launcher pointer events.
+- Learner-profile geometry regressions wait for the entrance animation to finish
+  before checking alignment and pinned controls.
 
 ### Removed
 

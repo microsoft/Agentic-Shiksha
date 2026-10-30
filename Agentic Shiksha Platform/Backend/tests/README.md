@@ -17,6 +17,8 @@ First create the Python 3.13.5 environment and install the service requirements 
 These test dependencies are installed separately in
 [CI](../../../.github/workflows/ci.yml), not listed in `requirements.txt`.
 The main-backend CI matrix also retains Python 3.11 compatibility coverage.
+Route-registration assertions use `fastapi.routing.iter_route_contexts` to inspect
+effective paths, methods and response models through lazily included routers.
 
 ## Offline test environment
 

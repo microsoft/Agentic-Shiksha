@@ -1850,6 +1850,30 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
   });
 }
 
+test.describe("companion launcher activation", () => {
+  test.use({ timezoneId: "UTC" });
+
+  for (const width of [1440, 390]) {
+    for (const { period, time, pose } of [
+      { period: "night", time: "2026-10-29T04:20:00Z", pose: "sleep" },
+      { period: "day", time: "2026-10-29T12:20:00Z", pose: "sit" },
+    ]) {
+      test(`opens on the first click during ${period} at ${width}px`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await page.clock.setFixedTime(new Date(time));
+        await mockChat(page);
+        await page.getByRole("button", { name: "Create", exact: true }).first().click();
+        const launcher = page.getByRole("button", { name: "Course Companion", exact: true });
+        await expect(launcher.locator("[data-chat-companion]")).toHaveAttribute("data-companion-state", pose);
+        await launcher.click();
+        const panel = page.getByRole("complementary", { name: "Course Companion", exact: true });
+        await expect(panel).toBeVisible();
+        await expect(panel.getByRole("textbox", { name: "Message Course Companion", exact: true })).toBeFocused();
+      });
+    }
+  }
+});
+
 for (const viewport of [{ width: 1440, height: 900 }, { width: 1024, height: 768 }, { width: 390, height: 844 }]) {
   test(`companion uses the cat launcher and Comfortable chat at ${viewport.width}px`, async ({ page }, testInfo) => {
     await page.setViewportSize(viewport);

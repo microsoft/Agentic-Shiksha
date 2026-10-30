@@ -56,6 +56,10 @@ explicitly verified.
 - Backend route-contract tests inspect effective FastAPI route contexts instead
   of assuming included routers are flattened in `app.routes`, retaining route
   counts, order, typed responses and the existing contract hashes.
+- Course Companion opens on the first click when its cat wakes from nighttime
+  sleep; decorative artwork no longer intercepts launcher pointer events.
+- Learner-profile geometry regressions wait for the entrance animation to finish
+  before checking alignment and pinned controls.
 
 ### Removed
 

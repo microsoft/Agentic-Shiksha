@@ -1,6 +1,7 @@
 import asyncio
 import hashlib
 import json
+from copy import deepcopy
 from dataclasses import replace
 from threading import Event
 from unittest.mock import Mock
@@ -27,7 +28,14 @@ def test_complete_openapi_and_ordered_routes_match_pre_refactor_baseline(admin_s
     ]
     assert len(routes) == 47
     assert digest(routes) == "c0d2a1f40763e17123c1110996e30daa7b09763888cf54c6319698776040c2d8"
-    assert digest(app.openapi()) == "978d733bd0041e2b6cbcf902c3ca9344cb1f0d0bdcde6edd7f341db5eca2e6fa"
+    schema = app.openapi()
+    assert digest(schema) == "d31a53be595877502548841d6983e3c85e3546307f7df492145fddca632ff7de"
+    baseline = deepcopy(schema)
+    validation_error = baseline["components"]["schemas"]["ValidationError"]
+    assert not {"ctx", "input"} & set(validation_error["required"])
+    assert validation_error["properties"].pop("ctx") == {"title": "Context", "type": "object"}
+    assert validation_error["properties"].pop("input") == {"title": "Input"}
+    assert digest(baseline) == "978d733bd0041e2b6cbcf902c3ca9344cb1f0d0bdcde6edd7f341db5eca2e6fa"
 
 
 def test_factory_uses_injected_services_without_constructing_adapters(monkeypatch, admin_services):
